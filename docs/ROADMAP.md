@@ -24,7 +24,7 @@ Status values:
 | Source-app compatibility testing | In Progress | Real clicks from Codex, WeChat, Telegram, Obsidian, Finder, and Terminal remain |
 | Browser discovery and explicit launch | Done | Safari and Chrome discovered; explicit Safari launch verified 2026-06-15 |
 | Source-app rule engine and fallback | Done | Seed rules, stable priority, serialized routing, and one-time recovery fallback verified |
-| Versioned local configuration | Planned | Atomic JSON in Application Support |
+| Versioned local configuration | Done | Schema v1 JSON, atomic writes, preserved corrupt files, and in-memory recovery verified |
 | Menu bar and basic settings window | In Progress | Routing diagnostics and read-only seed rules implemented; editing remains |
 | MVP test cycle | Planned | Use `TEST_PLAN.md` and fill compatibility matrix |
 
@@ -76,3 +76,6 @@ Status values:
 | 2026-06-15 | Add deterministic source-app RuleEngine | Done | Priority descending, stable order, enabled rules, and fallback covered by tests |
 | 2026-06-15 | Serialize incoming routing jobs | Done | Browser launch requests are processed in arrival order |
 | 2026-06-15 | Add one-time recovery fallback | Done | Missing or failed rule destination attempts configured fallback once without rematching |
+| 2026-06-15 | Persist schema v1 routing configuration | Done | First launch writes seed JSON; later launches load without overwriting |
+| 2026-06-15 | Preserve unreadable configuration | Done | Invalid JSON and unsupported schema remain untouched while safe defaults run in memory |
+| 2026-06-15 | Expose configuration health | Done | Settings shows file path, schema version, load state, and recovery detail |

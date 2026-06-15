@@ -1,13 +1,15 @@
 import Foundation
 
 struct RoutingConfiguration: Codable, Equatable {
+    static let currentSchemaVersion = 1
+
     let schemaVersion: Int
     let defaultBrowserBundleIdentifier: String
     let defaultBrowserName: String
     let rules: [RoutingRule]
 
     static let seed = RoutingConfiguration(
-        schemaVersion: 1,
+        schemaVersion: currentSchemaVersion,
         defaultBrowserBundleIdentifier: "com.apple.Safari",
         defaultBrowserName: "Safari",
         rules: [

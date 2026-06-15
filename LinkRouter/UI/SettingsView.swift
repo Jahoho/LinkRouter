@@ -106,6 +106,32 @@ struct SettingsView: View {
                 )
             }
 
+            Section("Configuration storage") {
+                LabeledContent(
+                    "Status",
+                    value: appState.configurationStatus.title
+                )
+
+                LabeledContent(
+                    "Schema version",
+                    value: String(
+                        appState.routingConfiguration.schemaVersion
+                    )
+                )
+
+                LabeledContent("File") {
+                    Text(appState.configurationFileURL.path)
+                        .textSelection(.enabled)
+                }
+
+                Text(appState.configurationStatus.detail)
+                    .foregroundStyle(
+                        appState.configurationStatus.isUsingInMemoryFallback
+                            ? Color.red
+                            : Color.secondary
+                    )
+            }
+
             Section("Last routing result") {
                 if let result = appState.lastRoutingResult {
                     LabeledContent(
@@ -149,7 +175,7 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 700, height: 760)
+        .frame(width: 720, height: 840)
         .navigationTitle("LinkRouter Settings")
     }
 }

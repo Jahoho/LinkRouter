@@ -10,10 +10,20 @@ final class AppState: ObservableObject {
     @Published private(set) var browserLaunchStatus: String?
     @Published private(set) var isLaunchingBrowser = false
     @Published private(set) var lastRoutingResult: RoutingResult?
+    @Published private(set) var routingConfiguration: RoutingConfiguration
+    @Published private(set) var configurationStatus: ConfigurationLoadStatus
 
-    let routingConfiguration = RoutingConfiguration.seed
+    let configurationFileURL: URL
 
-    private init() {}
+    private init(configurationStore: ConfigurationStore = .shared) {
+        let loadResult = configurationStore.loadOrCreateSeed()
+
+        routingConfiguration = loadResult.configuration
+        configurationStatus = loadResult.status
+        configurationFileURL = configurationStore.configurationURL
+
+        RoutingLogger.shared.logConfigurationStatus(loadResult.status)
+    }
 
     func handle(_ request: IncomingURLRequest) {
         lastRequest = request

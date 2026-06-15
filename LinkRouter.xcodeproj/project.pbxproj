@@ -28,6 +28,8 @@
 		B00000000000000000000013 /* RuleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000016 /* RuleEngine.swift */; };
 		B00000000000000000000014 /* RoutingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000017 /* RoutingCoordinator.swift */; };
 		B00000000000000000000015 /* RuleEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000018 /* RuleEngineTests.swift */; };
+		B00000000000000000000016 /* ConfigurationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000019 /* ConfigurationStore.swift */; };
+		B00000000000000000000017 /* ConfigurationStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001A /* ConfigurationStoreTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +67,8 @@
 		A00000000000000000000016 /* RuleEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleEngine.swift; sourceTree = "<group>"; };
 		A00000000000000000000017 /* RoutingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingCoordinator.swift; sourceTree = "<group>"; };
 		A00000000000000000000018 /* RuleEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleEngineTests.swift; sourceTree = "<group>"; };
+		A00000000000000000000019 /* ConfigurationStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationStore.swift; sourceTree = "<group>"; };
+		A0000000000000000000001A /* ConfigurationStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationStoreTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +107,7 @@
 				G0000000000000000000000B /* Browsers */,
 				G0000000000000000000000C /* Rules */,
 				G0000000000000000000000D /* Routing */,
+				G0000000000000000000000E /* Storage */,
 				G00000000000000000000005 /* Logging */,
 				G00000000000000000000006 /* UI */,
 				G00000000000000000000007 /* Resources */,
@@ -160,6 +165,7 @@
 				A0000000000000000000000A /* IncomingURLRequestTests.swift */,
 				A00000000000000000000013 /* BrowserTests.swift */,
 				A00000000000000000000018 /* RuleEngineTests.swift */,
+				A0000000000000000000001A /* ConfigurationStoreTests.swift */,
 			);
 			path = LinkRouterTests;
 			sourceTree = "<group>";
@@ -209,6 +215,14 @@
 				A00000000000000000000017 /* RoutingCoordinator.swift */,
 			);
 			path = Routing;
+			sourceTree = "<group>";
+		};
+		G0000000000000000000000E /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000019 /* ConfigurationStore.swift */,
+			);
+			path = Storage;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -310,6 +324,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B00000000000000000000008 /* SettingsView.swift in Sources */,
+				B00000000000000000000016 /* ConfigurationStore.swift in Sources */,
 				B00000000000000000000014 /* RoutingCoordinator.swift in Sources */,
 				B00000000000000000000013 /* RuleEngine.swift in Sources */,
 				B00000000000000000000012 /* RoutingConfiguration.swift in Sources */,
@@ -337,6 +352,7 @@
 				B00000000000000000000009 /* IncomingURLRequestTests.swift in Sources */,
 				B00000000000000000000010 /* BrowserTests.swift in Sources */,
 				B00000000000000000000015 /* RuleEngineTests.swift in Sources */,
+				B00000000000000000000017 /* ConfigurationStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

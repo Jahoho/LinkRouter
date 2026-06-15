@@ -24,19 +24,27 @@ The core routing pipeline is now executable:
 - Deterministic source-app rule matching with stable priority
 - Automatic Safari fallback when no rule matches
 - One-time recovery fallback when a rule browser cannot be opened
+- Versioned JSON configuration in Application Support
+- Atomic configuration writes and non-destructive corruption recovery
 - Settings controls for refreshing browsers and opening a test page
 - Routing decision and final-browser diagnostics
+- Configuration path, schema, and recovery status diagnostics
 - Privacy-conscious URL validation and logging
 - Unit and integration tests for URL handling and browser launching
 
-The current rules are in-memory seed configuration:
+The initial persisted rules are:
 
 - Codex -> Google Chrome
 - WeChat -> Safari
 - Unmatched or unknown source -> Safari
 
-Versioned JSON persistence and graphical rule editing are the next development
-milestones.
+The configuration file is stored at:
+
+```text
+~/Library/Application Support/LinkRouter/routing-config.json
+```
+
+Graphical rule editing is the next development milestone.
 
 ## MVP Scope
 

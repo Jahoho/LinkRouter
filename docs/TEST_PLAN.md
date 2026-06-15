@@ -71,8 +71,27 @@ Record these before each test cycle:
 - Real fallback result: a direct URL event with unknown source selected
   `com.apple.Safari` and opened successfully. Unified Logging retained only
   `https://example.com`, excluding the test path and query token.
-- Not covered yet: real source clicks from Codex and WeChat, missing-browser
-  runtime recovery, and persisted configuration reload.
+- Not covered yet: real source clicks from Codex and WeChat and
+  missing-browser runtime recovery.
+
+### 2026-06-15: Versioned Configuration Persistence
+
+- Automated result: 25 tests passed and 1 opt-in browser integration test
+  skipped during the normal test run.
+- Temporary-directory coverage:
+  - Missing configuration creates the schema v1 seed.
+  - Existing valid configuration loads unchanged.
+  - Saving replaces the previous configuration atomically.
+  - Invalid JSON remains byte-for-byte unchanged while the seed runs in memory.
+  - Unsupported schema remains byte-for-byte unchanged.
+  - Saving an unsupported schema is rejected.
+- Real storage result:
+  - First host launch created
+    `~/Library/Application Support/LinkRouter/routing-config.json`.
+  - Second app launch logged `Loaded from disk`.
+  - The file modification timestamp did not change on the second launch.
+- T17 and the persistence portion of T18 are covered automatically.
+- Not covered yet: editing and saving rules through the settings UI.
 
 ## Core Checklist
 

@@ -99,4 +99,16 @@ final class RoutingLogger {
             )
         }
     }
+
+    func logConfigurationStatus(_ status: ConfigurationLoadStatus) {
+        if status.isUsingInMemoryFallback {
+            logger.error(
+                "Configuration fallback active: \(status.detail, privacy: .public)"
+            )
+        } else {
+            logger.notice(
+                "Configuration status: \(status.title, privacy: .public)"
+            )
+        }
+    }
 }

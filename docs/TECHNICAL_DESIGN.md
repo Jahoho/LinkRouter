@@ -211,8 +211,14 @@ readable, migratable file.
 Writes should be atomic. Decode failure must not overwrite the damaged file.
 Seed defaults are created only when no configuration exists.
 
-The current implementation establishes the versioned `Codable` model and uses
-an in-memory schema version 1 seed:
+The current implementation persists the versioned `Codable` model as:
+
+```text
+~/Library/Application Support/LinkRouter/routing-config.json
+```
+
+On first launch, `ConfigurationStore` atomically writes the schema version 1
+seed:
 
 - `com.openai.codex` -> `com.google.Chrome`
 - `com.tencent.xinWeChat` -> `com.apple.Safari`
@@ -223,10 +229,16 @@ configuration order when priorities are equal. Conditions are combined with
 AND semantics. Source bundle identifier matching is case-insensitive; the
 model also reserves optional host and URL scheme conditions for later UI use.
 
+Later launches decode and validate the existing file. Writes use Foundation's
+atomic data-write option, which writes a temporary file before replacing the
+destination. If JSON decoding fails or the schema version is unsupported, the
+original file remains untouched and the app uses the seed configuration in
+memory. Settings and Unified Logging expose the recovery state without logging
+the configuration contents.
+
 `RoutingCoordinator` serializes incoming jobs, launches the selected browser,
 and attempts the configured fallback at most once when a matched destination
 is missing or fails. It does not re-enter the rule engine during recovery.
-JSON file persistence remains the next implementation milestone.
 
 ## 9. Logging and Privacy
 
