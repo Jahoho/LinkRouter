@@ -17,14 +17,14 @@ Status values:
 | Item | Status | Notes |
 |---|---|---|
 | Product requirements and technical design | Done | Initial baseline created 2026-06-15 |
-| Install or select full Xcode | Planned | Only Command Line Tools are currently active |
-| Create signed macOS app target | Planned | SwiftUI plus AppKit lifecycle bridge |
-| Register and receive `http` / `https` URLs | Planned | First executable milestone |
+| Install or select full Xcode | Done | Xcode 26.5 selected and license accepted |
+| Create signed macOS app target | Done | SwiftUI menu bar app plus AppKit lifecycle bridge |
+| Register and receive `http` / `https` URLs | Done | Apple Event handler verified with a real URL on 2026-06-15 |
 | Source-detection probe | Planned | Measure Apple Event sender and recent-app signals |
 | Browser discovery and explicit launch | Planned | Match by bundle identifier |
 | Source-app rule engine and fallback | Planned | Pure Swift with unit tests |
 | Versioned local configuration | Planned | Atomic JSON in Application Support |
-| Menu bar and basic settings window | Planned | Status, rules, fallback, diagnostics |
+| Menu bar and basic settings window | In Progress | Listener status and sanitized last URL implemented; rules and fallback remain |
 | MVP test cycle | Planned | Use `TEST_PLAN.md` and fill compatibility matrix |
 
 ## Feature Backlog
@@ -65,4 +65,5 @@ Status values:
 | 2026-06-15 | Keep full URLs out of default logs | Done | Log only scheme and host plus routing metadata |
 | 2026-06-15 | Record detection method and confidence | Done | Requirement added before implementation |
 | 2026-06-15 | Prevent self-routing loops | Done | Added to architecture and acceptance criteria |
-
+| 2026-06-15 | Validate incoming URL before routing | Done | MVP accepts only HTTP and HTTPS URLs with a host |
+| 2026-06-15 | Add executable URL-receipt milestone | Done | Real Apple Event test logged only `https://example.com` |

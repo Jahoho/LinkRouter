@@ -1,0 +1,421 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B00000000000000000000001 /* LinkRouterApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000001 /* LinkRouterApp.swift */; };
+		B00000000000000000000002 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000002 /* AppDelegate.swift */; };
+		B00000000000000000000003 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000003 /* AppState.swift */; };
+		B00000000000000000000004 /* IncomingURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000004 /* IncomingURLRequest.swift */; };
+		B00000000000000000000005 /* URLRequestReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000005 /* URLRequestReceiver.swift */; };
+		B00000000000000000000006 /* RoutingLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000006 /* RoutingLogger.swift */; };
+		B00000000000000000000007 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000007 /* MenuBarView.swift */; };
+		B00000000000000000000008 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000008 /* SettingsView.swift */; };
+		B00000000000000000000009 /* IncomingURLRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000A /* IncomingURLRequestTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C00000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D00000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E00000000000000000000001;
+			remoteInfo = LinkRouter;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A00000000000000000000001 /* LinkRouterApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkRouterApp.swift; sourceTree = "<group>"; };
+		A00000000000000000000002 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		A00000000000000000000003 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		A00000000000000000000004 /* IncomingURLRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingURLRequest.swift; sourceTree = "<group>"; };
+		A00000000000000000000005 /* URLRequestReceiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLRequestReceiver.swift; sourceTree = "<group>"; };
+		A00000000000000000000006 /* RoutingLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingLogger.swift; sourceTree = "<group>"; };
+		A00000000000000000000007 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		A00000000000000000000008 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A00000000000000000000009 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A0000000000000000000000A /* IncomingURLRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingURLRequestTests.swift; sourceTree = "<group>"; };
+		A0000000000000000000000B /* LinkRouter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LinkRouter.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A0000000000000000000000C /* LinkRouterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LinkRouterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F00000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F00000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		G00000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				G00000000000000000000002 /* LinkRouter */,
+				G00000000000000000000008 /* LinkRouterTests */,
+				G00000000000000000000009 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		G00000000000000000000002 /* LinkRouter */ = {
+			isa = PBXGroup;
+			children = (
+				G00000000000000000000003 /* App */,
+				G00000000000000000000004 /* URLHandling */,
+				G00000000000000000000005 /* Logging */,
+				G00000000000000000000006 /* UI */,
+				G00000000000000000000007 /* Resources */,
+			);
+			path = LinkRouter;
+			sourceTree = "<group>";
+		};
+		G00000000000000000000003 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000001 /* LinkRouterApp.swift */,
+				A00000000000000000000002 /* AppDelegate.swift */,
+				A00000000000000000000003 /* AppState.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		G00000000000000000000004 /* URLHandling */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000004 /* IncomingURLRequest.swift */,
+				A00000000000000000000005 /* URLRequestReceiver.swift */,
+			);
+			path = URLHandling;
+			sourceTree = "<group>";
+		};
+		G00000000000000000000005 /* Logging */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000006 /* RoutingLogger.swift */,
+			);
+			path = Logging;
+			sourceTree = "<group>";
+		};
+		G00000000000000000000006 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000007 /* MenuBarView.swift */,
+				A00000000000000000000008 /* SettingsView.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		G00000000000000000000007 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000009 /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		G00000000000000000000008 /* LinkRouterTests */ = {
+			isa = PBXGroup;
+			children = (
+				A0000000000000000000000A /* IncomingURLRequestTests.swift */,
+			);
+			path = LinkRouterTests;
+			sourceTree = "<group>";
+		};
+		G00000000000000000000009 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A0000000000000000000000B /* LinkRouter.app */,
+				A0000000000000000000000C /* LinkRouterTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E00000000000000000000001 /* LinkRouter */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = H00000000000000000000002 /* Build configuration list for PBXNativeTarget "LinkRouter" */;
+			buildPhases = (
+				I00000000000000000000001 /* Sources */,
+				F00000000000000000000001 /* Frameworks */,
+				J00000000000000000000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LinkRouter;
+			productName = LinkRouter;
+			productReference = A0000000000000000000000B /* LinkRouter.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E00000000000000000000002 /* LinkRouterTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = H00000000000000000000003 /* Build configuration list for PBXNativeTarget "LinkRouterTests" */;
+			buildPhases = (
+				I00000000000000000000002 /* Sources */,
+				F00000000000000000000002 /* Frameworks */,
+				J00000000000000000000002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				K00000000000000000000001 /* PBXTargetDependency */,
+			);
+			name = LinkRouterTests;
+			productName = LinkRouterTests;
+			productReference = A0000000000000000000000C /* LinkRouterTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D00000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2650;
+				LastUpgradeCheck = 2650;
+				TargetAttributes = {
+					E00000000000000000000001 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+					E00000000000000000000002 = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = E00000000000000000000001;
+					};
+				};
+			};
+			buildConfigurationList = H00000000000000000000001 /* Build configuration list for PBXProject "LinkRouter" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = G00000000000000000000001;
+			productRefGroup = G00000000000000000000009 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E00000000000000000000001 /* LinkRouter */,
+				E00000000000000000000002 /* LinkRouterTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		J00000000000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		J00000000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		I00000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000008 /* SettingsView.swift in Sources */,
+				B00000000000000000000007 /* MenuBarView.swift in Sources */,
+				B00000000000000000000006 /* RoutingLogger.swift in Sources */,
+				B00000000000000000000005 /* URLRequestReceiver.swift in Sources */,
+				B00000000000000000000004 /* IncomingURLRequest.swift in Sources */,
+				B00000000000000000000003 /* AppState.swift in Sources */,
+				B00000000000000000000002 /* AppDelegate.swift in Sources */,
+				B00000000000000000000001 /* LinkRouterApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		I00000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000009 /* IncomingURLRequestTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		K00000000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E00000000000000000000001 /* LinkRouter */;
+			targetProxy = C00000000000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		L00000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		L00000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		L00000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LinkRouter/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.james.LinkRouter;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		L00000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LinkRouter/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.james.LinkRouter;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		L00000000000000000000005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.james.LinkRouterTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LinkRouter.app/Contents/MacOS/LinkRouter";
+			};
+			name = Debug;
+		};
+		L00000000000000000000006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.james.LinkRouterTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LinkRouter.app/Contents/MacOS/LinkRouter";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		H00000000000000000000001 /* Build configuration list for PBXProject "LinkRouter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				L00000000000000000000001 /* Debug */,
+				L00000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		H00000000000000000000002 /* Build configuration list for PBXNativeTarget "LinkRouter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				L00000000000000000000003 /* Debug */,
+				L00000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		H00000000000000000000003 /* Build configuration list for PBXNativeTarget "LinkRouterTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				L00000000000000000000005 /* Debug */,
+				L00000000000000000000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D00000000000000000000001 /* Project object */;
+}

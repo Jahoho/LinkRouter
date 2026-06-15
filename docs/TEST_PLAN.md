@@ -11,6 +11,20 @@ Record these before each test cycle:
 - whether LinkRouter is the current default browser
 - permissions granted to LinkRouter
 
+## Milestone Verification
+
+### 2026-06-15: URL Receipt
+
+- Environment: macOS 26, Xcode 26.5, Apple Silicon
+- Build: Debug, local signing
+- Automated result: 4 unit tests passed
+- Runtime result: LinkRouter launched as a menu bar app and received
+  `https://example.com/private/path?token=secret#section`
+- Privacy result: Unified Logging contained only
+  `Received URL: https://example.com`
+- Not covered yet: selecting LinkRouter as the system default browser, source
+  detection, rule matching, and destination browser launch
+
 ## Core Checklist
 
 | ID | Scenario | Steps | Expected result |
@@ -61,4 +75,3 @@ Fill this with observed data during MVP testing:
 - No crash or routing loop occurs during reliability tests.
 - Codex and WeChat behavior is measured on the user's installed versions.
 - Unknown-source behavior always reaches the configured fallback.
-
