@@ -19,11 +19,14 @@ The first executable milestone is complete:
 - `http` and `https` URL registration
 - Apple Event URL receipt
 - Best-effort source-app detection with method and confidence
+- Launch Services browser discovery by bundle identifier
+- Explicit destination-browser launch with loop prevention
+- Settings controls for refreshing browsers and opening a test page
 - Privacy-conscious URL validation and logging
-- Unit tests for URL validation and sanitization
+- Unit and integration tests for URL handling and browser launching
 
-Browser discovery, rule matching, and browser routing are the next development
-milestones.
+Rule matching, fallback routing, and configuration persistence are the next
+development milestones.
 
 ## MVP Scope
 
@@ -81,6 +84,11 @@ xcodebuild \
   -derivedDataPath /private/tmp/LinkRouterDerivedDataTests \
   test
 ```
+
+The browser-launch integration test is opt-in because it opens Safari. In
+Xcode, temporarily add the `LINKROUTER_RUN_BROWSER_LAUNCH_TESTS=1`
+environment variable to the scheme's Run action, run
+`BrowserTests/testExplicitSafariLaunchWhenEnabled`, then remove the variable.
 
 For a direct URL receipt check after running the app:
 

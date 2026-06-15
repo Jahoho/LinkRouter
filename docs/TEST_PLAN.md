@@ -44,6 +44,18 @@ Record these before each test cycle:
 - No Accessibility, Automation, Screen Recording, or Input Monitoring
   permission was requested.
 
+### 2026-06-15: Browser Discovery and Explicit Launch
+
+- Automated result: 11 tests passed and 1 opt-in integration test skipped
+  during the normal test run.
+- Runtime discovery result: Launch Services returned:
+  - Safari: `com.apple.Safari`
+  - Google Chrome: `com.google.Chrome`
+- Loop-prevention result: LinkRouter is excluded as a browser destination.
+- Explicit launch result: the opt-in integration test passed and opened
+  `https://example.com` in Safari using its bundle identifier.
+- No Accessibility or AppleScript Automation permission was requested.
+
 ## Core Checklist
 
 | ID | Scenario | Steps | Expected result |

@@ -19,6 +19,10 @@
 		B0000000000000000000000A /* SourceApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000D /* SourceApplication.swift */; };
 		B0000000000000000000000B /* RecentApplicationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000E /* RecentApplicationTracker.swift */; };
 		B0000000000000000000000C /* AppSourceDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000F /* AppSourceDetector.swift */; };
+		B0000000000000000000000D /* Browser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000010 /* Browser.swift */; };
+		B0000000000000000000000E /* BrowserDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000011 /* BrowserDiscovery.swift */; };
+		B0000000000000000000000F /* BrowserLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000012 /* BrowserLauncher.swift */; };
+		B00000000000000000000010 /* BrowserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000013 /* BrowserTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +51,10 @@
 		A0000000000000000000000D /* SourceApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceApplication.swift; sourceTree = "<group>"; };
 		A0000000000000000000000E /* RecentApplicationTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentApplicationTracker.swift; sourceTree = "<group>"; };
 		A0000000000000000000000F /* AppSourceDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSourceDetector.swift; sourceTree = "<group>"; };
+		A00000000000000000000010 /* Browser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Browser.swift; sourceTree = "<group>"; };
+		A00000000000000000000011 /* BrowserDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserDiscovery.swift; sourceTree = "<group>"; };
+		A00000000000000000000012 /* BrowserLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserLauncher.swift; sourceTree = "<group>"; };
+		A00000000000000000000013 /* BrowserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +90,7 @@
 				G00000000000000000000003 /* App */,
 				G00000000000000000000004 /* URLHandling */,
 				G0000000000000000000000A /* SourceDetection */,
+				G0000000000000000000000B /* Browsers */,
 				G00000000000000000000005 /* Logging */,
 				G00000000000000000000006 /* UI */,
 				G00000000000000000000007 /* Resources */,
@@ -137,6 +146,7 @@
 			isa = PBXGroup;
 			children = (
 				A0000000000000000000000A /* IncomingURLRequestTests.swift */,
+				A00000000000000000000013 /* BrowserTests.swift */,
 			);
 			path = LinkRouterTests;
 			sourceTree = "<group>";
@@ -158,6 +168,16 @@
 				A0000000000000000000000F /* AppSourceDetector.swift */,
 			);
 			path = SourceDetection;
+			sourceTree = "<group>";
+		};
+		G0000000000000000000000B /* Browsers */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000010 /* Browser.swift */,
+				A00000000000000000000011 /* BrowserDiscovery.swift */,
+				A00000000000000000000012 /* BrowserLauncher.swift */,
+			);
+			path = Browsers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -259,6 +279,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				B00000000000000000000008 /* SettingsView.swift in Sources */,
+				B0000000000000000000000F /* BrowserLauncher.swift in Sources */,
+				B0000000000000000000000E /* BrowserDiscovery.swift in Sources */,
+				B0000000000000000000000D /* Browser.swift in Sources */,
 				B0000000000000000000000C /* AppSourceDetector.swift in Sources */,
 				B0000000000000000000000B /* RecentApplicationTracker.swift in Sources */,
 				B0000000000000000000000A /* SourceApplication.swift in Sources */,
@@ -277,6 +300,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B00000000000000000000009 /* IncomingURLRequestTests.swift in Sources */,
+				B00000000000000000000010 /* BrowserTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -191,6 +191,16 @@ Initial destination identifiers:
 
 All identifiers must also be checked against installed app bundles at runtime.
 
+Current implementation asks Launch Services for every installed application
+capable of opening an HTTPS probe URL. Results are deduplicated by bundle
+identifier, LinkRouter itself is removed, and common browsers receive a stable
+display order. Launching resolves the application URL again from its bundle
+identifier so a stale stored path is not trusted.
+
+The settings window exposes an explicit test button for each discovered
+browser. Browser tests that create external UI are opt-in so the normal unit
+test suite remains non-disruptive.
+
 ## 8. Configuration and Storage
 
 Use `Codable` models with an explicit `schemaVersion`. For the MVP, persist the

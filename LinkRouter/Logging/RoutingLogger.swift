@@ -41,4 +41,29 @@ final class RoutingLogger {
             "Unexpected URL handling error: \(error.localizedDescription, privacy: .private)"
         )
     }
+
+    func logBrowserDiscovery(_ browsers: [Browser]) {
+        let browserIdentifiers = browsers
+            .map(\.bundleIdentifier)
+            .joined(separator: ", ")
+
+        logger.notice(
+            "Discovered browser handlers: \(browserIdentifiers, privacy: .public)"
+        )
+    }
+
+    func logBrowserLaunchSucceeded(browser: Browser, url: URL) {
+        logger.notice(
+            "Opened \(url.host ?? "unknown host", privacy: .public) in \(browser.bundleIdentifier, privacy: .public)"
+        )
+    }
+
+    func logBrowserLaunchFailed(
+        browser: Browser,
+        error: BrowserLaunchError
+    ) {
+        logger.error(
+            "Failed to open browser \(browser.bundleIdentifier, privacy: .public): \(error.localizedDescription, privacy: .public)"
+        )
+    }
 }

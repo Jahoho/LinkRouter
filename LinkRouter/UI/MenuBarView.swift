@@ -24,6 +24,10 @@ struct MenuBarView: View {
                     .foregroundStyle(.secondary)
             }
 
+            Text("Browsers found: \(appState.availableBrowsers.count)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
             Divider()
 
             SettingsLink {

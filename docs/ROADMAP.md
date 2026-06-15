@@ -22,7 +22,7 @@ Status values:
 | Register and receive `http` / `https` URLs | Done | Apple Event handler verified with a real URL on 2026-06-15 |
 | Source-detection probe | Done | Sender PID, frontmost app, recent-app cache, confidence, and diagnostics implemented |
 | Source-app compatibility testing | In Progress | Real clicks from Codex, WeChat, Telegram, Obsidian, Finder, and Terminal remain |
-| Browser discovery and explicit launch | Planned | Match by bundle identifier |
+| Browser discovery and explicit launch | Done | Safari and Chrome discovered; explicit Safari launch verified 2026-06-15 |
 | Source-app rule engine and fallback | Planned | Pure Swift with unit tests |
 | Versioned local configuration | Planned | Atomic JSON in Application Support |
 | Menu bar and basic settings window | In Progress | Listener status and sanitized last URL implemented; rules and fallback remain |
@@ -42,7 +42,7 @@ Status values:
 | Import/export configuration | Planned | Post-MVP | Versioned JSON with validation |
 | Rule conflict detection | Planned | Post-MVP | Explain which rule wins |
 | Onboarding | Planned | Productization | Default-browser and privacy guidance |
-| Installed browser detection | Planned | MVP | Expand product UI after core discovery works |
+| Installed browser detection | Done | MVP | Launch Services handlers are listed in Settings by bundle identifier |
 | Login at startup | Planned | Post-MVP | Use `SMAppService` |
 | Version update mechanism | Deferred | Distribution | Evaluate Sparkle or managed delivery |
 | Developer ID signing and notarization | Planned | External beta | Needed for smooth tester installation |
@@ -70,3 +70,6 @@ Status values:
 | 2026-06-15 | Add executable URL-receipt milestone | Done | Real Apple Event test logged only `https://example.com` |
 | 2026-06-15 | Add layered source-app detection | Done | Sender PID -> frontmost app -> five-second recent-app cache -> unknown |
 | 2026-06-15 | Expose detection confidence and reason | Done | Menu bar, settings, and Unified Logging show diagnostics |
+| 2026-06-15 | Discover installed HTTPS handlers | Done | Safari and Chrome found through Launch Services |
+| 2026-06-15 | Launch an explicit browser safely | Done | Modern `NSWorkspace` API, completion errors, and self-loop prevention |
+| 2026-06-15 | Add opt-in browser integration test | Done | Safari launch test stays skipped during normal test runs |

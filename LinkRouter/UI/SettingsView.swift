@@ -54,13 +54,50 @@ struct SettingsView: View {
                 }
             }
 
+            Section("Installed browsers") {
+                if appState.availableBrowsers.isEmpty {
+                    Text("No HTTPS-capable browser was found.")
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(appState.availableBrowsers) { browser in
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(browser.name)
+                                Text(browser.bundleIdentifier)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            Spacer()
+
+                            Button("Open Test Page") {
+                                appState.openTestPage(in: browser)
+                            }
+                            .disabled(appState.isLaunchingBrowser)
+                        }
+                    }
+                }
+
+                HStack {
+                    Button("Refresh Browser List") {
+                        appState.refreshBrowsers()
+                    }
+
+                    if let browserLaunchStatus = appState.browserLaunchStatus {
+                        Text(browserLaunchStatus)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+
             Section("Privacy") {
                 Text("LinkRouter currently logs only the URL scheme and host. Paths, queries, fragments, and credentials are removed.")
                     .foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)
-        .frame(width: 620, height: 520)
+        .frame(width: 680, height: 640)
         .navigationTitle("LinkRouter Settings")
     }
 }
