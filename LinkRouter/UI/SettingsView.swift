@@ -92,18 +92,7 @@ struct SettingsView: View {
             }
 
             Section("Routing rules") {
-                ForEach(appState.routingConfiguration.rules) { rule in
-                    LabeledContent(rule.sourceAppName ?? "Unknown source") {
-                        Text(
-                            "\(rule.browserName) · priority \(rule.priority)"
-                        )
-                    }
-                }
-
-                LabeledContent(
-                    "Fallback",
-                    value: appState.routingConfiguration.defaultBrowserName
-                )
+                RuleManagementView()
             }
 
             Section("Configuration storage") {
@@ -175,7 +164,7 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 720, height: 840)
+        .frame(width: 820, height: 880)
         .navigationTitle("LinkRouter Settings")
     }
 }

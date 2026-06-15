@@ -91,7 +91,29 @@ Record these before each test cycle:
   - Second app launch logged `Loaded from disk`.
   - The file modification timestamp did not change on the second launch.
 - T17 and the persistence portion of T18 are covered automatically.
-- Not covered yet: editing and saving rules through the settings UI.
+- Rule editing coverage continues in the next milestone record.
+
+### 2026-06-15: Graphical Source-App Rule Management
+
+- Automated result: 34 tests passed and 1 opt-in browser integration test
+  skipped during the normal test run.
+- Editing coverage:
+  - Draft values are trimmed and validated before conversion to a rule.
+  - Invalid source bundle identifiers are rejected.
+  - Rules can be added, updated, enabled, disabled, and deleted.
+  - Duplicate rule identifiers are rejected.
+  - Installed browsers can become the configured fallback.
+  - Hidden future host and URL scheme conditions survive source-only edits.
+  - AppState persists accepted edits before updating the active configuration.
+  - Editing is blocked when an unreadable file is being preserved.
+- Safety result: the real Application Support configuration retained its
+  original size and modification timestamp throughout automated tests.
+- Visual UI automation was attempted, but the desktop automation channel
+  timed out before any click. Manual visual verification remains:
+  - Open Settings and confirm the two seed rules are visible.
+  - Open Add Rule and confirm Safari and Chrome are available.
+  - Confirm invalid input stays in the sheet with an error.
+  - Confirm Delete presents a destructive confirmation.
 
 ## Core Checklist
 

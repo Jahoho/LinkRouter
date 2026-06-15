@@ -30,6 +30,10 @@
 		B00000000000000000000015 /* RuleEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000018 /* RuleEngineTests.swift */; };
 		B00000000000000000000016 /* ConfigurationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000019 /* ConfigurationStore.swift */; };
 		B00000000000000000000017 /* ConfigurationStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001A /* ConfigurationStoreTests.swift */; };
+		B00000000000000000000018 /* RoutingRuleDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001B /* RoutingRuleDraft.swift */; };
+		B00000000000000000000019 /* RoutingConfigurationEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001C /* RoutingConfigurationEditor.swift */; };
+		B0000000000000000000001A /* RuleManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001D /* RuleManagementView.swift */; };
+		B0000000000000000000001B /* ConfigurationEditingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001E /* ConfigurationEditingTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +73,10 @@
 		A00000000000000000000018 /* RuleEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleEngineTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000019 /* ConfigurationStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationStore.swift; sourceTree = "<group>"; };
 		A0000000000000000000001A /* ConfigurationStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationStoreTests.swift; sourceTree = "<group>"; };
+		A0000000000000000000001B /* RoutingRuleDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingRuleDraft.swift; sourceTree = "<group>"; };
+		A0000000000000000000001C /* RoutingConfigurationEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingConfigurationEditor.swift; sourceTree = "<group>"; };
+		A0000000000000000000001D /* RuleManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleManagementView.swift; sourceTree = "<group>"; };
+		A0000000000000000000001E /* ConfigurationEditingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationEditingTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -147,6 +155,7 @@
 			children = (
 				A00000000000000000000007 /* MenuBarView.swift */,
 				A00000000000000000000008 /* SettingsView.swift */,
+				A0000000000000000000001D /* RuleManagementView.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -166,6 +175,7 @@
 				A00000000000000000000013 /* BrowserTests.swift */,
 				A00000000000000000000018 /* RuleEngineTests.swift */,
 				A0000000000000000000001A /* ConfigurationStoreTests.swift */,
+				A0000000000000000000001E /* ConfigurationEditingTests.swift */,
 			);
 			path = LinkRouterTests;
 			sourceTree = "<group>";
@@ -205,6 +215,8 @@
 				A00000000000000000000014 /* RoutingRule.swift */,
 				A00000000000000000000015 /* RoutingConfiguration.swift */,
 				A00000000000000000000016 /* RuleEngine.swift */,
+				A0000000000000000000001B /* RoutingRuleDraft.swift */,
+				A0000000000000000000001C /* RoutingConfigurationEditor.swift */,
 			);
 			path = Rules;
 			sourceTree = "<group>";
@@ -324,9 +336,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				B00000000000000000000008 /* SettingsView.swift in Sources */,
+				B0000000000000000000001A /* RuleManagementView.swift in Sources */,
 				B00000000000000000000016 /* ConfigurationStore.swift in Sources */,
 				B00000000000000000000014 /* RoutingCoordinator.swift in Sources */,
 				B00000000000000000000013 /* RuleEngine.swift in Sources */,
+				B00000000000000000000019 /* RoutingConfigurationEditor.swift in Sources */,
+				B00000000000000000000018 /* RoutingRuleDraft.swift in Sources */,
 				B00000000000000000000012 /* RoutingConfiguration.swift in Sources */,
 				B00000000000000000000011 /* RoutingRule.swift in Sources */,
 				B0000000000000000000000F /* BrowserLauncher.swift in Sources */,
@@ -353,6 +368,7 @@
 				B00000000000000000000010 /* BrowserTests.swift in Sources */,
 				B00000000000000000000015 /* RuleEngineTests.swift in Sources */,
 				B00000000000000000000017 /* ConfigurationStoreTests.swift in Sources */,
+				B0000000000000000000001B /* ConfigurationEditingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

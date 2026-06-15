@@ -111,4 +111,10 @@ final class RoutingLogger {
             )
         }
     }
+
+    func logConfigurationChange(_ action: String) {
+        logger.notice(
+            "Configuration changed: \(action, privacy: .public)"
+        )
+    }
 }

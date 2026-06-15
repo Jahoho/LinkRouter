@@ -3,6 +3,7 @@ import Foundation
 enum ConfigurationLoadStatus: Equatable {
     case loaded
     case createdSeed
+    case saved
     case usingInMemoryFallback(String)
 
     var title: String {
@@ -11,6 +12,8 @@ enum ConfigurationLoadStatus: Equatable {
             return "Loaded from disk"
         case .createdSeed:
             return "Created default configuration"
+        case .saved:
+            return "Saved to disk"
         case .usingInMemoryFallback:
             return "Using in-memory fallback"
         }
@@ -22,6 +25,8 @@ enum ConfigurationLoadStatus: Equatable {
             return "The saved configuration passed validation."
         case .createdSeed:
             return "A new schema version \(RoutingConfiguration.currentSchemaVersion) configuration was created."
+        case .saved:
+            return "The current rules and fallback browser were saved."
         case let .usingInMemoryFallback(reason):
             return reason
         }

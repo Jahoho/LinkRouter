@@ -26,6 +26,8 @@ The core routing pipeline is now executable:
 - One-time recovery fallback when a rule browser cannot be opened
 - Versioned JSON configuration in Application Support
 - Atomic configuration writes and non-destructive corruption recovery
+- Graphical source-app rule add, edit, enable, disable, and delete controls
+- Installed-browser pickers for rule destinations and fallback
 - Settings controls for refreshing browsers and opening a test page
 - Routing decision and final-browser diagnostics
 - Configuration path, schema, and recovery status diagnostics
@@ -44,7 +46,21 @@ The configuration file is stored at:
 ~/Library/Application Support/LinkRouter/routing-config.json
 ```
 
-Graphical rule editing is the next development milestone.
+Default-browser status, onboarding, and broader source-app compatibility
+testing are the next development milestones.
+
+## Editing Rules
+
+Open LinkRouter Settings and use the **Routing rules** section:
+
+1. Select **Add Rule**.
+2. Enter a label and the source app's bundle identifier.
+3. Choose an installed browser and priority.
+4. Select **Save**.
+
+Changes are validated and written atomically before the running router adopts
+them. Delete actions require confirmation. Editing is disabled when LinkRouter
+is protecting an unreadable configuration file.
 
 ## MVP Scope
 

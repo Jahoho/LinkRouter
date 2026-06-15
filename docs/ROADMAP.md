@@ -25,14 +25,15 @@ Status values:
 | Browser discovery and explicit launch | Done | Safari and Chrome discovered; explicit Safari launch verified 2026-06-15 |
 | Source-app rule engine and fallback | Done | Seed rules, stable priority, serialized routing, and one-time recovery fallback verified |
 | Versioned local configuration | Done | Schema v1 JSON, atomic writes, preserved corrupt files, and in-memory recovery verified |
-| Menu bar and basic settings window | In Progress | Routing diagnostics and read-only seed rules implemented; editing remains |
+| Menu bar and basic settings window | In Progress | Routing diagnostics and rule editing implemented; default-browser status remains |
 | MVP test cycle | Planned | Use `TEST_PLAN.md` and fill compatibility matrix |
 
 ## Feature Backlog
 
 | Feature | Status | Target | Notes |
 |---|---|---|---|
-| Graphical rule management | Planned | Post-MVP | Add, edit, enable, disable, reorder |
+| Graphical source-app rule management | Done | MVP | Add, edit, enable, disable, delete, choose browser, and edit priority |
+| Drag-to-reorder rule priority | Planned | Post-MVP | Current UI uses an explicit numeric priority |
 | Menu bar pause/quick controls | Planned | Post-MVP | Temporary bypass and status |
 | Temporary browser chooser | Planned | Post-MVP | Useful when source confidence is low |
 | Domain rules | Planned | Post-MVP | Exact host and subdomain matching |
@@ -79,3 +80,6 @@ Status values:
 | 2026-06-15 | Persist schema v1 routing configuration | Done | First launch writes seed JSON; later launches load without overwriting |
 | 2026-06-15 | Preserve unreadable configuration | Done | Invalid JSON and unsupported schema remain untouched while safe defaults run in memory |
 | 2026-06-15 | Expose configuration health | Done | Settings shows file path, schema version, load state, and recovery detail |
+| 2026-06-15 | Add graphical source-app rule editor | Done | Explicit Save validates and persists before applying changes |
+| 2026-06-15 | Protect hidden future rule fields | Done | Editing source-only fields preserves stored host and URL scheme conditions |
+| 2026-06-15 | Confirm destructive rule deletion | Done | Settings requires a confirmation action before deleting |

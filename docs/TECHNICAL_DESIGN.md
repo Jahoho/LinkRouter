@@ -271,6 +271,19 @@ The settings window initially contains default-browser status, fallback
 browser, source rules, and diagnostics. UI state must not own routing state;
 shared services should be injected into both scenes.
 
+The current source-rule editor uses a `RoutingRuleDraft` so incomplete form
+values never enter the active configuration. It validates the rule name,
+source bundle identifier, and installed destination browser. A separate
+`RoutingConfigurationEditor` produces immutable configuration replacements for
+add, edit, enable, disable, delete, and fallback changes.
+
+`AppState` saves the replacement configuration before publishing it to the
+router. A failed write leaves the active in-memory configuration unchanged.
+When startup has fallen back from unreadable JSON, editing is disabled so the
+original file cannot be accidentally overwritten. The simplified MVP form
+does not expose host or URL scheme conditions, but preserves them when editing
+an existing rule.
+
 ## 11. Sandbox and Distribution
 
 ### Self-use MVP
