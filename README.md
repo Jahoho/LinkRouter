@@ -77,6 +77,7 @@ fallback strategy.
 
 ## Documentation
 
+- [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md): setup, daily use, and manual verification
 - [`docs/PRD.md`](docs/PRD.md): product requirements
 - [`docs/TECHNICAL_DESIGN.md`](docs/TECHNICAL_DESIGN.md): architecture and technical decisions
 - [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md): MVP test checklist
