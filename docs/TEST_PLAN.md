@@ -25,6 +25,25 @@ Record these before each test cycle:
 - Not covered yet: selecting LinkRouter as the system default browser, source
   detection, rule matching, and destination browser launch
 
+### 2026-06-15: Source Detection Probe
+
+- Automated result: 7 unit tests passed
+- Implemented order: Apple Event sender PID, frontmost app, five-second
+  recent-app cache, then unknown
+- Confirmed installed bundle identifiers:
+  - Codex: `com.openai.codex`
+  - WeChat: `com.tencent.xinWeChat`
+  - Obsidian: `md.obsidian`
+- A command-line `open -a LinkRouter URL` request produced `unknown` when the
+  sender exited and the command environment exposed no frontmost GUI app. This
+  is expected fallback behavior, not a successful source-app compatibility
+  result.
+- A test attempt confirmed that `keySenderPIDAttr` is read-only and cannot be
+  meaningfully fabricated on a local Apple Event descriptor. Sender behavior
+  must be measured using real clicks from each source app.
+- No Accessibility, Automation, Screen Recording, or Input Monitoring
+  permission was requested.
+
 ## Core Checklist
 
 | ID | Scenario | Steps | Expected result |
@@ -61,10 +80,10 @@ Fill this with observed data during MVP testing:
 
 | Source app | App version | Sender PID result | Frontmost result | Cache result | Recommended signal |
 |---|---|---|---|---|---|
-| Codex | TBD | TBD | TBD | TBD | TBD |
-| WeChat | TBD | TBD | TBD | TBD | TBD |
+| Codex | Installed | Manual click required | Probe can resolve `com.openai.codex`; real click required | Manual click required | TBD |
+| WeChat | Installed | Manual click required | TBD | Manual click required | TBD |
 | Telegram | TBD | TBD | TBD | TBD | TBD |
-| Obsidian | TBD | TBD | TBD | TBD | TBD |
+| Obsidian | Installed | Manual click required | TBD | Manual click required | TBD |
 | Finder | macOS 26 | TBD | TBD | TBD | TBD |
 | Terminal | macOS 26 | TBD | TBD | TBD | TBD |
 

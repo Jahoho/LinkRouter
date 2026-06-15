@@ -20,7 +20,8 @@ Status values:
 | Install or select full Xcode | Done | Xcode 26.5 selected and license accepted |
 | Create signed macOS app target | Done | SwiftUI menu bar app plus AppKit lifecycle bridge |
 | Register and receive `http` / `https` URLs | Done | Apple Event handler verified with a real URL on 2026-06-15 |
-| Source-detection probe | Planned | Measure Apple Event sender and recent-app signals |
+| Source-detection probe | Done | Sender PID, frontmost app, recent-app cache, confidence, and diagnostics implemented |
+| Source-app compatibility testing | In Progress | Real clicks from Codex, WeChat, Telegram, Obsidian, Finder, and Terminal remain |
 | Browser discovery and explicit launch | Planned | Match by bundle identifier |
 | Source-app rule engine and fallback | Planned | Pure Swift with unit tests |
 | Versioned local configuration | Planned | Atomic JSON in Application Support |
@@ -67,3 +68,5 @@ Status values:
 | 2026-06-15 | Prevent self-routing loops | Done | Added to architecture and acceptance criteria |
 | 2026-06-15 | Validate incoming URL before routing | Done | MVP accepts only HTTP and HTTPS URLs with a host |
 | 2026-06-15 | Add executable URL-receipt milestone | Done | Real Apple Event test logged only `https://example.com` |
+| 2026-06-15 | Add layered source-app detection | Done | Sender PID -> frontmost app -> five-second recent-app cache -> unknown |
+| 2026-06-15 | Expose detection confidence and reason | Done | Menu bar, settings, and Unified Logging show diagnostics |

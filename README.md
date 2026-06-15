@@ -18,10 +18,12 @@ The first executable milestone is complete:
 - Menu bar app with a basic settings window
 - `http` and `https` URL registration
 - Apple Event URL receipt
+- Best-effort source-app detection with method and confidence
 - Privacy-conscious URL validation and logging
 - Unit tests for URL validation and sanitization
 
-Source-app detection and browser routing are the next development milestones.
+Browser discovery, rule matching, and browser routing are the next development
+milestones.
 
 ## MVP Scope
 

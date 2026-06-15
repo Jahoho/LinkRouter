@@ -23,6 +23,31 @@ struct SettingsView: View {
                     LabeledContent("Received at") {
                         Text(lastRequest.receivedAt, format: .dateTime)
                     }
+
+                    LabeledContent(
+                        "Source app",
+                        value: lastRequest.source.application?.name ?? "Unknown"
+                    )
+
+                    LabeledContent(
+                        "Bundle identifier",
+                        value: lastRequest.source.application?.bundleIdentifier ?? "Unknown"
+                    )
+
+                    LabeledContent(
+                        "Detection method",
+                        value: lastRequest.source.method.rawValue
+                    )
+
+                    LabeledContent(
+                        "Confidence",
+                        value: lastRequest.source.confidence.rawValue
+                    )
+
+                    LabeledContent("Detection note") {
+                        Text(lastRequest.source.reason)
+                            .foregroundStyle(.secondary)
+                    }
                 } else {
                     Text("Open a web link after selecting LinkRouter as the default browser.")
                         .foregroundStyle(.secondary)
@@ -35,7 +60,7 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 520, height: 360)
+        .frame(width: 620, height: 520)
         .navigationTitle("LinkRouter Settings")
     }
 }

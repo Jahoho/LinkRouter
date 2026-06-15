@@ -15,8 +15,18 @@ final class RoutingLogger {
     }
 
     func logReceived(_ request: IncomingURLRequest) {
+        let sourceName = request.source.application?.name ?? "Unknown"
+        let bundleIdentifier = request.source.application?.bundleIdentifier ?? "Unknown"
+
         logger.notice(
-            "Received URL: \(request.sanitizedDescription, privacy: .public)"
+            """
+            Received URL: \(request.sanitizedDescription, privacy: .public); \
+            source: \(sourceName, privacy: .public); \
+            bundle: \(bundleIdentifier, privacy: .public); \
+            method: \(request.source.method.rawValue, privacy: .public); \
+            confidence: \(request.source.confidence.rawValue, privacy: .public); \
+            reason: \(request.source.reason, privacy: .public)
+            """
         )
     }
 

@@ -33,4 +33,45 @@ final class IncomingURLRequestTests: XCTestCase {
             XCTAssertEqual(error as? IncomingURLRequestError, .malformedURL)
         }
     }
+
+    func testStoresSourceDetectionResult() throws {
+        let source = SourceDetectionResult(
+            application: SourceApplication(
+                bundleIdentifier: "com.openai.codex",
+                name: "Codex",
+                processIdentifier: 123
+            ),
+            method: .appleEventSender,
+            confidence: .high,
+            reason: "Test sender"
+        )
+
+        let request = try IncomingURLRequest(
+            urlString: "https://example.com",
+            source: source
+        )
+
+        XCTAssertEqual(request.source, source)
+    }
+
+    func testRejectsLinkRouterAsCredibleSource() {
+        let application = SourceApplication(
+            bundleIdentifier: "com.james.LinkRouter",
+            name: "LinkRouter",
+            processIdentifier: 123
+        )
+
+        XCTAssertFalse(AppSourceDetector.isCredibleSource(application))
+    }
+
+    func testAcceptsCodexAsCredibleSource() {
+        let application = SourceApplication(
+            bundleIdentifier: "com.openai.codex",
+            name: "Codex",
+            processIdentifier: 123
+        )
+
+        XCTAssertTrue(AppSourceDetector.isCredibleSource(application))
+    }
+
 }

@@ -132,21 +132,28 @@ clicked in app X." Detection is an evidence-ranking problem.
 1. Extract sender PID from the incoming Apple Event when available.
 2. Resolve PID to `NSRunningApplication`.
 3. Normalize helper processes only through tested mappings.
-4. Reject LinkRouter itself, known browsers, and system proxy processes as
-   source candidates.
-5. Compare with a short-lived cache populated from
+4. Reject LinkRouter itself and explicit system proxy processes as source
+   candidates. Browsers remain valid sources until browser-to-browser routing
+   behavior is designed and tested.
+5. If the sender is unavailable, inspect `NSWorkspace.frontmostApplication`
+   and report it with medium confidence.
+6. Compare with a short-lived cache populated from
    `NSWorkspace.didActivateApplicationNotification`.
-6. Return:
+7. Return:
    - bundle identifier
    - display name
    - detection method
    - confidence (`high`, `medium`, `low`, `unknown`)
    - optional diagnostic reason
-7. If no credible identity remains, return `unknown`; the rule engine uses the
+8. If no credible identity remains, return `unknown`; the rule engine uses the
    fallback browser.
 
 The cache window must be measured rather than guessed. Initial experiments
 should capture timestamps without storing full URLs.
+
+Current implementation uses a five-second cache window. This value remains a
+test assumption and must be revisited after the compatibility matrix contains
+real clicks from the target source apps.
 
 ## 7. Browser Launching
 
@@ -310,4 +317,3 @@ Module responsibilities:
 - Apple: [`NSWorkspace`](https://developer.apple.com/documentation/appkit/nsworkspace)
 - Apple: [Responding to the launch of your app](https://developer.apple.com/documentation/appkit/responding-to-the-launch-of-your-app)
 - Apple: [`onOpenURL`](https://developer.apple.com/documentation/swiftui/view/onopenurl%28perform%3A%29)
-

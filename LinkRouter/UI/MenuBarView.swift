@@ -12,6 +12,12 @@ struct MenuBarView: View {
                 Text("Last link: \(lastRequest.sanitizedDescription)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+
+                Text(
+                    "Source: \(lastRequest.source.application?.name ?? "Unknown") (\(lastRequest.source.confidence.rawValue))"
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
             } else {
                 Text("No links received yet")
                     .font(.caption)

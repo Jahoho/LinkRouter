@@ -16,6 +16,9 @@
 		B00000000000000000000007 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000007 /* MenuBarView.swift */; };
 		B00000000000000000000008 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000008 /* SettingsView.swift */; };
 		B00000000000000000000009 /* IncomingURLRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000A /* IncomingURLRequestTests.swift */; };
+		B0000000000000000000000A /* SourceApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000D /* SourceApplication.swift */; };
+		B0000000000000000000000B /* RecentApplicationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000E /* RecentApplicationTracker.swift */; };
+		B0000000000000000000000C /* AppSourceDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000F /* AppSourceDetector.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,6 +44,9 @@
 		A0000000000000000000000A /* IncomingURLRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingURLRequestTests.swift; sourceTree = "<group>"; };
 		A0000000000000000000000B /* LinkRouter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LinkRouter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0000000000000000000000C /* LinkRouterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LinkRouterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A0000000000000000000000D /* SourceApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceApplication.swift; sourceTree = "<group>"; };
+		A0000000000000000000000E /* RecentApplicationTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentApplicationTracker.swift; sourceTree = "<group>"; };
+		A0000000000000000000000F /* AppSourceDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSourceDetector.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +81,7 @@
 			children = (
 				G00000000000000000000003 /* App */,
 				G00000000000000000000004 /* URLHandling */,
+				G0000000000000000000000A /* SourceDetection */,
 				G00000000000000000000005 /* Logging */,
 				G00000000000000000000006 /* UI */,
 				G00000000000000000000007 /* Resources */,
@@ -141,6 +148,16 @@
 				A0000000000000000000000C /* LinkRouterTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		G0000000000000000000000A /* SourceDetection */ = {
+			isa = PBXGroup;
+			children = (
+				A0000000000000000000000D /* SourceApplication.swift */,
+				A0000000000000000000000E /* RecentApplicationTracker.swift */,
+				A0000000000000000000000F /* AppSourceDetector.swift */,
+			);
+			path = SourceDetection;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -242,6 +259,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				B00000000000000000000008 /* SettingsView.swift in Sources */,
+				B0000000000000000000000C /* AppSourceDetector.swift in Sources */,
+				B0000000000000000000000B /* RecentApplicationTracker.swift in Sources */,
+				B0000000000000000000000A /* SourceApplication.swift in Sources */,
 				B00000000000000000000007 /* MenuBarView.swift in Sources */,
 				B00000000000000000000006 /* RoutingLogger.swift in Sources */,
 				B00000000000000000000005 /* URLRequestReceiver.swift in Sources */,

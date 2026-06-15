@@ -4,11 +4,15 @@ struct IncomingURLRequest: Identifiable, Equatable {
     let id: UUID
     let url: URL
     let receivedAt: Date
+    let source: SourceDetectionResult
 
     init(
         urlString: String,
         id: UUID = UUID(),
-        receivedAt: Date = Date()
+        receivedAt: Date = Date(),
+        source: SourceDetectionResult = .unknown(
+            reason: "Source detection was not performed."
+        )
     ) throws {
         guard
             let components = URLComponents(string: urlString),
@@ -32,6 +36,7 @@ struct IncomingURLRequest: Identifiable, Equatable {
         self.id = id
         self.url = url
         self.receivedAt = receivedAt
+        self.source = source
     }
 
     var sanitizedDescription: String {

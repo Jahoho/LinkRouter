@@ -1,5 +1,6 @@
 import AppKit
 
+@MainActor
 final class URLRequestReceiver {
     static let shared = URLRequestReceiver()
 
@@ -45,7 +46,16 @@ final class URLRequestReceiver {
         }
 
         do {
-            let request = try IncomingURLRequest(urlString: urlString)
+            let receivedAt = Date()
+            let source = AppSourceDetector.shared.detect(
+                event: event,
+                at: receivedAt
+            )
+            let request = try IncomingURLRequest(
+                urlString: urlString,
+                receivedAt: receivedAt,
+                source: source
+            )
 
             Task { @MainActor in
                 AppState.shared.record(request)
