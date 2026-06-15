@@ -58,7 +58,7 @@ final class URLRequestReceiver {
             )
 
             Task { @MainActor in
-                AppState.shared.record(request)
+                AppState.shared.handle(request)
             }
         } catch let error as IncomingURLRequestError {
             RoutingLogger.shared.logRejected(error)

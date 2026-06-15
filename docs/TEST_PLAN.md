@@ -56,6 +56,24 @@ Record these before each test cycle:
   `https://example.com` in Safari using its bundle identifier.
 - No Accessibility or AppleScript Automation permission was requested.
 
+### 2026-06-15: Rule Engine and Fallback Routing
+
+- Automated result: 19 tests passed and 1 opt-in browser integration test
+  skipped during the normal test run.
+- Seed-rule result:
+  - `com.openai.codex` selects `com.google.Chrome`.
+  - `com.tencent.xinWeChat` selects `com.apple.Safari`.
+  - Unknown or unmatched sources select fallback `com.apple.Safari`.
+- Ordering result: higher priority wins; equal priority preserves
+  configuration order; disabled rules do not match.
+- Runtime coordinator behavior: requests are queued and processed in arrival
+  order; a failed matched destination attempts fallback once.
+- Real fallback result: a direct URL event with unknown source selected
+  `com.apple.Safari` and opened successfully. Unified Logging retained only
+  `https://example.com`, excluding the test path and query token.
+- Not covered yet: real source clicks from Codex and WeChat, missing-browser
+  runtime recovery, and persisted configuration reload.
+
 ## Core Checklist
 
 | ID | Scenario | Steps | Expected result |

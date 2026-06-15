@@ -23,9 +23,9 @@ Status values:
 | Source-detection probe | Done | Sender PID, frontmost app, recent-app cache, confidence, and diagnostics implemented |
 | Source-app compatibility testing | In Progress | Real clicks from Codex, WeChat, Telegram, Obsidian, Finder, and Terminal remain |
 | Browser discovery and explicit launch | Done | Safari and Chrome discovered; explicit Safari launch verified 2026-06-15 |
-| Source-app rule engine and fallback | Planned | Pure Swift with unit tests |
+| Source-app rule engine and fallback | Done | Seed rules, stable priority, serialized routing, and one-time recovery fallback verified |
 | Versioned local configuration | Planned | Atomic JSON in Application Support |
-| Menu bar and basic settings window | In Progress | Listener status and sanitized last URL implemented; rules and fallback remain |
+| Menu bar and basic settings window | In Progress | Routing diagnostics and read-only seed rules implemented; editing remains |
 | MVP test cycle | Planned | Use `TEST_PLAN.md` and fill compatibility matrix |
 
 ## Feature Backlog
@@ -73,3 +73,6 @@ Status values:
 | 2026-06-15 | Discover installed HTTPS handlers | Done | Safari and Chrome found through Launch Services |
 | 2026-06-15 | Launch an explicit browser safely | Done | Modern `NSWorkspace` API, completion errors, and self-loop prevention |
 | 2026-06-15 | Add opt-in browser integration test | Done | Safari launch test stays skipped during normal test runs |
+| 2026-06-15 | Add deterministic source-app RuleEngine | Done | Priority descending, stable order, enabled rules, and fallback covered by tests |
+| 2026-06-15 | Serialize incoming routing jobs | Done | Browser launch requests are processed in arrival order |
+| 2026-06-15 | Add one-time recovery fallback | Done | Missing or failed rule destination attempts configured fallback once without rematching |

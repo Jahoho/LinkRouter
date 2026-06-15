@@ -28,6 +28,14 @@ struct MenuBarView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
+            if let result = appState.lastRoutingResult {
+                Text(result.statusDescription)
+                    .font(.caption)
+                    .foregroundStyle(
+                        result.succeeded ? Color.secondary : Color.red
+                    )
+            }
+
             Divider()
 
             SettingsLink {

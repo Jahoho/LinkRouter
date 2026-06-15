@@ -9,13 +9,23 @@ final class AppState: ObservableObject {
     @Published private(set) var availableBrowsers: [Browser] = []
     @Published private(set) var browserLaunchStatus: String?
     @Published private(set) var isLaunchingBrowser = false
+    @Published private(set) var lastRoutingResult: RoutingResult?
+
+    let routingConfiguration = RoutingConfiguration.seed
 
     private init() {}
 
-    func record(_ request: IncomingURLRequest) {
+    func handle(_ request: IncomingURLRequest) {
         lastRequest = request
         receivedRequestCount += 1
         RoutingLogger.shared.logReceived(request)
+
+        RoutingCoordinator.shared.route(
+            request,
+            configuration: routingConfiguration
+        ) { [weak self] result in
+            self?.lastRoutingResult = result
+        }
     }
 
     func refreshBrowsers() {

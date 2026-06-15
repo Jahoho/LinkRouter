@@ -211,6 +211,23 @@ readable, migratable file.
 Writes should be atomic. Decode failure must not overwrite the damaged file.
 Seed defaults are created only when no configuration exists.
 
+The current implementation establishes the versioned `Codable` model and uses
+an in-memory schema version 1 seed:
+
+- `com.openai.codex` -> `com.google.Chrome`
+- `com.tencent.xinWeChat` -> `com.apple.Safari`
+- fallback -> `com.apple.Safari`
+
+The rule engine sorts enabled rules by descending priority and preserves
+configuration order when priorities are equal. Conditions are combined with
+AND semantics. Source bundle identifier matching is case-insensitive; the
+model also reserves optional host and URL scheme conditions for later UI use.
+
+`RoutingCoordinator` serializes incoming jobs, launches the selected browser,
+and attempts the configured fallback at most once when a matched destination
+is missing or fails. It does not re-enter the rule engine during recovery.
+JSON file persistence remains the next implementation milestone.
+
 ## 9. Logging and Privacy
 
 Use Apple's unified logging through `Logger` for live diagnostics. A later

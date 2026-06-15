@@ -12,7 +12,7 @@ Examples:
 
 ## Current Status
 
-The first executable milestone is complete:
+The core routing pipeline is now executable:
 
 - Native macOS SwiftUI project
 - Menu bar app with a basic settings window
@@ -21,12 +21,22 @@ The first executable milestone is complete:
 - Best-effort source-app detection with method and confidence
 - Launch Services browser discovery by bundle identifier
 - Explicit destination-browser launch with loop prevention
+- Deterministic source-app rule matching with stable priority
+- Automatic Safari fallback when no rule matches
+- One-time recovery fallback when a rule browser cannot be opened
 - Settings controls for refreshing browsers and opening a test page
+- Routing decision and final-browser diagnostics
 - Privacy-conscious URL validation and logging
 - Unit and integration tests for URL handling and browser launching
 
-Rule matching, fallback routing, and configuration persistence are the next
-development milestones.
+The current rules are in-memory seed configuration:
+
+- Codex -> Google Chrome
+- WeChat -> Safari
+- Unmatched or unknown source -> Safari
+
+Versioned JSON persistence and graphical rule editing are the next development
+milestones.
 
 ## MVP Scope
 

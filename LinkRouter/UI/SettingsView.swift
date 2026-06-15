@@ -91,13 +91,65 @@ struct SettingsView: View {
                 }
             }
 
+            Section("Routing rules") {
+                ForEach(appState.routingConfiguration.rules) { rule in
+                    LabeledContent(rule.sourceAppName ?? "Unknown source") {
+                        Text(
+                            "\(rule.browserName) · priority \(rule.priority)"
+                        )
+                    }
+                }
+
+                LabeledContent(
+                    "Fallback",
+                    value: appState.routingConfiguration.defaultBrowserName
+                )
+            }
+
+            Section("Last routing result") {
+                if let result = appState.lastRoutingResult {
+                    LabeledContent(
+                        "Status",
+                        value: result.succeeded ? "Succeeded" : "Failed"
+                    )
+
+                    LabeledContent(
+                        "Matched rule",
+                        value: result.decision.matchedRule?.name ?? "Fallback"
+                    )
+
+                    LabeledContent(
+                        "Selected browser",
+                        value: result.decision.browserName
+                    )
+
+                    LabeledContent(
+                        "Final browser",
+                        value: result.finalBrowserName ?? "None"
+                    )
+
+                    if let notice = result.notice {
+                        Text(notice)
+                            .foregroundStyle(.orange)
+                    }
+
+                    if let errorDescription = result.errorDescription {
+                        Text(errorDescription)
+                            .foregroundStyle(.red)
+                    }
+                } else {
+                    Text("No routing decision has been completed yet.")
+                        .foregroundStyle(.secondary)
+                }
+            }
+
             Section("Privacy") {
                 Text("LinkRouter currently logs only the URL scheme and host. Paths, queries, fragments, and credentials are removed.")
                     .foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)
-        .frame(width: 680, height: 640)
+        .frame(width: 700, height: 760)
         .navigationTitle("LinkRouter Settings")
     }
 }

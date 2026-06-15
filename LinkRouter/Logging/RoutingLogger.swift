@@ -66,4 +66,37 @@ final class RoutingLogger {
             "Failed to open browser \(browser.bundleIdentifier, privacy: .public): \(error.localizedDescription, privacy: .public)"
         )
     }
+
+    func logRoutingDecision(
+        request: IncomingURLRequest,
+        decision: RoutingDecision
+    ) {
+        let ruleIdentifier = decision.matchedRule?.id ?? "fallback"
+
+        logger.notice(
+            """
+            Routing decision for \(request.sanitizedDescription, privacy: .public); \
+            rule: \(ruleIdentifier, privacy: .public); \
+            selected browser: \(decision.browserBundleIdentifier, privacy: .public); \
+            reason: \(decision.reason, privacy: .public)
+            """
+        )
+    }
+
+    func logRoutingResult(_ result: RoutingResult) {
+        if result.succeeded {
+            logger.notice(
+                """
+                Routing completed; \
+                final browser: \(result.finalBrowserBundleIdentifier ?? "Unknown", privacy: .public); \
+                recovery fallback: \(result.usedRecoveryFallback, privacy: .public); \
+                notice: \(result.notice ?? "None", privacy: .public)
+                """
+            )
+        } else {
+            logger.error(
+                "Routing failed: \(result.errorDescription ?? "Unknown error", privacy: .public)"
+            )
+        }
+    }
 }

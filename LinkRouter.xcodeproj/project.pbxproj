@@ -23,6 +23,11 @@
 		B0000000000000000000000E /* BrowserDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000011 /* BrowserDiscovery.swift */; };
 		B0000000000000000000000F /* BrowserLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000012 /* BrowserLauncher.swift */; };
 		B00000000000000000000010 /* BrowserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000013 /* BrowserTests.swift */; };
+		B00000000000000000000011 /* RoutingRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000014 /* RoutingRule.swift */; };
+		B00000000000000000000012 /* RoutingConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000015 /* RoutingConfiguration.swift */; };
+		B00000000000000000000013 /* RuleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000016 /* RuleEngine.swift */; };
+		B00000000000000000000014 /* RoutingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000017 /* RoutingCoordinator.swift */; };
+		B00000000000000000000015 /* RuleEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000018 /* RuleEngineTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +60,11 @@
 		A00000000000000000000011 /* BrowserDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserDiscovery.swift; sourceTree = "<group>"; };
 		A00000000000000000000012 /* BrowserLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserLauncher.swift; sourceTree = "<group>"; };
 		A00000000000000000000013 /* BrowserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserTests.swift; sourceTree = "<group>"; };
+		A00000000000000000000014 /* RoutingRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingRule.swift; sourceTree = "<group>"; };
+		A00000000000000000000015 /* RoutingConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingConfiguration.swift; sourceTree = "<group>"; };
+		A00000000000000000000016 /* RuleEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleEngine.swift; sourceTree = "<group>"; };
+		A00000000000000000000017 /* RoutingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingCoordinator.swift; sourceTree = "<group>"; };
+		A00000000000000000000018 /* RuleEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleEngineTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +101,8 @@
 				G00000000000000000000004 /* URLHandling */,
 				G0000000000000000000000A /* SourceDetection */,
 				G0000000000000000000000B /* Browsers */,
+				G0000000000000000000000C /* Rules */,
+				G0000000000000000000000D /* Routing */,
 				G00000000000000000000005 /* Logging */,
 				G00000000000000000000006 /* UI */,
 				G00000000000000000000007 /* Resources */,
@@ -147,6 +159,7 @@
 			children = (
 				A0000000000000000000000A /* IncomingURLRequestTests.swift */,
 				A00000000000000000000013 /* BrowserTests.swift */,
+				A00000000000000000000018 /* RuleEngineTests.swift */,
 			);
 			path = LinkRouterTests;
 			sourceTree = "<group>";
@@ -178,6 +191,24 @@
 				A00000000000000000000012 /* BrowserLauncher.swift */,
 			);
 			path = Browsers;
+			sourceTree = "<group>";
+		};
+		G0000000000000000000000C /* Rules */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000014 /* RoutingRule.swift */,
+				A00000000000000000000015 /* RoutingConfiguration.swift */,
+				A00000000000000000000016 /* RuleEngine.swift */,
+			);
+			path = Rules;
+			sourceTree = "<group>";
+		};
+		G0000000000000000000000D /* Routing */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000017 /* RoutingCoordinator.swift */,
+			);
+			path = Routing;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -279,6 +310,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				B00000000000000000000008 /* SettingsView.swift in Sources */,
+				B00000000000000000000014 /* RoutingCoordinator.swift in Sources */,
+				B00000000000000000000013 /* RuleEngine.swift in Sources */,
+				B00000000000000000000012 /* RoutingConfiguration.swift in Sources */,
+				B00000000000000000000011 /* RoutingRule.swift in Sources */,
 				B0000000000000000000000F /* BrowserLauncher.swift in Sources */,
 				B0000000000000000000000E /* BrowserDiscovery.swift in Sources */,
 				B0000000000000000000000D /* Browser.swift in Sources */,
@@ -301,6 +336,7 @@
 			files = (
 				B00000000000000000000009 /* IncomingURLRequestTests.swift in Sources */,
 				B00000000000000000000010 /* BrowserTests.swift in Sources */,
+				B00000000000000000000015 /* RuleEngineTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
