@@ -87,3 +87,4 @@ Status values:
 | 2026-06-16 | Document macOS 26 signing requirement | Done | Ad-hoc builds can run but are rejected as trusted default-browser candidates; Xcode Personal Team signing is required |
 | 2026-06-16 | Verify signed default-browser setup | Done | User confirmed Apple Development signed build can be selected and manually tested as the default browser |
 | 2026-06-16 | Show current default-browser status | Done | Settings and menu bar read the current HTTPS handler without extra permissions |
+| 2026-06-16 | Add Apple Mail seed rule | Done | `com.apple.mail` routes to Safari in the seed configuration and rule-engine tests |

@@ -40,6 +40,20 @@ struct RoutingConfiguration: Codable, Equatable {
                 browserName: "Safari",
                 action: .open,
                 openInBackground: false
+            ),
+            RoutingRule(
+                id: "mail-to-safari",
+                name: "Mail to Safari",
+                enabled: true,
+                priority: 80,
+                sourceAppBundleIdentifier: "com.apple.mail",
+                sourceAppName: "Mail",
+                hostPattern: nil,
+                urlScheme: nil,
+                browserBundleIdentifier: "com.apple.Safari",
+                browserName: "Safari",
+                action: .open,
+                openInBackground: false
             )
         ]
     )

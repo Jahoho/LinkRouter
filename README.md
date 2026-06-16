@@ -7,6 +7,7 @@ Examples:
 
 - Codex -> Google Chrome
 - WeChat -> Safari
+- Mail -> Safari
 - Telegram -> Arc
 - Unmatched apps -> configured fallback browser
 
@@ -39,6 +40,7 @@ The initial persisted rules are:
 
 - Codex -> Google Chrome
 - WeChat -> Safari
+- Mail -> Safari
 - Unmatched or unknown source -> Safari
 
 The configuration file is stored at:

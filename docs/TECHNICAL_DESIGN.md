@@ -222,6 +222,7 @@ seed:
 
 - `com.openai.codex` -> `com.google.Chrome`
 - `com.tencent.xinWeChat` -> `com.apple.Safari`
+- `com.apple.mail` -> `com.apple.Safari`
 - fallback -> `com.apple.Safari`
 
 The rule engine sorts enabled rules by descending priority and preserves

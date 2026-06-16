@@ -63,6 +63,7 @@ Record these before each test cycle:
 - Seed-rule result:
   - `com.openai.codex` selects `com.google.Chrome`.
   - `com.tencent.xinWeChat` selects `com.apple.Safari`.
+  - `com.apple.mail` selects `com.apple.Safari`.
   - Unknown or unmatched sources select fallback `com.apple.Safari`.
 - Ordering result: higher priority wins; equal priority preserves
   configuration order; disabled rules do not match.
@@ -110,7 +111,7 @@ Record these before each test cycle:
   original size and modification timestamp throughout automated tests.
 - Visual UI automation was attempted, but the desktop automation channel
   timed out before any click. Manual visual verification remains:
-  - Open Settings and confirm the two seed rules are visible.
+  - Open Settings and confirm the seed rules are visible.
   - Open Add Rule and confirm Safari and Chrome are available.
   - Confirm invalid input stays in the sheet with an error.
   - Confirm Delete presents a destructive confirmation.
@@ -139,7 +140,7 @@ Record these before each test cycle:
 
 ### 2026-06-16: Default Browser Status Display
 
-- Automated result: 37 tests passed and 1 opt-in browser integration test
+- Automated result: 38 tests passed and 1 opt-in browser integration test
   skipped during the normal test run.
 - Status behavior:
   - Settings and the menu bar show whether LinkRouter is the current HTTPS
@@ -157,11 +158,11 @@ Record these before each test cycle:
 |---|---|---|---|
 | T01 | Codex opens a link | Click an external web link in Codex | URL reaches LinkRouter; source evidence identifies Codex with stated confidence; Chrome opens; sanitized log records matched rule |
 | T02 | WeChat opens a link | Click an external web link in WeChat | URL reaches LinkRouter; credible WeChat source matches; Safari opens; sanitized log records matched rule |
-| T03 | Telegram opens a link | Configure a Telegram rule, then click a link | Configured browser opens; source method and confidence are logged |
-| T04 | Obsidian opens a link | Click an external link in Obsidian | If no rule exists, fallback Safari opens; any inferred source is recorded honestly |
-| T05 | Finder opens a link | Open a `.webloc` file in Finder | URL reaches LinkRouter; Finder is detected when evidence supports it, otherwise fallback is used |
-| T06 | Terminal opens a link | Run `open https://example.com` | URL reaches LinkRouter; Terminal may be detected or marked unknown; fallback opens without looping |
-| T07 | App without rule | Open a link from an unconfigured app | Fallback Safari opens and log states that no rule matched |
+| T03 | Mail opens a link | Click an external web link in Mail | URL reaches LinkRouter; credible Mail source matches; Safari opens; sanitized log records matched rule |
+| T04 | Telegram opens a link | Configure a Telegram rule, then click a link | Configured browser opens; source method and confidence are logged |
+| T05 | Obsidian opens a link | Click an external link in Obsidian | If no rule exists, fallback Safari opens; any inferred source is recorded honestly |
+| T06 | Finder opens a link | Open a `.webloc` file in Finder | URL reaches LinkRouter; Finder is detected when evidence supports it, otherwise fallback is used |
+| T07 | Terminal opens a link | Run `open https://example.com` | URL reaches LinkRouter; Terminal may be detected or marked unknown; fallback opens without looping |
 | T08 | Destination browser missing | Configure a rule for an unavailable browser and trigger it | LinkRouter reports destination unavailable and attempts fallback once |
 | T09 | Invalid URL | Send malformed or unsupported URL input in a debug test | No browser launches; app stays running; sanitized validation error is logged |
 | T10 | Permission denied | Run without optional permissions | MVP still routes because it requires no Accessibility permission; no repeated permission prompts appear |
@@ -189,6 +190,7 @@ Fill this with observed data during MVP testing:
 |---|---|---|---|---|---|
 | Codex | Installed | Manual click required | Probe can resolve `com.openai.codex`; real click required | Manual click required | TBD |
 | WeChat | Installed | Manual click required | TBD | Manual click required | TBD |
+| Mail | macOS 26 | Manual click required | TBD | Manual click required | TBD |
 | Telegram | TBD | TBD | TBD | TBD | TBD |
 | Obsidian | Installed | Manual click required | TBD | Manual click required | TBD |
 | Finder | macOS 26 | TBD | TBD | TBD | TBD |

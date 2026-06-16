@@ -112,6 +112,7 @@ macOS 26 接受的可信浏览器候选。回到 Xcode 登录 Apple ID，选择
 |---|---|---|---:|
 | Codex | `com.openai.codex` | Google Chrome | 100 |
 | WeChat | `com.tencent.xinWeChat` | Safari | 90 |
+| Mail | `com.apple.mail` | Safari | 80 |
 
 `Fallback browser` 应为 Safari。
 
@@ -184,7 +185,24 @@ open 'https://example.com/fallback-test'
 - `Matched rule` 为 `WeChat to Safari`。
 - `Final browser` 为 Safari。
 
-### 测试 D：其他 App
+### 测试 D：Mail
+
+1. 打开 Mail。
+2. 打开一封包含普通网页链接的邮件。
+3. 点击邮件里的 `http` 或 `https` 链接。
+4. 查看 LinkRouter Settings。
+
+理想结果：
+
+- `Source app` 为 Mail。
+- Bundle identifier 为 `com.apple.mail`。
+- `Matched rule` 为 `Mail to Safari`。
+- `Final browser` 为 Safari。
+
+如果失败，先确认点击的是普通网页链接，而不是邮箱地址、附件、
+App Store 链接或系统设置深链。
+
+### 测试 E：其他 App
 
 依次从 Telegram、Obsidian、Finder 或其他 App 打开网页链接。
 
@@ -328,6 +346,7 @@ Fallback 会在以下情况使用：
 5. 执行 Terminal fallback 测试。
 6. 从 Codex 点击链接并记录诊断结果。
 7. 从 WeChat 点击链接并记录诊断结果。
-8. 打开 Add Rule 表单，检查字段和浏览器列表，然后点击 Cancel。
-9. 点击一条规则的 Edit，检查已有内容，然后点击 Cancel。
-10. 把测试结果反馈给开发流程，再决定是否修正来源识别。
+8. 从 Mail 点击链接并记录诊断结果。
+9. 打开 Add Rule 表单，检查字段和浏览器列表，然后点击 Cancel。
+10. 点击一条规则的 Edit，检查已有内容，然后点击 Cancel。
+11. 把测试结果反馈给开发流程，再决定是否修正来源识别。

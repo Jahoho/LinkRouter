@@ -36,6 +36,22 @@ final class RuleEngineTests: XCTestCase {
         XCTAssertFalse(decision.usedConfiguredFallback)
     }
 
+    func testMailRoutesToSafariThroughRule() throws {
+        let decision = ruleEngine.evaluate(
+            request: try request(
+                sourceBundleIdentifier: "com.apple.mail"
+            ),
+            configuration: .seed
+        )
+
+        XCTAssertEqual(decision.matchedRule?.id, "mail-to-safari")
+        XCTAssertEqual(
+            decision.browserBundleIdentifier,
+            "com.apple.Safari"
+        )
+        XCTAssertFalse(decision.usedConfiguredFallback)
+    }
+
     func testUnknownSourceUsesSafariFallback() throws {
         let decision = ruleEngine.evaluate(
             request: try request(sourceBundleIdentifier: nil),
