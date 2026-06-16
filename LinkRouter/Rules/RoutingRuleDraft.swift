@@ -46,6 +46,21 @@ struct RoutingRuleDraft: Equatable {
     }
 
     init(
+        sourceApplication: SourceApplication,
+        browser: Browser,
+        priority: Int = 50
+    ) {
+        self.init(
+            name: "\(sourceApplication.name) to \(browser.name)",
+            priority: priority,
+            sourceAppBundleIdentifier:
+                sourceApplication.bundleIdentifier,
+            sourceAppName: sourceApplication.name,
+            browserBundleIdentifier: browser.bundleIdentifier
+        )
+    }
+
+    init(
         id: String = "user-\(UUID().uuidString.lowercased())",
         name: String = "New Rule",
         enabled: Bool = true,

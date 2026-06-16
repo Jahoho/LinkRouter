@@ -140,7 +140,7 @@ Record these before each test cycle:
 
 ### 2026-06-16: Default Browser Status Display
 
-- Automated result: 38 tests passed and 1 opt-in browser integration test
+- Automated result: 39 tests passed and 1 opt-in browser integration test
   skipped during the normal test run.
 - Status behavior:
   - Settings and the menu bar show whether LinkRouter is the current HTTPS
@@ -151,6 +151,22 @@ Record these before each test cycle:
     states.
 - Permission result: no Accessibility, Automation, or AppleScript permission
   was requested.
+
+### 2026-06-16: Create Rule from Last Source
+
+- Automated result: 39 tests passed and 1 opt-in browser integration test
+  skipped during the normal test run.
+- Rule creation behavior:
+  - `RoutingRuleDraft` can prefill source app name, source bundle identifier,
+    rule name, priority, and destination browser from a detected source app.
+  - `Routing rules` shows the last detected credible source app.
+  - If no rule exists for that source, Settings offers
+    `Create Rule from This App`.
+  - If a rule already exists, Settings offers `Edit Rule for This App` to avoid
+    duplicate source rules.
+  - Low- or medium-confidence source detection displays a warning before save.
+- Product result: adding a new source app no longer requires hard-coding the
+  app in the seed configuration.
 
 ## Core Checklist
 
@@ -181,6 +197,8 @@ Record these before each test cycle:
 | T18 | Relaunch after configuration | Rules and fallback persist and produce the same result |
 | T19 | URL with query token | Default logs omit path, query, fragment, credentials, and token |
 | T20 | App helper sends event | Detector either maps a tested helper to its owner or lowers confidence; it does not invent a high-confidence source |
+| T21 | Create rule from last source | Open a link from a source without a rule, then click `Create Rule from This App` | The editor is prefilled with the detected app and lets the user choose a browser without manually typing a bundle identifier |
+| T22 | Edit rule from last source | Open a link from a source with an existing rule, then click `Edit Rule for This App` | The existing rule opens for editing instead of creating a duplicate |
 
 ## Source Detection Compatibility Matrix
 

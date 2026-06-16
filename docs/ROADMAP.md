@@ -33,6 +33,7 @@ Status values:
 | Feature | Status | Target | Notes |
 |---|---|---|---|
 | Graphical source-app rule management | Done | MVP | Add, edit, enable, disable, delete, choose browser, and edit priority |
+| Create rule from last detected source | Done | MVP | Avoids requiring users to manually type bundle identifiers for new apps |
 | Drag-to-reorder rule priority | Planned | Post-MVP | Current UI uses an explicit numeric priority |
 | Menu bar pause/quick controls | Planned | Post-MVP | Temporary bypass and status |
 | Temporary browser chooser | Planned | Post-MVP | Useful when source confidence is low |
@@ -88,3 +89,4 @@ Status values:
 | 2026-06-16 | Verify signed default-browser setup | Done | User confirmed Apple Development signed build can be selected and manually tested as the default browser |
 | 2026-06-16 | Show current default-browser status | Done | Settings and menu bar read the current HTTPS handler without extra permissions |
 | 2026-06-16 | Add Apple Mail seed rule | Done | `com.apple.mail` routes to Safari in the seed configuration and rule-engine tests |
+| 2026-06-16 | Create or edit rules from last source | Done | Settings pre-fills rule fields from the last credible source app and edits existing source rules to avoid duplicates |

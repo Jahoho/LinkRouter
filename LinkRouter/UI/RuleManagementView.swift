@@ -28,6 +28,40 @@ struct RuleManagementView: View {
 
     var body: some View {
         Group {
+            if let sourceApplication = actionableLastSourceApplication {
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text("Last detected app")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(sourceApplication.name)
+                        Text(sourceApplication.bundleIdentifier)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    Button(lastSourceActionTitle) {
+                        openEditorForLastSource()
+                    }
+                    .disabled(
+                        !appState.canEditConfiguration
+                            || defaultBrowserForNewRule == nil
+                    )
+                }
+
+                if appState.lastRequest?.source.confidence != .high {
+                    Text(
+                        "This source was detected with \(appState.lastRequest?.source.confidence.rawValue ?? "Unknown") confidence. Review it before saving a rule."
+                    )
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                }
+
+                Divider()
+            }
+
             ForEach(appState.routingConfiguration.rules) { rule in
                 HStack {
                     Toggle(
@@ -185,6 +219,68 @@ struct RuleManagementView: View {
                 "Links from this source will use another matching rule or the fallback browser."
             )
         }
+    }
+
+    private var actionableLastSourceApplication: SourceApplication? {
+        guard
+            let application = appState.lastRequest?.source.application,
+            AppSourceDetector.isCredibleSource(application)
+        else {
+            return nil
+        }
+
+        return application
+    }
+
+    private var existingRuleForLastSource: RoutingRule? {
+        guard let sourceApplication = actionableLastSourceApplication else {
+            return nil
+        }
+
+        return appState.routingConfiguration.rules.first { rule in
+            rule.sourceAppBundleIdentifier?.caseInsensitiveCompare(
+                sourceApplication.bundleIdentifier
+            ) == .orderedSame
+        }
+    }
+
+    private var defaultBrowserForNewRule: Browser? {
+        appState.availableBrowsers.first { browser in
+            browser.bundleIdentifier
+                == appState.routingConfiguration
+                    .defaultBrowserBundleIdentifier
+        } ?? appState.availableBrowsers.first
+    }
+
+    private var lastSourceActionTitle: String {
+        existingRuleForLastSource == nil
+            ? "Create Rule from This App"
+            : "Edit Rule for This App"
+    }
+
+    private func openEditorForLastSource() {
+        if let existingRuleForLastSource {
+            editorContext = RuleEditorContext(
+                mode: .edit,
+                draft: RoutingRuleDraft(rule: existingRuleForLastSource)
+            )
+            return
+        }
+
+        guard
+            let sourceApplication = actionableLastSourceApplication,
+            let browser = defaultBrowserForNewRule
+        else {
+            return
+        }
+
+        editorContext = RuleEditorContext(
+            mode: .add,
+            draft: RoutingRuleDraft(
+                sourceApplication: sourceApplication,
+                browser: browser
+            )
+        )
     }
 }
 

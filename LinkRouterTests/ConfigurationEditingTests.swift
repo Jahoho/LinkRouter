@@ -49,6 +49,33 @@ final class ConfigurationEditingTests: XCTestCase {
         XCTAssertEqual(rule.priority, 75)
     }
 
+    func testDraftPrefillsSourceApplicationRule() throws {
+        let safari = try safari()
+        let sourceApplication = SourceApplication(
+            bundleIdentifier: "com.apple.mail",
+            name: "Mail",
+            processIdentifier: 123
+        )
+
+        let draft = RoutingRuleDraft(
+            sourceApplication: sourceApplication,
+            browser: safari
+        )
+        let rule = try draft.makeRule(availableBrowsers: [safari])
+
+        XCTAssertEqual(rule.name, "Mail to Safari")
+        XCTAssertEqual(rule.priority, 50)
+        XCTAssertEqual(
+            rule.sourceAppBundleIdentifier,
+            "com.apple.mail"
+        )
+        XCTAssertEqual(rule.sourceAppName, "Mail")
+        XCTAssertEqual(
+            rule.browserBundleIdentifier,
+            "com.apple.Safari"
+        )
+    }
+
     func testDraftRejectsInvalidSourceBundleIdentifier() throws {
         let draft = RoutingRuleDraft(
             name: "Invalid",
