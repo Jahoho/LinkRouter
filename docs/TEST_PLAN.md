@@ -133,6 +133,9 @@ Record these before each test cycle:
   `Failed to register trusted: NSOSStatusErrorDomain/-67062`.
 - Verification requirement: before T11 can pass, the installed app must be
   signed with an Apple Development identity from Xcode's `Personal Team`.
+- Manual verification: after selecting an Apple Development signing identity
+  in Xcode, the user confirmed LinkRouter appeared in the macOS default-browser
+  flow and manual default-browser testing passed on 2026-06-16.
 
 ## Core Checklist
 
@@ -148,7 +151,7 @@ Record these before each test cycle:
 | T08 | Destination browser missing | Configure a rule for an unavailable browser and trigger it | LinkRouter reports destination unavailable and attempts fallback once |
 | T09 | Invalid URL | Send malformed or unsupported URL input in a debug test | No browser launches; app stays running; sanitized validation error is logged |
 | T10 | Permission denied | Run without optional permissions | MVP still routes because it requires no Accessibility permission; no repeated permission prompts appear |
-| T11 | Not default browser | Select another default browser and launch LinkRouter | Settings clearly show inactive default status; direct test events may work, but LinkRouter does not claim system-wide routing |
+| T11 | Not default browser | Select another default browser and launch LinkRouter | Manual default-browser selection flow passed after Apple Development signing; Settings still needs an in-app status indicator |
 | T12 | Multiple browsers installed | Install/select Safari, Chrome, and Arc | Browser discovery lists installed browsers by bundle identifier and launches the exact selected app |
 
 ## Reliability Tests
