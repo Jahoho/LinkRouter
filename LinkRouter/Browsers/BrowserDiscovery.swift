@@ -10,6 +10,70 @@ private enum BrowserDiscoveryConstants {
     ]
 }
 
+struct DefaultBrowserStatus: Equatable {
+    let isLinkRouterDefault: Bool
+    let currentBrowserName: String?
+    let currentBrowserBundleIdentifier: String?
+    let detail: String
+
+    var title: String {
+        if isLinkRouterDefault {
+            return "LinkRouter is default"
+        }
+
+        if let currentBrowserName {
+            return "\(currentBrowserName) is default"
+        }
+
+        return "Unable to determine"
+    }
+
+    static let unknown = DefaultBrowserStatus(
+        isLinkRouterDefault: false,
+        currentBrowserName: nil,
+        currentBrowserBundleIdentifier: nil,
+        detail: "macOS did not return a default HTTPS handler."
+    )
+
+    static func evaluate(
+        defaultApplicationURL: URL?,
+        currentBundleIdentifier: String,
+        browserInfo: (URL) -> (name: String, bundleIdentifier: String)? = {
+            applicationURL in
+            guard let browser = Browser(applicationURL: applicationURL) else {
+                return nil
+            }
+
+            return (browser.name, browser.bundleIdentifier)
+        }
+    ) -> DefaultBrowserStatus {
+        guard let defaultApplicationURL else {
+            return .unknown
+        }
+
+        guard let info = browserInfo(defaultApplicationURL) else {
+            return DefaultBrowserStatus(
+                isLinkRouterDefault: false,
+                currentBrowserName: nil,
+                currentBrowserBundleIdentifier: nil,
+                detail: "The default HTTPS handler could not be inspected."
+            )
+        }
+
+        let isLinkRouterDefault =
+            info.bundleIdentifier == currentBundleIdentifier
+
+        return DefaultBrowserStatus(
+            isLinkRouterDefault: isLinkRouterDefault,
+            currentBrowserName: info.name,
+            currentBrowserBundleIdentifier: info.bundleIdentifier,
+            detail: isLinkRouterDefault
+                ? "New web links should be delivered to LinkRouter first."
+                : "New web links currently go directly to \(info.name)."
+        )
+    }
+}
+
 @MainActor
 final class BrowserDiscovery {
     static let shared = BrowserDiscovery()
@@ -41,6 +105,18 @@ final class BrowserDiscovery {
         }
 
         return browsersByIdentifier.values.sorted(by: Self.sortBrowsers)
+    }
+
+    func currentDefaultBrowserStatus() -> DefaultBrowserStatus {
+        let applicationURL = workspace.urlForApplication(
+            toOpen: BrowserDiscoveryConstants.probeURL
+        )
+
+        return DefaultBrowserStatus.evaluate(
+            defaultApplicationURL: applicationURL,
+            currentBundleIdentifier: BrowserDiscoveryConstants
+                .linkRouterBundleIdentifier
+        )
     }
 
     nonisolated static func isAllowedDestination(

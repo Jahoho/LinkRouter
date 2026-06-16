@@ -8,9 +8,24 @@ struct SettingsView: View {
             Section("Status") {
                 LabeledContent("URL listener", value: "Active")
                 LabeledContent(
+                    "Default web browser",
+                    value: appState.defaultBrowserStatus.title
+                )
+                Text(appState.defaultBrowserStatus.detail)
+                    .font(.caption)
+                    .foregroundStyle(
+                        appState.defaultBrowserStatus.isLinkRouterDefault
+                            ? Color.secondary
+                            : Color.orange
+                    )
+                LabeledContent(
                     "Links received",
                     value: String(appState.receivedRequestCount)
                 )
+
+                Button("Refresh Default Browser Status") {
+                    appState.refreshDefaultBrowserStatus()
+                }
             }
 
             Section("Last received link") {

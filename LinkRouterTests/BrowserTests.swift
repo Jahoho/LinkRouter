@@ -33,6 +33,53 @@ final class BrowserTests: XCTestCase {
         )
     }
 
+    func testDefaultBrowserStatusDetectsLinkRouter() throws {
+        let appURL = URL(fileURLWithPath: "/Applications/LinkRouter.app")
+
+        let status = DefaultBrowserStatus.evaluate(
+            defaultApplicationURL: appURL,
+            currentBundleIdentifier: "com.james.LinkRouter"
+        ) { _ in
+            (name: "LinkRouter", bundleIdentifier: "com.james.LinkRouter")
+        }
+
+        XCTAssertTrue(status.isLinkRouterDefault)
+        XCTAssertEqual(status.title, "LinkRouter is default")
+        XCTAssertEqual(
+            status.currentBrowserBundleIdentifier,
+            "com.james.LinkRouter"
+        )
+    }
+
+    func testDefaultBrowserStatusShowsOtherBrowser() throws {
+        let appURL = URL(fileURLWithPath: "/Applications/Safari.app")
+
+        let status = DefaultBrowserStatus.evaluate(
+            defaultApplicationURL: appURL,
+            currentBundleIdentifier: "com.james.LinkRouter"
+        ) { _ in
+            (name: "Safari", bundleIdentifier: "com.apple.Safari")
+        }
+
+        XCTAssertFalse(status.isLinkRouterDefault)
+        XCTAssertEqual(status.title, "Safari is default")
+        XCTAssertEqual(
+            status.currentBrowserBundleIdentifier,
+            "com.apple.Safari"
+        )
+    }
+
+    func testDefaultBrowserStatusHandlesMissingHandler() {
+        let status = DefaultBrowserStatus.evaluate(
+            defaultApplicationURL: nil,
+            currentBundleIdentifier: "com.james.LinkRouter"
+        )
+
+        XCTAssertFalse(status.isLinkRouterDefault)
+        XCTAssertEqual(status.title, "Unable to determine")
+        XCTAssertNil(status.currentBrowserBundleIdentifier)
+    }
+
     @MainActor
     func testDiscoveryFindsSafariAndExcludesLinkRouter() {
         let browsers = BrowserDiscovery.shared.discoverInstalledBrowsers()

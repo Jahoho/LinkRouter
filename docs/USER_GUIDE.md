@@ -30,6 +30,8 @@
 先检查：
 
 - `URL listener` 显示 `Active`。
+- `Default web browser` 显示 `LinkRouter is default`。如果还显示
+  Safari、Chrome 或 `Unable to determine`，先完成本文第 4 步。
 - `Installed browsers` 至少显示 Safari。
 - 当前电脑还应显示 Google Chrome。
 - `Configuration storage` 状态显示 `Loaded from disk`、
@@ -97,8 +99,8 @@ security find-identity -v -p codesigning
 macOS 26 接受的可信浏览器候选。回到 Xcode 登录 Apple ID，选择
 `Personal Team` 后重新运行。
 
-当前版本的设置窗口还不会自动显示“是否已经成为系统默认浏览器”，
-因此需要在 System Settings 中人工确认。
+回到 LinkRouter Settings 后，点击 `Refresh Default Browser Status`。
+预期 `Default web browser` 显示 `LinkRouter is default`。
 
 ## 二、检查默认规则
 
@@ -311,7 +313,7 @@ Fallback 会在以下情况使用：
 - 来源 App 检测是 best-effort，macOS 不保证 URL handler 能知道原始来源。
 - Codex、WeChat 等真实点击兼容性仍需要你逐项测试。
 - 当前没有开机自启动，重启 Mac 后需要重新运行 App。
-- 当前没有默认浏览器状态检测，需要在 System Settings 人工确认。
+- 默认浏览器状态需要点击 `Refresh Default Browser Status` 或重启 App 后刷新。
 - 当前规则界面只编辑来源 App 条件，不编辑域名或 URL scheme 条件。
 - 当前使用 Xcode 开发版，停止 Xcode 的运行任务会退出 LinkRouter。
 

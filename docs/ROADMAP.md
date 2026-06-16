@@ -25,7 +25,7 @@ Status values:
 | Browser discovery and explicit launch | Done | Safari and Chrome discovered; explicit Safari launch verified 2026-06-15 |
 | Source-app rule engine and fallback | Done | Seed rules, stable priority, serialized routing, and one-time recovery fallback verified |
 | Versioned local configuration | Done | Schema v1 JSON, atomic writes, preserved corrupt files, and in-memory recovery verified |
-| Menu bar and basic settings window | In Progress | Routing diagnostics and rule editing implemented; default-browser can be set manually after signing; in-app status indicator remains |
+| Menu bar and basic settings window | In Progress | Routing diagnostics, rule editing, and default-browser status are implemented; onboarding remains |
 | MVP test cycle | Planned | Use `TEST_PLAN.md` and fill compatibility matrix |
 
 ## Feature Backlog
@@ -86,3 +86,4 @@ Status values:
 | 2026-06-16 | Add default-browser candidate declarations | Done | Added display name, HTML document types, and app category so Launch Services can classify LinkRouter as a browser candidate |
 | 2026-06-16 | Document macOS 26 signing requirement | Done | Ad-hoc builds can run but are rejected as trusted default-browser candidates; Xcode Personal Team signing is required |
 | 2026-06-16 | Verify signed default-browser setup | Done | User confirmed Apple Development signed build can be selected and manually tested as the default browser |
+| 2026-06-16 | Show current default-browser status | Done | Settings and menu bar read the current HTTPS handler without extra permissions |

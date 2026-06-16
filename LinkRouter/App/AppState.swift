@@ -7,6 +7,8 @@ final class AppState: ObservableObject {
     @Published private(set) var lastRequest: IncomingURLRequest?
     @Published private(set) var receivedRequestCount = 0
     @Published private(set) var availableBrowsers: [Browser] = []
+    @Published private(set) var defaultBrowserStatus: DefaultBrowserStatus =
+        .unknown
     @Published private(set) var browserLaunchStatus: String?
     @Published private(set) var isLaunchingBrowser = false
     @Published private(set) var lastRoutingResult: RoutingResult?
@@ -51,7 +53,13 @@ final class AppState: ObservableObject {
     func refreshBrowsers() {
         availableBrowsers = BrowserDiscovery.shared
             .discoverInstalledBrowsers()
+        refreshDefaultBrowserStatus()
         RoutingLogger.shared.logBrowserDiscovery(availableBrowsers)
+    }
+
+    func refreshDefaultBrowserStatus() {
+        defaultBrowserStatus = BrowserDiscovery.shared
+            .currentDefaultBrowserStatus()
     }
 
     func openTestPage(in browser: Browser) {

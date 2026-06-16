@@ -137,6 +137,20 @@ Record these before each test cycle:
   in Xcode, the user confirmed LinkRouter appeared in the macOS default-browser
   flow and manual default-browser testing passed on 2026-06-16.
 
+### 2026-06-16: Default Browser Status Display
+
+- Automated result: 37 tests passed and 1 opt-in browser integration test
+  skipped during the normal test run.
+- Status behavior:
+  - Settings and the menu bar show whether LinkRouter is the current HTTPS
+    default handler.
+  - The status is refreshed during browser discovery and by the
+    `Refresh Default Browser Status` button.
+  - Unit coverage confirms LinkRouter, another browser, and unknown handler
+    states.
+- Permission result: no Accessibility, Automation, or AppleScript permission
+  was requested.
+
 ## Core Checklist
 
 | ID | Scenario | Steps | Expected result |
@@ -151,7 +165,7 @@ Record these before each test cycle:
 | T08 | Destination browser missing | Configure a rule for an unavailable browser and trigger it | LinkRouter reports destination unavailable and attempts fallback once |
 | T09 | Invalid URL | Send malformed or unsupported URL input in a debug test | No browser launches; app stays running; sanitized validation error is logged |
 | T10 | Permission denied | Run without optional permissions | MVP still routes because it requires no Accessibility permission; no repeated permission prompts appear |
-| T11 | Not default browser | Select another default browser and launch LinkRouter | Manual default-browser selection flow passed after Apple Development signing; Settings still needs an in-app status indicator |
+| T11 | Not default browser | Select another default browser and launch LinkRouter | Settings and menu bar show the current default handler; direct test events may work, but LinkRouter does not claim system-wide routing unless it is default |
 | T12 | Multiple browsers installed | Install/select Safari, Chrome, and Arc | Browser discovery lists installed browsers by bundle identifier and launches the exact selected app |
 
 ## Reliability Tests

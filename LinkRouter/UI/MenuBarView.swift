@@ -28,6 +28,14 @@ struct MenuBarView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
+            Text(appState.defaultBrowserStatus.title)
+                .font(.caption)
+                .foregroundStyle(
+                    appState.defaultBrowserStatus.isLinkRouterDefault
+                        ? Color.secondary
+                        : Color.orange
+                )
+
             if let result = appState.lastRoutingResult {
                 Text(result.statusDescription)
                     .font(.caption)
