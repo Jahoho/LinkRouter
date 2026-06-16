@@ -115,6 +115,25 @@ Record these before each test cycle:
   - Confirm invalid input stays in the sheet with an error.
   - Confirm Delete presents a destructive confirmation.
 
+### 2026-06-16: Default Browser Candidate Diagnostics
+
+- Problem observed: LinkRouter could run, but did not appear in macOS 26
+  `Default web browser` choices.
+- Metadata fix: `Info.plist` now declares LinkRouter as an alternate handler
+  for both `http` / `https` URL schemes and `public.html` / `public.xhtml`
+  document types.
+- Build artifact issue: a debug build product contained `com.apple.FinderInfo`,
+  which caused `CodeSign failed: resource fork, Finder information, or similar
+  detritus not allowed`. Cleaning extended attributes on the build product
+  allowed signing to complete.
+- Remaining requirement: macOS 26 rejected ad-hoc signed builds as trusted
+  default-browser candidates. Diagnostics showed `Signature=adhoc`,
+  `TeamIdentifier=not set`, `security find-identity` returned
+  `0 valid identities found`, and Launch Services logged
+  `Failed to register trusted: NSOSStatusErrorDomain/-67062`.
+- Verification requirement: before T11 can pass, the installed app must be
+  signed with an Apple Development identity from Xcode's `Personal Team`.
+
 ## Core Checklist
 
 | ID | Scenario | Steps | Expected result |

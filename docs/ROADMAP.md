@@ -83,3 +83,5 @@ Status values:
 | 2026-06-15 | Add graphical source-app rule editor | Done | Explicit Save validates and persists before applying changes |
 | 2026-06-15 | Protect hidden future rule fields | Done | Editing source-only fields preserves stored host and URL scheme conditions |
 | 2026-06-15 | Confirm destructive rule deletion | Done | Settings requires a confirmation action before deleting |
+| 2026-06-16 | Add default-browser candidate declarations | Done | Added display name, HTML document types, and app category so Launch Services can classify LinkRouter as a browser candidate |
+| 2026-06-16 | Document macOS 26 signing requirement | Done | Ad-hoc builds can run but are rejected as trusted default-browser candidates; Xcode Personal Team signing is required |
