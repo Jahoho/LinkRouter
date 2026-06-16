@@ -184,6 +184,102 @@ final class ConfigurationEditingTests: XCTestCase {
     }
 
     @MainActor
+    func testAppStateTracksRecentSourceApplications() throws {
+        let appState = AppState(
+            configurationStore: ConfigurationStore(
+                directoryURL: temporaryDirectoryURL
+            )
+        )
+        let firstDate = try XCTUnwrap(
+            DateComponents(
+                calendar: .current,
+                year: 2026,
+                month: 6,
+                day: 16,
+                hour: 10
+            ).date
+        )
+        let secondDate = try XCTUnwrap(
+            DateComponents(
+                calendar: .current,
+                year: 2026,
+                month: 6,
+                day: 16,
+                hour: 11
+            ).date
+        )
+
+        appState.rememberSourceApplication(
+            sourceResult(
+                bundleIdentifier: "com.apple.mail",
+                name: "Mail"
+            ),
+            at: firstDate
+        )
+        appState.rememberSourceApplication(
+            sourceResult(
+                bundleIdentifier: "md.obsidian",
+                name: "Obsidian"
+            ),
+            at: secondDate
+        )
+
+        XCTAssertEqual(appState.recentSourceApplications.count, 2)
+        XCTAssertEqual(
+            appState.recentSourceApplications[0]
+                .application.bundleIdentifier,
+            "md.obsidian"
+        )
+        XCTAssertEqual(
+            appState.recentSourceApplications[1]
+                .application.bundleIdentifier,
+            "com.apple.mail"
+        )
+
+        appState.rememberSourceApplication(
+            sourceResult(
+                bundleIdentifier: "com.apple.mail",
+                name: "Mail"
+            ),
+            at: secondDate
+        )
+
+        XCTAssertEqual(appState.recentSourceApplications.count, 2)
+        XCTAssertEqual(
+            appState.recentSourceApplications[0]
+                .application.bundleIdentifier,
+            "com.apple.mail"
+        )
+        XCTAssertEqual(
+            appState.recentSourceApplications[0].lastSeenAt,
+            secondDate
+        )
+    }
+
+    @MainActor
+    func testAppStateIgnoresUnknownAndNonCredibleRecentSources() throws {
+        let appState = AppState(
+            configurationStore: ConfigurationStore(
+                directoryURL: temporaryDirectoryURL
+            )
+        )
+
+        appState.rememberSourceApplication(
+            .unknown(reason: "No source"),
+            at: Date()
+        )
+        appState.rememberSourceApplication(
+            sourceResult(
+                bundleIdentifier: "com.james.LinkRouter",
+                name: "LinkRouter"
+            ),
+            at: Date()
+        )
+
+        XCTAssertTrue(appState.recentSourceApplications.isEmpty)
+    }
+
+    @MainActor
     func testAppStatePersistsAddedRule() throws {
         let store = ConfigurationStore(
             directoryURL: temporaryDirectoryURL
@@ -260,5 +356,21 @@ final class ConfigurationEditingTests: XCTestCase {
             Browser(applicationURL: URL(fileURLWithPath: path))
         )
         return browser
+    }
+
+    private func sourceResult(
+        bundleIdentifier: String,
+        name: String
+    ) -> SourceDetectionResult {
+        SourceDetectionResult(
+            application: SourceApplication(
+                bundleIdentifier: bundleIdentifier,
+                name: name,
+                processIdentifier: 123
+            ),
+            method: .appleEventSender,
+            confidence: .high,
+            reason: "Configuration editing test"
+        )
     }
 }

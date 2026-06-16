@@ -32,6 +32,7 @@ The core routing pipeline is now executable:
 - Settings controls for refreshing browsers and opening a test page
 - Default-browser status display in Settings and the menu bar
 - One-click rule creation or editing from the last detected source app
+- Recent source app list for creating or editing rules after testing several apps
 - Routing decision and final-browser diagnostics
 - Configuration path, schema, and recovery status diagnostics
 - Privacy-conscious URL validation and logging

@@ -219,16 +219,17 @@ App Store 链接或系统设置深链。
 
 ### 推荐方式：从最近检测到的 App 创建
 
-1. 先从目标 App 打开一次网页链接。
+1. 先从一个或多个目标 App 打开网页链接。
 2. 回到 LinkRouter Settings。
-3. 在 `Routing rules` 顶部查看 `Last detected app`。
-4. 如果这个来源还没有规则，点击 `Create Rule from This App`。
-5. 如果这个来源已经有规则，点击 `Edit Rule for This App`。
-6. 确认规则名称、来源 App 和目标浏览器。
-7. 点击 `Save`。
+3. 在 `Routing rules` 顶部查看 `Recent source apps`。
+4. 找到想配置的 App。
+5. 如果这个来源还没有规则，点击 `Create Rule from This App`。
+6. 如果这个来源已经有规则，点击 `Edit Rule for This App`。
+7. 确认规则名称、来源 App 和目标浏览器。
+8. 点击 `Save`。
 
-这种方式不需要手动查 bundle identifier。LinkRouter 会使用最近一次检测到的
-来源 App 自动填写。
+这种方式不需要手动查 bundle identifier。LinkRouter 会使用最近检测到的
+来源 App 自动填写，并把最近测试过的多个 App 保留在列表里。
 
 如果看到橙色置信度提示，说明来源检测不是最高置信度。可以保存，但建议先确认
 `Source app` 和 bundle identifier 确实是你想配置的 App。

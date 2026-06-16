@@ -28,35 +28,47 @@ struct RuleManagementView: View {
 
     var body: some View {
         Group {
-            if let sourceApplication = actionableLastSourceApplication {
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text("Last detected app")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text(sourceApplication.name)
-                        Text(sourceApplication.bundleIdentifier)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Spacer()
-
-                    Button(lastSourceActionTitle) {
-                        openEditorForLastSource()
-                    }
-                    .disabled(
-                        !appState.canEditConfiguration
-                            || defaultBrowserForNewRule == nil
-                    )
-                }
-
-                if appState.lastRequest?.source.confidence != .high {
-                    Text(
-                        "This source was detected with \(appState.lastRequest?.source.confidence.rawValue ?? "Unknown") confidence. Review it before saving a rule."
-                    )
+            if !appState.recentSourceApplications.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Recent source apps")
                         .font(.caption)
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(.secondary)
+
+                    ForEach(appState.recentSourceApplications) { recentSource in
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(recentSource.application.name)
+                                Text(recentSource.application.bundleIdentifier)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Text(
+                                    "\(recentSource.confidence.rawValue) confidence via \(recentSource.method.rawValue)"
+                                )
+                                .font(.caption)
+                                .foregroundStyle(
+                                    recentSource.confidence == .high
+                                        ? Color.secondary
+                                        : Color.orange
+                                )
+                            }
+
+                            Spacer()
+
+                            Button(
+                                actionTitle(
+                                    for: recentSource.application
+                                )
+                            ) {
+                                openEditor(
+                                    for: recentSource.application
+                                )
+                            }
+                            .disabled(
+                                !appState.canEditConfiguration
+                                    || defaultBrowserForNewRule == nil
+                            )
+                        }
+                    }
                 }
 
                 Divider()
@@ -221,22 +233,9 @@ struct RuleManagementView: View {
         }
     }
 
-    private var actionableLastSourceApplication: SourceApplication? {
-        guard
-            let application = appState.lastRequest?.source.application,
-            AppSourceDetector.isCredibleSource(application)
-        else {
-            return nil
-        }
-
-        return application
-    }
-
-    private var existingRuleForLastSource: RoutingRule? {
-        guard let sourceApplication = actionableLastSourceApplication else {
-            return nil
-        }
-
+    private func existingRule(
+        for sourceApplication: SourceApplication
+    ) -> RoutingRule? {
         return appState.routingConfiguration.rules.first { rule in
             rule.sourceAppBundleIdentifier?.caseInsensitiveCompare(
                 sourceApplication.bundleIdentifier
@@ -252,25 +251,24 @@ struct RuleManagementView: View {
         } ?? appState.availableBrowsers.first
     }
 
-    private var lastSourceActionTitle: String {
-        existingRuleForLastSource == nil
+    private func actionTitle(
+        for sourceApplication: SourceApplication
+    ) -> String {
+        existingRule(for: sourceApplication) == nil
             ? "Create Rule from This App"
             : "Edit Rule for This App"
     }
 
-    private func openEditorForLastSource() {
-        if let existingRuleForLastSource {
+    private func openEditor(for sourceApplication: SourceApplication) {
+        if let existingRule = existingRule(for: sourceApplication) {
             editorContext = RuleEditorContext(
                 mode: .edit,
-                draft: RoutingRuleDraft(rule: existingRuleForLastSource)
+                draft: RoutingRuleDraft(rule: existingRule)
             )
             return
         }
 
-        guard
-            let sourceApplication = actionableLastSourceApplication,
-            let browser = defaultBrowserForNewRule
-        else {
+        guard let browser = defaultBrowserForNewRule else {
             return
         }
 

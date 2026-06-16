@@ -168,6 +168,21 @@ Record these before each test cycle:
 - Product result: adding a new source app no longer requires hard-coding the
   app in the seed configuration.
 
+### 2026-06-16: Recent Source App List
+
+- Build result: app build and `build-for-testing` passed.
+- Full test run: not completed in this cycle because the sandbox-external
+  xcodebuild approval request timed out twice.
+- Recent-source behavior:
+  - AppState keeps the most recent credible source apps in memory.
+  - Re-seeing the same bundle identifier moves it to the top instead of
+    creating a duplicate.
+  - Unknown and non-credible sources, including LinkRouter itself, are ignored.
+  - Settings shows `Recent source apps`; each row can create a new rule or edit
+    the existing rule for that source.
+- Product result: users can test several apps first, then create rules from the
+  recent source list without typing bundle identifiers.
+
 ## Core Checklist
 
 | ID | Scenario | Steps | Expected result |
@@ -197,8 +212,9 @@ Record these before each test cycle:
 | T18 | Relaunch after configuration | Rules and fallback persist and produce the same result |
 | T19 | URL with query token | Default logs omit path, query, fragment, credentials, and token |
 | T20 | App helper sends event | Detector either maps a tested helper to its owner or lowers confidence; it does not invent a high-confidence source |
-| T21 | Create rule from last source | Open a link from a source without a rule, then click `Create Rule from This App` | The editor is prefilled with the detected app and lets the user choose a browser without manually typing a bundle identifier |
-| T22 | Edit rule from last source | Open a link from a source with an existing rule, then click `Edit Rule for This App` | The existing rule opens for editing instead of creating a duplicate |
+| T21 | Create rule from recent source | Open a link from a source without a rule, then click `Create Rule from This App` in `Recent source apps` | The editor is prefilled with the detected app and lets the user choose a browser without manually typing a bundle identifier |
+| T22 | Edit rule from recent source | Open a link from a source with an existing rule, then click `Edit Rule for This App` | The existing rule opens for editing instead of creating a duplicate |
+| T23 | Multiple recent sources | Open links from several apps before creating a rule | Each credible source appears once in `Recent source apps`, with the newest source first |
 
 ## Source Detection Compatibility Matrix
 

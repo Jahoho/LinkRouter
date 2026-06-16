@@ -3,9 +3,12 @@ import Foundation
 @MainActor
 final class AppState: ObservableObject {
     static let shared = AppState()
+    private static let recentSourceApplicationLimit = 8
 
     @Published private(set) var lastRequest: IncomingURLRequest?
     @Published private(set) var receivedRequestCount = 0
+    @Published private(set) var recentSourceApplications:
+        [RecentSourceApplication] = []
     @Published private(set) var availableBrowsers: [Browser] = []
     @Published private(set) var defaultBrowserStatus: DefaultBrowserStatus =
         .unknown
@@ -40,6 +43,10 @@ final class AppState: ObservableObject {
     func handle(_ request: IncomingURLRequest) {
         lastRequest = request
         receivedRequestCount += 1
+        rememberSourceApplication(
+            request.source,
+            at: request.receivedAt
+        )
         RoutingLogger.shared.logReceived(request)
 
         RoutingCoordinator.shared.route(
@@ -60,6 +67,41 @@ final class AppState: ObservableObject {
     func refreshDefaultBrowserStatus() {
         defaultBrowserStatus = BrowserDiscovery.shared
             .currentDefaultBrowserStatus()
+    }
+
+    func rememberSourceApplication(
+        _ source: SourceDetectionResult,
+        at date: Date
+    ) {
+        guard
+            let application = source.application,
+            AppSourceDetector.isCredibleSource(application)
+        else {
+            return
+        }
+
+        let recentSourceApplication = RecentSourceApplication(
+            application: application,
+            lastSeenAt: date,
+            method: source.method,
+            confidence: source.confidence
+        )
+
+        recentSourceApplications.removeAll { existing in
+            existing.application.bundleIdentifier
+                .caseInsensitiveCompare(application.bundleIdentifier)
+                == .orderedSame
+        }
+        recentSourceApplications.insert(recentSourceApplication, at: 0)
+
+        if recentSourceApplications.count
+            > Self.recentSourceApplicationLimit
+        {
+            recentSourceApplications = Array(
+                recentSourceApplications
+                    .prefix(Self.recentSourceApplicationLimit)
+            )
+        }
     }
 
     func openTestPage(in browser: Browser) {

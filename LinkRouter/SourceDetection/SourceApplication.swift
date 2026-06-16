@@ -6,6 +6,17 @@ struct SourceApplication: Equatable {
     let processIdentifier: Int32
 }
 
+struct RecentSourceApplication: Identifiable, Equatable {
+    let application: SourceApplication
+    let lastSeenAt: Date
+    let method: SourceDetectionMethod
+    let confidence: SourceDetectionConfidence
+
+    var id: String {
+        application.bundleIdentifier
+    }
+}
+
 enum SourceDetectionMethod: String, Equatable {
     case appleEventSender = "Apple Event sender"
     case frontmostApplication = "Frontmost app"
