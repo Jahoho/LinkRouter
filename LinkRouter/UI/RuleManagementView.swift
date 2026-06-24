@@ -32,19 +32,19 @@ struct RuleManagementView: View {
     var body: some View {
         Group {
             HStack {
-                Button("View Recent Routing History") {
+                Button(t("View Recent Routing History", "查看最近路由历史")) {
                     showsRoutingHistory = true
                 }
                 .disabled(appState.recentRoutingHistory.isEmpty)
 
-                Text("\(appState.recentRoutingHistory.count) recent")
+                Text(t("\(appState.recentRoutingHistory.count) recent", "最近 \(appState.recentRoutingHistory.count) 条"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
             if !appState.recentSourceApplications.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Recent source apps")
+                    Text(t("Recent source apps", "最近来源 App"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
@@ -115,11 +115,11 @@ struct RuleManagementView: View {
 
                         Spacer()
 
-                        Text("Priority \(rule.priority)")
+                        Text(t("Priority \(rule.priority)", "优先级 \(rule.priority)"))
                             .font(.caption)
                             .foregroundStyle(.secondary)
 
-                        Button("Edit") {
+                        Button(t("Edit", "编辑")) {
                             editorContext = RuleEditorContext(
                                 mode: .edit,
                                 draft: RoutingRuleDraft(rule: rule)
@@ -127,7 +127,7 @@ struct RuleManagementView: View {
                         }
                         .disabled(!appState.canEditConfiguration)
 
-                        Button("Delete", role: .destructive) {
+                        Button(t("Delete", "删除"), role: .destructive) {
                             rulePendingDeletion = rule
                         }
                         .disabled(!appState.canEditConfiguration)
@@ -145,13 +145,13 @@ struct RuleManagementView: View {
             }
 
             if appState.routingConfiguration.rules.isEmpty {
-                Text("No source-app rules are configured.")
+                Text(t("No source-app rules are configured.", "还没有配置来源 App 规则。"))
                     .foregroundStyle(.secondary)
             }
 
             HStack {
                 Picker(
-                    "Fallback browser",
+                    t("Fallback browser", "兜底浏览器"),
                     selection: Binding(
                         get: {
                             appState.routingConfiguration
@@ -170,7 +170,10 @@ struct RuleManagementView: View {
                                 .defaultBrowserBundleIdentifier
                     }) {
                         Text(
-                            "\(appState.routingConfiguration.defaultBrowserName) (Unavailable)"
+                            t(
+                                "\(appState.routingConfiguration.defaultBrowserName) (Unavailable)",
+                                "\(appState.routingConfiguration.defaultBrowserName)（不可用）"
+                            )
                         )
                         .tag(
                             appState.routingConfiguration
@@ -190,7 +193,7 @@ struct RuleManagementView: View {
 
                 Spacer()
 
-                Button("Add Rule") {
+                Button(t("Add Rule", "添加规则")) {
                     let defaultBrowserIdentifier =
                         appState.availableBrowsers.first?.bundleIdentifier
                         ?? appState.routingConfiguration
@@ -226,11 +229,12 @@ struct RuleManagementView: View {
         }
         .sheet(item: $editorContext) { context in
             RuleEditorView(
-                title: context.title,
+                title: editorTitle(for: context),
                 draft: context.draft,
                 availableBrowsers: appState.availableBrowsers,
                 recentSourceApplications:
-                    appState.recentSourceApplications
+                    appState.recentSourceApplications,
+                language: appState.language
             ) { rule in
                 switch context.mode {
                 case .add:
@@ -244,14 +248,15 @@ struct RuleManagementView: View {
             RoutingHistoryView(
                 history: appState.recentRoutingHistory,
                 canEditConfiguration: appState.canEditConfiguration,
-                canCreateRule: defaultBrowserForNewRule != nil
+                canCreateRule: defaultBrowserForNewRule != nil,
+                language: appState.language
             ) { sourceApplication in
                 showsRoutingHistory = false
                 openEditor(for: sourceApplication)
             }
         }
         .confirmationDialog(
-            "Delete this rule?",
+            t("Delete this rule?", "删除这条规则？"),
             isPresented: Binding(
                 get: { rulePendingDeletion != nil },
                 set: { isPresented in
@@ -263,14 +268,26 @@ struct RuleManagementView: View {
             titleVisibility: .visible,
             presenting: rulePendingDeletion
         ) { rule in
-            Button("Delete \(rule.name)", role: .destructive) {
+            Button(t("Delete \(rule.name)", "删除 \(rule.name)"), role: .destructive) {
                 _ = appState.deleteRule(id: rule.id)
                 rulePendingDeletion = nil
             }
         } message: { rule in
             Text(
-                "Links from this source will use another matching rule or the fallback browser."
+                t(
+                    "Links from this source will use another matching rule or the fallback browser.",
+                    "来自这个来源的链接会使用其他匹配规则或兜底浏览器。"
+                )
             )
+        }
+    }
+
+    private func editorTitle(for context: RuleEditorContext) -> String {
+        switch context.mode {
+        case .add:
+            return t("Add Rule", "添加规则")
+        case .edit:
+            return t("Edit Rule", "编辑规则")
         }
     }
 
@@ -316,7 +333,7 @@ struct RuleManagementView: View {
         }
 
         return conditions.isEmpty
-            ? "No conditions"
+            ? t("No conditions", "无条件")
             : conditions.joined(separator: " + ")
     }
 
@@ -324,8 +341,8 @@ struct RuleManagementView: View {
         for sourceApplication: SourceApplication
     ) -> String {
         existingRule(for: sourceApplication) == nil
-            ? "Create Rule from This App"
-            : "Edit Rule for This App"
+            ? t("Create Rule from This App", "从此 App 创建规则")
+            : t("Edit Rule for This App", "编辑此 App 的规则")
     }
 
     private func openEditor(for sourceApplication: SourceApplication) {
@@ -348,6 +365,10 @@ struct RuleManagementView: View {
                 browser: browser
             )
         )
+    }
+
+    private func t(_ english: String, _ chinese: String) -> String {
+        appState.text(english, chinese)
     }
 }
 
@@ -377,13 +398,14 @@ private struct RoutingHistoryView: View {
     let history: [RoutingHistoryItem]
     let canEditConfiguration: Bool
     let canCreateRule: Bool
+    let language: AppLanguage
     let onOpenRule: (SourceApplication) -> Void
 
     var body: some View {
         VStack(spacing: 0) {
             Form {
                 if history.isEmpty {
-                    Text("No routing history yet.")
+                    Text(t("No routing history yet.", "还没有路由历史。"))
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(history) { item in
@@ -425,7 +447,7 @@ private struct RoutingHistoryView: View {
                             Spacer()
 
                             if let sourceApplication = item.sourceApplication {
-                                Button("Create or Edit Rule") {
+                                Button(t("Create or Edit Rule", "创建或编辑规则")) {
                                     onOpenRule(sourceApplication)
                                 }
                                 .disabled(
@@ -433,7 +455,7 @@ private struct RoutingHistoryView: View {
                                         || !canCreateRule
                                 )
                             } else {
-                                Text("No source app detected")
+                                Text(t("No source app detected", "未检测到来源 App"))
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -448,7 +470,7 @@ private struct RoutingHistoryView: View {
             HStack {
                 Spacer()
 
-                Button("Close") {
+                Button(t("Close", "关闭")) {
                     dismiss()
                 }
                 .keyboardShortcut(.cancelAction)
@@ -463,6 +485,10 @@ private struct RoutingHistoryView: View {
         let finalBrowserName = item.finalBrowserName ?? "No browser"
         return "\(sourceName) -> \(finalBrowserName)"
     }
+
+    private func t(_ english: String, _ chinese: String) -> String {
+        language.text(english, chinese)
+    }
 }
 
 private struct RuleEditorView: View {
@@ -471,6 +497,7 @@ private struct RuleEditorView: View {
     let title: String
     let availableBrowsers: [Browser]
     let recentSourceApplications: [RecentSourceApplication]
+    let language: AppLanguage
     let onSave:
         (RoutingRule) -> Result<Void, ConfigurationEditingError>
 
@@ -485,12 +512,14 @@ private struct RuleEditorView: View {
         draft: RoutingRuleDraft,
         availableBrowsers: [Browser],
         recentSourceApplications: [RecentSourceApplication],
+        language: AppLanguage,
         onSave: @escaping
             (RoutingRule) -> Result<Void, ConfigurationEditingError>
     ) {
         self.title = title
         self.availableBrowsers = availableBrowsers
         self.recentSourceApplications = recentSourceApplications
+        self.language = language
         self.onSave = onSave
         _draft = State(initialValue: draft)
     }
@@ -498,7 +527,7 @@ private struct RuleEditorView: View {
     var body: some View {
         VStack(spacing: 0) {
             Form {
-                TextField("Rule name", text: $draft.name)
+                TextField(t("Rule name", "规则名称"), text: $draft.name)
 
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
@@ -511,12 +540,12 @@ private struct RuleEditorView: View {
 
                         Spacer()
 
-                        Button("Choose Source App") {
+                        Button(t("Choose Source App", "选择来源 App")) {
                             showsSourcePicker = true
                         }
                     }
 
-                    Text("Drop a .app here to fill the source automatically.")
+                    Text(t("Drop a .app here to fill the source automatically.", "把 .app 拖到这里可自动填充来源。"))
                         .font(.caption)
                         .foregroundStyle(
                             isDropTargeted ? Color.accentColor : Color.secondary
@@ -542,29 +571,29 @@ private struct RuleEditorView: View {
                         )
                 }
 
-                DisclosureGroup("Advanced source fields") {
+                DisclosureGroup(t("Advanced source fields", "高级来源字段")) {
                     TextField(
-                        "Source app name",
+                        t("Source app name", "来源 App 名称"),
                         text: $draft.sourceAppName
                     )
                     TextField(
-                        "Source bundle identifier",
+                        t("Source bundle identifier", "来源 Bundle identifier"),
                         text: $draft.sourceAppBundleIdentifier
                     )
                 }
 
-                TextField("Domain pattern", text: $draft.hostPattern)
-                TextField("URL scheme", text: $draft.urlScheme)
+                TextField(t("Domain pattern", "域名规则"), text: $draft.hostPattern)
+                TextField(t("URL scheme", "URL scheme"), text: $draft.urlScheme)
 
                 Picker(
-                    "Destination browser",
+                    t("Destination browser", "目标浏览器"),
                     selection: $draft.browserBundleIdentifier
                 ) {
                     if !availableBrowsers.contains(where: {
                         $0.bundleIdentifier
                             == draft.browserBundleIdentifier
                     }) {
-                        Text("Current browser (Unavailable)")
+                        Text(t("Current browser (Unavailable)", "当前浏览器（不可用）"))
                             .tag(draft.browserBundleIdentifier)
                     }
 
@@ -574,9 +603,9 @@ private struct RuleEditorView: View {
                     }
                 }
 
-                Menu("Quick Templates") {
+                Menu(t("Quick Templates", "快速模板")) {
                     ForEach(availableBrowsers) { browser in
-                        Button("Always open in \(browser.name)") {
+                        Button(t("Always open in \(browser.name)", "始终用 \(browser.name) 打开")) {
                             applyBrowserTemplate(browser)
                         }
                     }
@@ -584,14 +613,14 @@ private struct RuleEditorView: View {
                 .disabled(availableBrowsers.isEmpty)
 
                 Stepper(
-                    "Priority: \(draft.priority)",
+                    t("Priority: \(draft.priority)", "优先级：\(draft.priority)"),
                     value: $draft.priority,
                     in: 0...1000
                 )
 
-                Toggle("Enabled", isOn: $draft.enabled)
+                Toggle(t("Enabled", "启用"), isOn: $draft.enabled)
                 Toggle(
-                    "Open without activating browser",
+                    t("Open without activating browser", "后台打开浏览器"),
                     isOn: $draft.openInBackground
                 )
 
@@ -607,12 +636,12 @@ private struct RuleEditorView: View {
             HStack {
                 Spacer()
 
-                Button("Cancel") {
+                Button(t("Cancel", "取消")) {
                     dismiss()
                 }
                 .keyboardShortcut(.cancelAction)
 
-                Button("Save") {
+                Button(t("Save", "保存")) {
                     save()
                 }
                 .keyboardShortcut(.defaultAction)
@@ -633,7 +662,8 @@ private struct RuleEditorView: View {
                         )
                     )
                 },
-                installedApplications: installedApplications
+                installedApplications: installedApplications,
+                language: language
             ) { application in
                 applySourceApplication(application)
                 showsSourcePicker = false
@@ -656,12 +686,15 @@ private struct RuleEditorView: View {
             return draft.sourceAppBundleIdentifier
         }
 
-        return "No source app selected"
+        return t("No source app selected", "未选择来源 App")
     }
 
     private var sourceDetail: String {
         if draft.sourceAppBundleIdentifier.isEmpty {
-            return "Use the picker, recent history, or drag a .app bundle."
+            return t(
+                "Use the picker, recent history, or drag a .app bundle.",
+                "可使用选择器、最近历史，或拖入 .app。"
+            )
         }
 
         return draft.sourceAppBundleIdentifier
@@ -691,7 +724,7 @@ private struct RuleEditorView: View {
     private var selectedBrowserName: String {
         availableBrowsers.first {
             $0.bundleIdentifier == draft.browserBundleIdentifier
-        }?.name ?? "selected browser"
+        }?.name ?? t("selected browser", "选中的浏览器")
     }
 
     private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
@@ -712,7 +745,10 @@ private struct RuleEditorView: View {
                     let bundle = Bundle(url: url),
                     let bundleIdentifier = bundle.bundleIdentifier
                 else {
-                    errorMessage = "Drop a valid .app bundle."
+                    errorMessage = t(
+                        "Drop a valid .app bundle.",
+                        "请拖入有效的 .app。"
+                    )
                     return
                 }
 
@@ -767,6 +803,10 @@ private struct RuleEditorView: View {
             errorMessage = error.localizedDescription
         }
     }
+
+    private func t(_ english: String, _ chinese: String) -> String {
+        language.text(english, chinese)
+    }
 }
 
 private struct SourceAppChoice: Identifiable, Equatable {
@@ -784,6 +824,7 @@ private struct SourceAppPickerView: View {
 
     let recentApplications: [SourceAppChoice]
     let installedApplications: [SourceAppChoice]
+    let language: AppLanguage
     let onSelect: (SourceApplication) -> Void
 
     @State private var searchText = ""
@@ -791,17 +832,17 @@ private struct SourceAppPickerView: View {
     var body: some View {
         VStack(spacing: 0) {
             Form {
-                TextField("Search apps", text: $searchText)
+                TextField(t("Search apps", "搜索 App"), text: $searchText)
 
                 if !filteredRecentApplications.isEmpty {
-                    Section("Recently Detected") {
+                    Section(t("Recently Detected", "最近检测到")) {
                         ForEach(filteredRecentApplications) { choice in
                             sourceButton(choice)
                         }
                     }
                 }
 
-                Section("Installed Apps") {
+                Section(t("Installed Apps", "已安装 App")) {
                     ForEach(filteredInstalledApplications) { choice in
                         sourceButton(choice)
                     }
@@ -814,7 +855,7 @@ private struct SourceAppPickerView: View {
             HStack {
                 Spacer()
 
-                Button("Cancel") {
+                Button(t("Cancel", "取消")) {
                     dismiss()
                 }
                 .keyboardShortcut(.cancelAction)
@@ -867,6 +908,10 @@ private struct SourceAppPickerView: View {
             }
         }
         .buttonStyle(.plain)
+    }
+
+    private func t(_ english: String, _ chinese: String) -> String {
+        language.text(english, chinese)
     }
 }
 

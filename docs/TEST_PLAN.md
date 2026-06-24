@@ -283,6 +283,25 @@ Record these before each test cycle:
 - Product result: P4 is covered without adding an updater framework or
   installer package.
 
+### 2026-06-24: Bilingual and Compact Settings Pass
+
+- Automated result: 63 tests passed and 1 opt-in browser integration test
+  skipped during the normal test run.
+- Release size result:
+  - Release `.app` bundle measured approximately `1.9M`.
+  - Main executable measured approximately `1.9M`.
+- Language behavior:
+  - Settings can switch the interface between English and Chinese.
+  - The language preference persists through `UserDefaults`.
+  - Menu bar, onboarding, setup health, settings sections, rule editor, and
+    routing history cover the main bilingual user paths.
+- Settings layout behavior:
+  - Settings is now split into Overview, Rules, Diagnostics, and Advanced tabs.
+  - The layout remains native SwiftUI/AppKit without custom visual framework or
+    bundled assets.
+- Product result: the interface is more compact while keeping the app
+  lightweight.
+
 ## Core Checklist
 
 | ID | Scenario | Steps | Expected result |
@@ -333,6 +352,8 @@ Record these before each test cycle:
 | T39 | First-run setup guide | Launch with onboarding incomplete | Settings opens and the setup guide explains default browser, testing, privacy, and backup |
 | T40 | Reopen setup guide | Click menu bar `Setup Guide` | Settings opens and the setup guide is shown again |
 | T41 | Manual release zip | Run `scripts/create_release_zip.sh` against a Release `.app` | A timestamped zip is created and keeps the app bundle structure |
+| T42 | Switch interface language | Change `Language` in Overview | Main Settings, menu bar, onboarding, and setup health switch between English and Chinese |
+| T43 | Compact settings navigation | Open each Settings tab | Overview, Rules, Diagnostics, and Advanced each show focused content without one long crowded page |
 
 ## Source Detection Compatibility Matrix
 

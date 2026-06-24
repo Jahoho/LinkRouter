@@ -1,6 +1,33 @@
 import Foundation
 import ServiceManagement
 
+enum AppLanguage: String, CaseIterable, Identifiable {
+    case english = "en"
+    case chinese = "zh-Hans"
+
+    var id: String {
+        rawValue
+    }
+
+    var displayName: String {
+        switch self {
+        case .english:
+            return "English"
+        case .chinese:
+            return "中文"
+        }
+    }
+
+    func text(_ english: String, _ chinese: String) -> String {
+        switch self {
+        case .english:
+            return english
+        case .chinese:
+            return chinese
+        }
+    }
+}
+
 enum LaunchAtLoginStatus: Equatable {
     case enabled
     case disabled
@@ -16,26 +43,43 @@ enum LaunchAtLoginStatus: Equatable {
     }
 
     var title: String {
+        title(language: .english)
+    }
+
+    func title(language: AppLanguage) -> String {
         switch self {
         case .enabled:
-            return "Enabled"
+            return language.text("Enabled", "已启用")
         case .disabled:
-            return "Disabled"
+            return language.text("Disabled", "已停用")
         case .requiresApproval:
-            return "Requires approval"
+            return language.text("Requires approval", "需要批准")
         case .unavailable:
-            return "Unavailable"
+            return language.text("Unavailable", "不可用")
         }
     }
 
     var detail: String {
+        detail(language: .english)
+    }
+
+    func detail(language: AppLanguage) -> String {
         switch self {
         case .enabled:
-            return "LinkRouter will open when you log in."
+            return language.text(
+                "LinkRouter will open when you log in.",
+                "LinkRouter 会在你登录时自动打开。"
+            )
         case .disabled:
-            return "LinkRouter will not open automatically."
+            return language.text(
+                "LinkRouter will not open automatically.",
+                "LinkRouter 不会自动启动。"
+            )
         case .requiresApproval:
-            return "Approve LinkRouter in System Settings to enable launch at login."
+            return language.text(
+                "Approve LinkRouter in System Settings to enable launch at login.",
+                "请在系统设置中批准 LinkRouter，才能启用登录启动。"
+            )
         case let .unavailable(message):
             return message
         }
@@ -63,13 +107,17 @@ enum SetupHealthLevel: Equatable {
     case error
 
     var title: String {
+        title(language: .english)
+    }
+
+    func title(language: AppLanguage) -> String {
         switch self {
         case .ok:
-            return "OK"
+            return language.text("OK", "正常")
         case .warning:
-            return "Check"
+            return language.text("Check", "需检查")
         case .error:
-            return "Needs attention"
+            return language.text("Needs attention", "需要处理")
         }
     }
 }
@@ -88,6 +136,7 @@ final class AppState: ObservableObject {
     private static let recentRoutingHistoryLimit = 20
     private static let onboardingCompletedKey =
         "LinkRouterOnboardingCompleted"
+    private static let languageKey = "LinkRouterLanguage"
 
     @Published private(set) var lastRequest: IncomingURLRequest?
     @Published private(set) var receivedRequestCount = 0
@@ -107,6 +156,7 @@ final class AppState: ObservableObject {
     @Published private(set) var pauseRoutingUntil: Date?
     @Published private(set) var nextLinkBrowserOverride: Browser?
     @Published private(set) var hasCompletedOnboarding: Bool
+    @Published private(set) var language: AppLanguage
     @Published private(set) var routingConfiguration: RoutingConfiguration
     @Published private(set) var configurationStatus: ConfigurationLoadStatus
     @Published private(set) var configurationEditMessage: String?
@@ -129,6 +179,9 @@ final class AppState: ObservableObject {
         hasCompletedOnboarding = userDefaults.bool(
             forKey: Self.onboardingCompletedKey
         )
+        language = AppLanguage(
+            rawValue: userDefaults.string(forKey: Self.languageKey) ?? ""
+        ) ?? .english
         routingConfiguration = loadResult.configuration
         configurationStatus = loadResult.status
         configurationFileURL = configurationStore.configurationURL
@@ -150,55 +203,76 @@ final class AppState: ObservableObject {
         return [
             SetupHealthItem(
                 id: "listener",
-                title: "URL listener",
+                title: text("URL listener", "链接监听"),
                 level: .ok,
-                detail: "LinkRouter is running and ready to receive URL events."
+                detail: text(
+                    "LinkRouter is running and ready to receive URL events.",
+                    "LinkRouter 正在运行，可以接收链接事件。"
+                )
             ),
             SetupHealthItem(
                 id: "default-browser",
-                title: "Default web browser",
+                title: text("Default web browser", "默认网页浏览器"),
                 level: defaultBrowserStatus.isLinkRouterDefault
                     ? .ok
                     : .warning,
-                detail: defaultBrowserStatus.detail
+                detail: localized(defaultBrowserStatus).detail
             ),
             SetupHealthItem(
                 id: "configuration",
-                title: "Configuration storage",
+                title: text("Configuration storage", "配置存储"),
                 level: configurationStatus.isUsingInMemoryFallback
                     ? .error
                     : .ok,
-                detail: configurationStatus.detail
+                detail: localized(configurationStatus).detail
             ),
             SetupHealthItem(
                 id: "fallback-browser",
-                title: "Fallback browser",
+                title: text("Fallback browser", "兜底浏览器"),
                 level: fallbackBrowserAvailable ? .ok : .error,
                 detail: fallbackBrowserAvailable
-                    ? "\(routingConfiguration.defaultBrowserName) is available as the fallback browser."
-                    : "\(routingConfiguration.defaultBrowserName) is unavailable. Choose an installed fallback browser."
+                    ? text(
+                        "\(routingConfiguration.defaultBrowserName) is available as the fallback browser.",
+                        "\(routingConfiguration.defaultBrowserName) 可作为兜底浏览器。"
+                    )
+                    : text(
+                        "\(routingConfiguration.defaultBrowserName) is unavailable. Choose an installed fallback browser.",
+                        "\(routingConfiguration.defaultBrowserName) 当前不可用。请选择一个已安装的兜底浏览器。"
+                    )
             ),
             SetupHealthItem(
                 id: "source-detection",
-                title: "Source detection",
+                title: text("Source detection", "来源识别"),
                 level: recentSourceApplications.isEmpty ? .warning : .ok,
                 detail: recentSourceApplications.isEmpty
-                    ? "Open a link from Mail, Codex, WeChat, or another app to verify source detection."
-                    : "Recent source apps have been detected."
+                    ? text(
+                        "Open a link from Mail, Codex, WeChat, or another app to verify source detection.",
+                        "请从 Mail、Codex、微信或其他 App 打开链接，以验证来源识别。"
+                    )
+                    : text(
+                        "Recent source apps have been detected.",
+                        "已经检测到最近的来源 App。"
+                    )
             ),
             SetupHealthItem(
                 id: "routing-history",
-                title: "Routing history",
+                title: text("Routing history", "路由历史"),
                 level: recentRoutingHistory.isEmpty ? .warning : .ok,
                 detail: recentRoutingHistory.isEmpty
-                    ? "Route a link to populate recent history diagnostics."
-                    : "Recent routing diagnostics are available."
+                    ? text(
+                        "Route a link to populate recent history diagnostics.",
+                        "打开一次链接后，这里会出现最近路由诊断。"
+                    )
+                    : text(
+                        "Recent routing diagnostics are available.",
+                        "最近路由诊断可用。"
+                    )
             ),
             SetupHealthItem(
                 id: "launch-at-login",
-                title: "Launch at login",
+                title: text("Launch at login", "登录时启动"),
                 level: launchAtLoginHealthLevel,
-                detail: launchAtLoginStatus.detail
+                detail: launchAtLoginStatus.detail(language: language)
             )
         ]
     }
@@ -210,10 +284,13 @@ final class AppState: ObservableObject {
         }.count
 
         if attentionCount == 0 {
-            return "All checks passed"
+            return text("All checks passed", "所有检查已通过")
         }
 
-        return "\(attentionCount) checks need review"
+        return text(
+            "\(attentionCount) checks need review",
+            "\(attentionCount) 项需要检查"
+        )
     }
 
     var isRoutingPaused: Bool {
@@ -226,18 +303,106 @@ final class AppState: ObservableObject {
 
     var routingControlSummary: String {
         if let nextLinkBrowserOverride {
-            return "Next link will open in \(nextLinkBrowserOverride.name)."
+            return text(
+                "Next link will open in \(nextLinkBrowserOverride.name).",
+                "下一次链接会用 \(nextLinkBrowserOverride.name) 打开。"
+            )
         }
 
         if isRoutingPaused {
-            return "Routing is paused; links use the fallback browser."
+            return text(
+                "Routing is paused; links use the fallback browser.",
+                "路由已暂停；链接会使用兜底浏览器。"
+            )
         }
 
-        return "Routing rules are active."
+        return text("Routing rules are active.", "路由规则已启用。")
     }
 
     var shouldShowOnboarding: Bool {
         !hasCompletedOnboarding
+    }
+
+    func setLanguage(_ language: AppLanguage) {
+        self.language = language
+        userDefaults.set(language.rawValue, forKey: Self.languageKey)
+    }
+
+    func text(_ english: String, _ chinese: String) -> String {
+        language.text(english, chinese)
+    }
+
+    func localized(
+        _ status: DefaultBrowserStatus
+    ) -> (title: String, detail: String) {
+        let title: String
+
+        if status.isLinkRouterDefault {
+            title = text("LinkRouter is default", "LinkRouter 是默认浏览器")
+        } else if let currentBrowserName = status.currentBrowserName {
+            title = text(
+                "\(currentBrowserName) is default",
+                "\(currentBrowserName) 是默认浏览器"
+            )
+        } else {
+            title = text("Unable to determine", "无法确定")
+        }
+
+        let detail: String
+        if status.isLinkRouterDefault {
+            detail = text(
+                "New web links should be delivered to LinkRouter first.",
+                "新的网页链接会先交给 LinkRouter 处理。"
+            )
+        } else if let currentBrowserName = status.currentBrowserName {
+            detail = text(
+                "New web links currently go directly to \(currentBrowserName).",
+                "新的网页链接目前会直接交给 \(currentBrowserName)。"
+            )
+        } else {
+            detail = text(
+                status.detail,
+                "macOS 没有返回默认 HTTPS 处理程序。"
+            )
+        }
+
+        return (title, detail)
+    }
+
+    func localized(
+        _ status: ConfigurationLoadStatus
+    ) -> (title: String, detail: String) {
+        switch status {
+        case .loaded:
+            return (
+                text("Loaded from disk", "已从磁盘加载"),
+                text(
+                    "The saved configuration passed validation.",
+                    "已保存配置通过校验。"
+                )
+            )
+        case .createdSeed:
+            return (
+                text("Created default configuration", "已创建默认配置"),
+                text(
+                    "A new schema version \(RoutingConfiguration.currentSchemaVersion) configuration was created.",
+                    "已创建 schema version \(RoutingConfiguration.currentSchemaVersion) 的新配置。"
+                )
+            )
+        case .saved:
+            return (
+                text("Saved to disk", "已保存到磁盘"),
+                text(
+                    "The current rules and fallback browser were saved.",
+                    "当前规则和兜底浏览器已保存。"
+                )
+            )
+        case let .usingInMemoryFallback(reason):
+            return (
+                text("Using in-memory fallback", "正在使用内存兜底配置"),
+                reason
+            )
+        }
     }
 
     private var launchAtLoginHealthLevel: SetupHealthLevel {
@@ -304,12 +469,21 @@ final class AppState: ObservableObject {
 
             launchAtLoginStatus = .current()
             launchAtLoginMessage = enabled
-                ? "Launch at login was enabled."
-                : "Launch at login was disabled."
+                ? text(
+                    "Launch at login was enabled.",
+                    "已启用登录时启动。"
+                )
+                : text(
+                    "Launch at login was disabled.",
+                    "已关闭登录时启动。"
+                )
         } catch {
             launchAtLoginStatus = .current()
             launchAtLoginMessage =
-                "Launch at login could not be changed: \(error.localizedDescription)"
+                text(
+                    "Launch at login could not be changed: \(error.localizedDescription)",
+                    "无法修改登录启动状态：\(error.localizedDescription)"
+                )
         }
     }
 

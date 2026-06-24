@@ -52,6 +52,8 @@ Status values:
 | Import/export configuration | Done | Post-MVP | Versioned JSON import, export, and reset controls in Settings |
 | Lightweight release size check | Done | Post-MVP | Release app bundle is approximately 1.7M with no extra asset packs or third-party frameworks |
 | Onboarding | Done | Productization | First-run setup guide plus menu bar entry for re-opening it |
+| English / Chinese interface switch | Done | Productization | Settings stores a lightweight in-app language preference |
+| Compact Settings tabs | Done | Productization | Overview, Rules, Diagnostics, and Advanced tabs reduce the long settings page |
 | Installed browser detection | Done | MVP | Launch Services handlers are listed in Settings by bundle identifier |
 | Login at startup | Done | MVP | Settings toggle backed by `SMAppService` |
 | Version update mechanism | Deferred | Distribution | Manual zip release is enough until external testers need automatic updates |
@@ -111,3 +113,5 @@ Status values:
 | 2026-06-24 | Check release app size | Done | Release bundle measured at about 1.7M |
 | 2026-06-24 | Add first-run setup guide | Done | Settings explains default browser setup, test links, rule creation, privacy, and backups |
 | 2026-06-24 | Add lightweight release zip flow | Done | Manual zip script verified against a Release app; zip measured about 424K |
+| 2026-06-24 | Add English / Chinese interface switch | Done | Language preference persists through UserDefaults |
+| 2026-06-24 | Compact Settings into native tabs | Done | Settings now uses Overview, Rules, Diagnostics, and Advanced tabs |

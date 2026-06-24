@@ -44,6 +44,16 @@
 1. 点击菜单栏中的 LinkRouter 图标。
 2. 点击 `Settings`。
 
+设置窗口现在分为四个区域：
+
+- `Overview` / `概览`：默认浏览器、语言、启动项、浏览器测试。
+- `Rules` / `规则`：路由规则、fallback browser、最近来源 App。
+- `Diagnostics` / `诊断`：最近收到的链接、最近路由结果。
+- `Advanced` / `高级`：配置文件、导入导出、隐私说明。
+
+在 `Overview` 的 `Language` 中可以切换 English / 中文。这个设置会保存，
+下次启动仍然生效。
+
 先检查：
 
 - `URL listener` 显示 `Active`。

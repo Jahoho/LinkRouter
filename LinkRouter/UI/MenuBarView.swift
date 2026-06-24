@@ -6,29 +6,32 @@ struct MenuBarView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("URL listener is active", systemImage: "checkmark.circle")
+            Label(t("URL listener is active", "链接监听已启用"), systemImage: "checkmark.circle")
 
             if let lastRequest = appState.lastRequest {
-                Text("Last link: \(lastRequest.sanitizedDescription)")
+                Text(t("Last link: \(lastRequest.sanitizedDescription)", "最近链接：\(lastRequest.sanitizedDescription)"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
                 Text(
-                    "Source: \(lastRequest.source.application?.name ?? "Unknown") (\(lastRequest.source.confidence.rawValue))"
+                    t(
+                        "Source: \(lastRequest.source.application?.name ?? "Unknown") (\(lastRequest.source.confidence.rawValue))",
+                        "来源：\(lastRequest.source.application?.name ?? "未知") (\(lastRequest.source.confidence.rawValue))"
+                    )
                 )
                 .font(.caption)
                 .foregroundStyle(.secondary)
             } else {
-                Text("No links received yet")
+                Text(t("No links received yet", "还没有收到链接"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
-            Text("Browsers found: \(appState.availableBrowsers.count)")
+            Text(t("Browsers found: \(appState.availableBrowsers.count)", "已发现浏览器：\(appState.availableBrowsers.count)"))
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            Text(appState.defaultBrowserStatus.title)
+            Text(appState.localized(appState.defaultBrowserStatus).title)
                 .font(.caption)
                 .foregroundStyle(
                     appState.defaultBrowserStatus.isLinkRouterDefault
@@ -53,25 +56,25 @@ struct MenuBarView: View {
                         || appState.nextLinkBrowserOverride != nil
                         ? Color.orange
                         : Color.secondary
-                )
+            )
 
             if appState.isRoutingPaused {
-                Button("Resume Routing") {
+                Button(t("Resume Routing", "恢复路由")) {
                     appState.resumeRouting()
                 }
             } else {
-                Button("Pause Routing for 10 Minutes") {
+                Button(t("Pause Routing for 10 Minutes", "暂停路由 10 分钟")) {
                     appState.pauseRoutingForTenMinutes()
                 }
             }
 
             if appState.nextLinkBrowserOverride != nil {
-                Button("Clear Next-Link Override") {
+                Button(t("Clear Next-Link Override", "清除下一次链接指定")) {
                     appState.clearNextLinkOverride()
                 }
             }
 
-            Menu("Open Next Link With") {
+            Menu(t("Open Next Link With", "下一次链接打开方式")) {
                 ForEach(appState.availableBrowsers) { browser in
                     Button(browser.name) {
                         appState.openNextLink(in: browser)
@@ -83,7 +86,7 @@ struct MenuBarView: View {
             Divider()
 
             SettingsLink {
-                Label("Settings", systemImage: "gear")
+                Label(t("Settings", "设置"), systemImage: "gear")
             }
 
             Button {
@@ -94,15 +97,19 @@ struct MenuBarView: View {
                     from: nil
                 )
             } label: {
-                Label("Setup Guide", systemImage: "checklist")
+                Label(t("Setup Guide", "设置引导"), systemImage: "checklist")
             }
 
-            Button("Quit LinkRouter") {
+            Button(t("Quit LinkRouter", "退出 LinkRouter")) {
                 NSApplication.shared.terminate(nil)
             }
             .keyboardShortcut("q")
         }
         .padding(8)
         .frame(minWidth: 260)
+    }
+
+    private func t(_ english: String, _ chinese: String) -> String {
+        appState.text(english, chinese)
     }
 }

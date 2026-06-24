@@ -736,6 +736,35 @@ final class ConfigurationEditingTests: XCTestCase {
         XCTAssertTrue(restoredState.shouldShowOnboarding)
     }
 
+    @MainActor
+    func testAppStatePersistsLanguagePreference() throws {
+        let suiteName = "LinkRouterLanguageTests-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer {
+            defaults.removePersistentDomain(forName: suiteName)
+        }
+
+        let appState = AppState(
+            configurationStore: ConfigurationStore(
+                directoryURL: temporaryDirectoryURL
+            ),
+            userDefaults: defaults
+        )
+
+        appState.setLanguage(.chinese)
+        XCTAssertEqual(appState.language, .chinese)
+        XCTAssertEqual(appState.text("Settings", "设置"), "设置")
+
+        let restoredState = AppState(
+            configurationStore: ConfigurationStore(
+                directoryURL: temporaryDirectoryURL
+            ),
+            userDefaults: defaults
+        )
+
+        XCTAssertEqual(restoredState.language, .chinese)
+    }
+
     private func makeRule(
         id: String,
         name: String = "New Rule"

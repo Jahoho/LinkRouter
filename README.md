@@ -36,6 +36,8 @@ The core routing pipeline is now executable:
 - Menu bar pause and next-link browser override controls
 - JSON configuration import, export, and reset controls
 - First-run setup guide with default-browser, rule creation, privacy, and backup guidance
+- English / Chinese interface switch in Settings
+- Compact native settings layout with Overview, Rules, Diagnostics, and Advanced tabs
 - Lightweight manual release zip script
 - Settings controls for refreshing browsers and opening a test page
 - Default-browser status display in Settings and the menu bar
