@@ -129,6 +129,65 @@ struct SetupHealthItem: Identifiable, Equatable {
     let detail: String
 }
 
+enum SourceCompatibilityStatus: Equatable {
+    case reliable
+    case needsMoreSamples
+    case unstable
+
+    func title(language: AppLanguage) -> String {
+        switch self {
+        case .reliable:
+            return language.text("Reliable", "较稳定")
+        case .needsMoreSamples:
+            return language.text("Needs more samples", "样本不足")
+        case .unstable:
+            return language.text("Unstable", "不稳定")
+        }
+    }
+}
+
+struct SourceCompatibilityReport: Identifiable, Equatable {
+    let bundleIdentifier: String
+    let appName: String
+    let sampleCount: Int
+    let highConfidenceCount: Int
+    let mediumConfidenceCount: Int
+    let unknownConfidenceCount: Int
+    let detectionMethods: [SourceDetectionMethod]
+    let latestSeenAt: Date
+
+    var id: String {
+        bundleIdentifier
+    }
+
+    var averageConfidenceScore: Double {
+        guard sampleCount > 0 else {
+            return 0
+        }
+
+        let total =
+            Double(highConfidenceCount)
+            + Double(mediumConfidenceCount) * 0.6
+        return total / Double(sampleCount)
+    }
+
+    var status: SourceCompatibilityStatus {
+        if sampleCount < 2 {
+            return .needsMoreSamples
+        }
+
+        if averageConfidenceScore >= 0.8 {
+            return .reliable
+        }
+
+        return .unstable
+    }
+
+    var confidenceSummary: String {
+        "\(highConfidenceCount) high / \(mediumConfidenceCount) medium / \(unknownConfidenceCount) unknown"
+    }
+}
+
 @MainActor
 final class AppState: ObservableObject {
     static let shared = AppState()
@@ -291,6 +350,67 @@ final class AppState: ObservableObject {
             "\(attentionCount) checks need review",
             "\(attentionCount) 项需要检查"
         )
+    }
+
+    var sourceCompatibilityReports: [SourceCompatibilityReport] {
+        let groupedHistory = Dictionary(grouping: recentRoutingHistory) {
+            item in
+            item.sourceApplication?.bundleIdentifier
+        }
+
+        return groupedHistory.compactMap { bundleIdentifier, items in
+            guard let bundleIdentifier else {
+                return nil
+            }
+
+            let namedItems = items.compactMap(\.sourceApplication)
+            guard let latestItem = items.max(by: {
+                $0.routedAt < $1.routedAt
+            }) else {
+                return nil
+            }
+
+            let appName =
+                latestItem.sourceApplication?.name
+                ?? namedItems.first?.name
+                ?? bundleIdentifier
+            let methods = orderedDetectionMethods(from: items)
+
+            return SourceCompatibilityReport(
+                bundleIdentifier: bundleIdentifier,
+                appName: appName,
+                sampleCount: items.count,
+                highConfidenceCount: items.filter {
+                    $0.confidence == .high
+                }.count,
+                mediumConfidenceCount: items.filter {
+                    $0.confidence == .medium
+                }.count,
+                unknownConfidenceCount: items.filter {
+                    $0.confidence == .unknown
+                }.count,
+                detectionMethods: methods,
+                latestSeenAt: latestItem.routedAt
+            )
+        }
+        .sorted { first, second in
+            if first.status != second.status {
+                return sourceCompatibilityRank(first.status)
+                    < sourceCompatibilityRank(second.status)
+            }
+
+            if first.sampleCount != second.sampleCount {
+                return first.sampleCount > second.sampleCount
+            }
+
+            return first.latestSeenAt > second.latestSeenAt
+        }
+    }
+
+    var unknownSourceHistoryCount: Int {
+        recentRoutingHistory.filter {
+            $0.sourceApplication == nil
+        }.count
     }
 
     var isRoutingPaused: Bool {
@@ -738,6 +858,33 @@ final class AppState: ObservableObject {
         configurationEditMessage = error.localizedDescription
         configurationEditFailed = true
         return .failure(error)
+    }
+
+    private func orderedDetectionMethods(
+        from items: [RoutingHistoryItem]
+    ) -> [SourceDetectionMethod] {
+        var methods: [SourceDetectionMethod] = []
+
+        for item in items.sorted(by: { $0.routedAt > $1.routedAt }) {
+            if !methods.contains(item.detectionMethod) {
+                methods.append(item.detectionMethod)
+            }
+        }
+
+        return methods
+    }
+
+    private func sourceCompatibilityRank(
+        _ status: SourceCompatibilityStatus
+    ) -> Int {
+        switch status {
+        case .reliable:
+            return 0
+        case .needsMoreSamples:
+            return 1
+        case .unstable:
+            return 2
+        }
     }
 
     private func routingConfiguration(

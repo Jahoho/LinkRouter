@@ -302,6 +302,24 @@ Record these before each test cycle:
 - Product result: the interface is more compact while keeping the app
   lightweight.
 
+### 2026-06-24: Source Compatibility Report
+
+- Automated result: 64 tests passed and 1 opt-in browser integration test
+  skipped during the normal test run.
+- Diagnostics behavior:
+  - The Diagnostics tab shows a compact `Source compatibility` section.
+  - The report is folded behind a disclosure control so Settings stays light.
+  - Recent sanitized routing history is grouped by source app.
+  - Each source app shows sample count, confidence mix, detection methods, and
+    a reliability label.
+  - Unknown-source samples are counted separately.
+- Privacy result:
+  - No new permanent history store was added.
+  - The report is derived from the existing last 20 sanitized routing results.
+- Product result:
+  - LinkRouter now helps the user decide which source-app rules are
+    trustworthy before adding more automation.
+
 ## Core Checklist
 
 | ID | Scenario | Steps | Expected result |
@@ -354,6 +372,7 @@ Record these before each test cycle:
 | T41 | Manual release zip | Run `scripts/create_release_zip.sh` against a Release `.app` | A timestamped zip is created and keeps the app bundle structure |
 | T42 | Switch interface language | Change `Language` in Overview | Main Settings, menu bar, onboarding, and setup health switch between English and Chinese |
 | T43 | Compact settings navigation | Open each Settings tab | Overview, Rules, Diagnostics, and Advanced each show focused content without one long crowded page |
+| T44 | Source compatibility report | Open links from several apps, then expand `Source compatibility` in Diagnostics | Apps are grouped by source, unknown samples are counted, and reliability labels reflect recent confidence |
 
 ## Source Detection Compatibility Matrix
 

@@ -527,6 +527,71 @@ final class ConfigurationEditingTests: XCTestCase {
     }
 
     @MainActor
+    func testAppStateBuildsSourceCompatibilityReports() throws {
+        let appState = AppState(
+            configurationStore: ConfigurationStore(
+                directoryURL: temporaryDirectoryURL
+            )
+        )
+        let mailHigh = try IncomingURLRequest(
+            urlString: "https://example.com/one?token=secret",
+            source: sourceResult(
+                bundleIdentifier: "com.apple.mail",
+                name: "Mail",
+                method: .appleEventSender,
+                confidence: .high
+            )
+        )
+        let mailMedium = try IncomingURLRequest(
+            urlString: "https://example.com/two",
+            source: sourceResult(
+                bundleIdentifier: "com.apple.mail",
+                name: "Mail",
+                method: .frontmostApplication,
+                confidence: .medium
+            )
+        )
+        let obsidian = try IncomingURLRequest(
+            urlString: "https://example.com/three",
+            source: sourceResult(
+                bundleIdentifier: "md.obsidian",
+                name: "Obsidian",
+                method: .frontmostApplication,
+                confidence: .medium
+            )
+        )
+        let unknown = try IncomingURLRequest(
+            urlString: "https://example.com/four",
+            source: .unknown(reason: "No source")
+        )
+
+        for request in [mailHigh, mailMedium, obsidian, unknown] {
+            appState.recordRoutingHistory(
+                request: request,
+                result: routingResult(
+                    requestID: request.id,
+                    finalBrowserName: "Safari"
+                )
+            )
+        }
+
+        let reports = appState.sourceCompatibilityReports
+
+        XCTAssertEqual(reports.count, 2)
+        XCTAssertEqual(appState.unknownSourceHistoryCount, 1)
+        XCTAssertEqual(reports.first?.bundleIdentifier, "com.apple.mail")
+        XCTAssertEqual(reports.first?.sampleCount, 2)
+        XCTAssertEqual(reports.first?.highConfidenceCount, 1)
+        XCTAssertEqual(reports.first?.mediumConfidenceCount, 1)
+        XCTAssertEqual(reports.first?.status, .reliable)
+        XCTAssertEqual(
+            reports.first?.detectionMethods,
+            [.frontmostApplication, .appleEventSender]
+        )
+        XCTAssertEqual(reports.last?.status, .needsMoreSamples)
+    }
+
+    @MainActor
     func testSetupHealthFlagsMissingRuntimeSignals() throws {
         let appState = AppState(
             configurationStore: ConfigurationStore(
@@ -818,7 +883,9 @@ final class ConfigurationEditingTests: XCTestCase {
 
     private func sourceResult(
         bundleIdentifier: String,
-        name: String
+        name: String,
+        method: SourceDetectionMethod = .appleEventSender,
+        confidence: SourceDetectionConfidence = .high
     ) -> SourceDetectionResult {
         SourceDetectionResult(
             application: SourceApplication(
@@ -826,8 +893,8 @@ final class ConfigurationEditingTests: XCTestCase {
                 name: name,
                 processIdentifier: 123
             ),
-            method: .appleEventSender,
-            confidence: .high,
+            method: method,
+            confidence: confidence,
             reason: "Configuration editing test"
         )
     }

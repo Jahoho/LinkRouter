@@ -54,11 +54,14 @@ Status values:
 | Onboarding | Done | Productization | First-run setup guide plus menu bar entry for re-opening it |
 | English / Chinese interface switch | Done | Productization | Settings stores a lightweight in-app language preference |
 | Compact Settings tabs | Done | Productization | Overview, Rules, Diagnostics, and Advanced tabs reduce the long settings page |
+| Source compatibility report | Done | Productization | Diagnostics summarize recent source-app reliability without storing extra history |
 | Installed browser detection | Done | MVP | Launch Services handlers are listed in Settings by bundle identifier |
 | Login at startup | Done | MVP | Settings toggle backed by `SMAppService` |
 | Version update mechanism | Deferred | Distribution | Manual zip release is enough until external testers need automatic updates |
 | Developer ID signing and notarization | Research | External beta | Distribution notes document the direct notarization flow; real Developer ID validation remains |
 | App Store feasibility review | Research | Later | Reassess sandbox and review constraints |
+| Browser profile support | Research | Differentiation | Could route work/personal links to browser profiles without becoming a heavy browser suite |
+| Default file-app manager | Research | Adjacent | Validate `.md`, `.pdf`, `.csv`, `.json`, and `.txt` defaults as a separate compact module before implementation |
 
 ## Technical Research
 
@@ -70,6 +73,8 @@ Status values:
 | Accessibility detector | Deferred | Does it materially improve accuracy enough to justify permission? |
 | Lower deployment target | Deferred | After MVP, should support extend below macOS 26? |
 | App Sandbox | Research | Can all required behavior pass tests with sandbox enabled? |
+| File default-app APIs | Research | Which Launch Services APIs are stable enough for a compact Default Apps tab? |
+| Browser profile launching | Research | Which browsers expose reliable profile launch arguments without AppleScript permissions? |
 
 ## Improvement Log
 
@@ -115,3 +120,32 @@ Status values:
 | 2026-06-24 | Add lightweight release zip flow | Done | Manual zip script verified against a Release app; zip measured about 424K |
 | 2026-06-24 | Add English / Chinese interface switch | Done | Language preference persists through UserDefaults |
 | 2026-06-24 | Compact Settings into native tabs | Done | Settings now uses Overview, Rules, Diagnostics, and Advanced tabs |
+| 2026-06-24 | Validate market need and define differentiation | Done | Position LinkRouter around local, lightweight, explainable source-aware routing rather than a broad browser suite |
+| 2026-06-24 | Add source compatibility report | Done | Diagnostics derive app reliability from the last 20 sanitized routing results |
+
+## Product Strategy Notes
+
+Mature products already prove the category:
+
+- Browser routers cover domain rules, prompts, browser selection, and power-user
+  workflows.
+- Default-app tools cover file extension and UTI ownership but often expose
+  technical concepts users do not understand.
+
+LinkRouter should differentiate by narrowing the promise:
+
+1. Make source-app routing easy for real daily apps.
+2. Explain how confident macOS source detection was.
+3. Let users create rules from observed behavior instead of typed identifiers.
+4. Keep history private, bounded, and diagnostic rather than surveillance-like.
+5. Add adjacent default-app features only when they stay compact and reversible.
+
+Priority after the current iteration:
+
+| Priority | Direction | Rationale |
+|---|---|---|
+| P0 | Source compatibility report | Helps users know which app rules are trustworthy |
+| P1 | Browser profile support research | Strong differentiator for work/personal browser contexts |
+| P2 | Compact Default Apps research | Useful adjacent need, but should not dilute the core link router |
+| P3 | Optional chooser polish | Good for uncertain links, but can interrupt flow if overused |
+| P4 | External beta distribution | Only valuable after real source compatibility is proven |

@@ -284,6 +284,10 @@ struct SettingsView: View {
             Section(t("Last routing result", "最近路由结果")) {
                 routingResultView
             }
+
+            Section(t("Source compatibility", "来源兼容性")) {
+                sourceCompatibilityView
+            }
         }
         .formStyle(.grouped)
         .padding(.top, 6)
@@ -439,6 +443,68 @@ struct SettingsView: View {
                         "还没有完成过路由决策。"
                     )
                 )
+                .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var sourceCompatibilityView: some View {
+        Group {
+            if appState.recentRoutingHistory.isEmpty {
+                Text(
+                    t(
+                        "Open links from real apps to build a lightweight compatibility report.",
+                        "从真实 App 打开链接后，这里会生成轻量兼容性报告。"
+                    )
+                )
+                .foregroundStyle(.secondary)
+            } else {
+                DisclosureGroup(
+                    t(
+                        "\(appState.sourceCompatibilityReports.count) apps, \(appState.unknownSourceHistoryCount) unknown samples",
+                        "\(appState.sourceCompatibilityReports.count) 个 App，\(appState.unknownSourceHistoryCount) 条未知样本"
+                    )
+                ) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        if appState.sourceCompatibilityReports.isEmpty {
+                            Text(
+                                t(
+                                    "Recent links did not include a usable source app yet.",
+                                    "最近链接还没有可用的来源 App。"
+                                )
+                            )
+                            .foregroundStyle(.secondary)
+                        } else {
+                            ForEach(appState.sourceCompatibilityReports) {
+                                report in
+                                SourceCompatibilityRow(
+                                    report: report,
+                                    language: appState.language
+                                )
+                            }
+                        }
+
+                        if appState.unknownSourceHistoryCount > 0 {
+                            Text(
+                                t(
+                                    "Unknown samples use the fallback browser and are useful for testing source detection gaps.",
+                                    "未知样本会使用兜底浏览器，也能帮助判断来源识别缺口。"
+                                )
+                            )
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                        }
+                    }
+                    .padding(.top, 4)
+                }
+
+                Text(
+                    t(
+                        "This report is derived from the last 20 sanitized routing results and is not stored as permanent history.",
+                        "此报告来自最近 20 条脱敏路由结果，不作为永久历史保存。"
+                    )
+                )
+                .font(.caption)
                 .foregroundStyle(.secondary)
             }
         }
@@ -700,6 +766,82 @@ private struct SetupHealthView: View {
         case .warning:
             return .orange
         case .error:
+            return .red
+        }
+    }
+}
+
+private struct SourceCompatibilityRow: View {
+    let report: SourceCompatibilityReport
+    let language: AppLanguage
+
+    var body: some View {
+        HStack(alignment: .top) {
+            Image(systemName: iconName)
+                .foregroundStyle(color)
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(report.appName)
+                        .font(.headline)
+
+                    Spacer()
+
+                    Text(report.status.title(language: language))
+                        .font(.caption)
+                        .foregroundStyle(color)
+                }
+
+                Text(report.bundleIdentifier)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .textSelection(.enabled)
+
+                Text(
+                    language.text(
+                        "\(report.sampleCount) samples; confidence: \(report.confidenceSummary)",
+                        "\(report.sampleCount) 条样本；置信度：\(report.confidenceSummary)"
+                    )
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+                Text(
+                    language.text(
+                        "Methods: \(methodSummary)",
+                        "识别方式：\(methodSummary)"
+                    )
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var methodSummary: String {
+        report.detectionMethods
+            .map(\.rawValue)
+            .joined(separator: ", ")
+    }
+
+    private var iconName: String {
+        switch report.status {
+        case .reliable:
+            return "checkmark.circle.fill"
+        case .needsMoreSamples:
+            return "questionmark.circle.fill"
+        case .unstable:
+            return "exclamationmark.triangle.fill"
+        }
+    }
+
+    private var color: Color {
+        switch report.status {
+        case .reliable:
+            return .green
+        case .needsMoreSamples:
+            return .orange
+        case .unstable:
             return .red
         }
     }

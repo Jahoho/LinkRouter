@@ -20,6 +20,21 @@ forwards each link to the selected browser. Success means the app quietly does
 the right thing, explains surprising decisions, and fails safely to a fallback
 browser when macOS source detection is uncertain.
 
+## Market Positioning
+
+Mature tools such as Velja, Choosy, Browserosaurus, SwiftDefaultApps, and
+`duti` validate that users want more control over browser and default-app
+behavior. LinkRouter should not try to become a heavy all-purpose launcher.
+Its differentiated position is:
+
+1. Source-aware link routing for a small set of personally important apps.
+2. Local-first rules and diagnostics with no cloud account or telemetry.
+3. Explicit confidence reporting for macOS source detection.
+4. A lightweight native menu bar experience that stays quiet until needed.
+
+The product should win by being understandable and trustworthy, not by
+matching every advanced feature in existing browser managers.
+
 ## Brand Personality
 
 Calm, precise, lightweight. The product should feel like a reliable system
@@ -39,6 +54,9 @@ technical identifiers before they can finish a normal task.
 3. Preserve privacy by default; sanitized hosts are enough for normal history.
 4. Make every automatic routing decision explainable.
 5. Extend the existing rule model instead of adding special-case flows.
+6. Prefer trust-building diagnostics over broad feature accumulation.
+7. Treat file default-app management as an adjacent module, not the core
+   identity of the product.
 
 ## Accessibility & Inclusion
 
