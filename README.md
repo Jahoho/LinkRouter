@@ -35,6 +35,8 @@ The core routing pipeline is now executable:
 - Conflict explanation for lower-priority matching rules
 - Menu bar pause and next-link browser override controls
 - JSON configuration import, export, and reset controls
+- First-run setup guide with default-browser, rule creation, privacy, and backup guidance
+- Lightweight manual release zip script
 - Settings controls for refreshing browsers and opening a test page
 - Default-browser status display in Settings and the menu bar
 - One-click rule creation or editing from the last detected source app
@@ -106,6 +108,8 @@ fallback strategy.
 - [`docs/TECHNICAL_DESIGN.md`](docs/TECHNICAL_DESIGN.md): architecture and technical decisions
 - [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md): MVP test checklist
 - [`docs/ROADMAP.md`](docs/ROADMAP.md): future features and improvement tracker
+- [`docs/DISTRIBUTION.md`](docs/DISTRIBUTION.md): direct distribution and notarization notes
+- [`docs/PRODUCT_REVIEW.md`](docs/PRODUCT_REVIEW.md): product and engineering review after P4
 
 ## Development Environment
 

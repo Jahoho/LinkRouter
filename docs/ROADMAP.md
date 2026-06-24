@@ -51,11 +51,11 @@ Status values:
 | iCloud rule sync | Deferred | Later | Requires migration and conflict strategy |
 | Import/export configuration | Done | Post-MVP | Versioned JSON import, export, and reset controls in Settings |
 | Lightweight release size check | Done | Post-MVP | Release app bundle is approximately 1.7M with no extra asset packs or third-party frameworks |
-| Onboarding | Planned | Productization | Default-browser and privacy guidance |
+| Onboarding | Done | Productization | First-run setup guide plus menu bar entry for re-opening it |
 | Installed browser detection | Done | MVP | Launch Services handlers are listed in Settings by bundle identifier |
 | Login at startup | Done | MVP | Settings toggle backed by `SMAppService` |
-| Version update mechanism | Deferred | Distribution | Evaluate Sparkle or managed delivery |
-| Developer ID signing and notarization | Planned | External beta | Needed for smooth tester installation |
+| Version update mechanism | Deferred | Distribution | Manual zip release is enough until external testers need automatic updates |
+| Developer ID signing and notarization | Research | External beta | Distribution notes document the direct notarization flow; real Developer ID validation remains |
 | App Store feasibility review | Research | Later | Reassess sandbox and review constraints |
 
 ## Technical Research
@@ -109,3 +109,5 @@ Status values:
 | 2026-06-24 | Add menu bar pause and next-link override | Done | Lightweight alternative to a heavier per-link chooser queue |
 | 2026-06-24 | Add configuration import/export/reset | Done | Local JSON workflow for backup and tester sharing |
 | 2026-06-24 | Check release app size | Done | Release bundle measured at about 1.7M |
+| 2026-06-24 | Add first-run setup guide | Done | Settings explains default browser setup, test links, rule creation, privacy, and backups |
+| 2026-06-24 | Add lightweight release zip flow | Done | Manual zip script verified against a Release app; zip measured about 424K |

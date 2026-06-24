@@ -7,6 +7,23 @@
 
 按顺序完成，不要一开始就添加很多新规则。
 
+### 0. 首次设置引导
+
+第一次启动时，LinkRouter 会尝试打开 Settings 并显示 `Set Up LinkRouter`
+引导。
+
+建议按引导顺序完成：
+
+1. 确认 LinkRouter 正在菜单栏运行。
+2. 将 LinkRouter 设置为默认浏览器。
+3. 刷新默认浏览器状态。
+4. 打开测试页确认浏览器能被指定启动。
+5. 从真实 App 点击链接，再从最近来源或历史创建规则。
+6. 了解配置文件位置，并在大改规则前导出备份。
+
+如果以后还想重新查看引导，可以点击菜单栏 LinkRouter 图标里的
+`Setup Guide`。
+
 ### 1. 启动 LinkRouter
 
 1. 用 Xcode 打开 `LinkRouter.xcodeproj`。

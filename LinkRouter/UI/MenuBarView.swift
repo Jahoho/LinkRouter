@@ -86,6 +86,17 @@ struct MenuBarView: View {
                 Label("Settings", systemImage: "gear")
             }
 
+            Button {
+                appState.resetOnboarding()
+                NSApp.sendAction(
+                    Selector(("showSettingsWindow:")),
+                    to: nil,
+                    from: nil
+                )
+            } label: {
+                Label("Setup Guide", systemImage: "checklist")
+            }
+
             Button("Quit LinkRouter") {
                 NSApplication.shared.terminate(nil)
             }

@@ -704,6 +704,38 @@ final class ConfigurationEditingTests: XCTestCase {
         XCTAssertNil(appState.nextLinkBrowserOverride)
     }
 
+    @MainActor
+    func testAppStatePersistsOnboardingCompletion() throws {
+        let suiteName = "LinkRouterOnboardingTests-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer {
+            defaults.removePersistentDomain(forName: suiteName)
+        }
+
+        let appState = AppState(
+            configurationStore: ConfigurationStore(
+                directoryURL: temporaryDirectoryURL
+            ),
+            userDefaults: defaults
+        )
+
+        XCTAssertTrue(appState.shouldShowOnboarding)
+
+        appState.completeOnboarding()
+        XCTAssertFalse(appState.shouldShowOnboarding)
+
+        let restoredState = AppState(
+            configurationStore: ConfigurationStore(
+                directoryURL: temporaryDirectoryURL
+            ),
+            userDefaults: defaults
+        )
+        XCTAssertTrue(restoredState.hasCompletedOnboarding)
+
+        restoredState.resetOnboarding()
+        XCTAssertTrue(restoredState.shouldShowOnboarding)
+    }
+
     private func makeRule(
         id: String,
         name: String = "New Rule"

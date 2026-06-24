@@ -6,6 +6,7 @@ struct SettingsView: View {
     @EnvironmentObject private var appState: AppState
     @State private var showsSetupHealth = false
     @State private var showsResetConfirmation = false
+    @State private var showsOnboarding = false
 
     var body: some View {
         Form {
@@ -28,6 +29,10 @@ struct SettingsView: View {
                 )
 
                 HStack {
+                    Button("View Setup Guide") {
+                        showsOnboarding = true
+                    }
+
                     Button("View Setup Health") {
                         appState.refreshDefaultBrowserStatus()
                         appState.refreshLaunchAtLoginStatus()
@@ -43,6 +48,12 @@ struct SettingsView: View {
                                 ? Color.secondary
                                 : Color.orange
                         )
+                }
+
+                if !appState.hasCompletedOnboarding {
+                    Text("Setup guide has not been completed yet.")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
                 }
 
                 HStack {
@@ -277,6 +288,27 @@ struct SettingsView: View {
         .sheet(isPresented: $showsSetupHealth) {
             SetupHealthView(items: appState.setupHealthItems)
         }
+        .sheet(isPresented: $showsOnboarding) {
+            OnboardingView(
+                defaultBrowserStatus: appState.defaultBrowserStatus,
+                fallbackBrowserName:
+                    appState.routingConfiguration.defaultBrowserName,
+                configurationPath: appState.configurationFileURL.path,
+                onRefreshDefaultBrowser: {
+                    appState.refreshDefaultBrowserStatus()
+                },
+                onOpenSetupHealth: {
+                    showsOnboarding = false
+                    appState.refreshDefaultBrowserStatus()
+                    appState.refreshLaunchAtLoginStatus()
+                    showsSetupHealth = true
+                },
+                onComplete: {
+                    appState.completeOnboarding()
+                    showsOnboarding = false
+                }
+            )
+        }
         .confirmationDialog(
             "Reset routing configuration?",
             isPresented: $showsResetConfirmation,
@@ -293,6 +325,11 @@ struct SettingsView: View {
         .formStyle(.grouped)
         .frame(width: 820, height: 880)
         .navigationTitle("LinkRouter Settings")
+        .onAppear {
+            if appState.shouldShowOnboarding {
+                showsOnboarding = true
+            }
+        }
     }
 
     private func exportConfiguration() {
@@ -319,6 +356,125 @@ struct SettingsView: View {
         }
 
         _ = appState.importConfiguration(from: url)
+    }
+}
+
+private struct OnboardingView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    let defaultBrowserStatus: DefaultBrowserStatus
+    let fallbackBrowserName: String
+    let configurationPath: String
+    let onRefreshDefaultBrowser: () -> Void
+    let onOpenSetupHealth: () -> Void
+    let onComplete: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Form {
+                Section {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Set Up LinkRouter")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+
+                        Text("LinkRouter stays small by doing one job locally: receive web links, apply your rules, and forward them to the right browser.")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                onboardingStep(
+                    title: "1. Keep LinkRouter running",
+                    detail: "It lives in the menu bar. If the app quits, macOS will no longer deliver links to it."
+                )
+
+                onboardingStep(
+                    title: "2. Make it the default browser",
+                    detail:
+                        defaultBrowserStatus.isLinkRouterDefault
+                            ? "Done. New web links should reach LinkRouter first."
+                            : "Open System Settings and set Default web browser to LinkRouter, then refresh this status."
+                ) {
+                    HStack {
+                        Text(defaultBrowserStatus.title)
+                            .font(.caption)
+                            .foregroundStyle(
+                                defaultBrowserStatus.isLinkRouterDefault
+                                    ? Color.secondary
+                                    : Color.orange
+                            )
+
+                        Button("Refresh Status") {
+                            onRefreshDefaultBrowser()
+                        }
+                    }
+                }
+
+                onboardingStep(
+                    title: "3. Verify browsers and fallback",
+                    detail:
+                        "Settings lists installed browsers and can open a test page. If no rule matches, LinkRouter uses \(fallbackBrowserName)."
+                )
+
+                onboardingStep(
+                    title: "4. Create rules from real app clicks",
+                    detail:
+                        "Open a test link from Mail, Codex, WeChat, or another app, then create a rule from Recent source apps or Recent routing history."
+                )
+
+                onboardingStep(
+                    title: "5. Privacy and backups",
+                    detail:
+                        "Diagnostics show sanitized hosts by default. Rules are stored as local JSON at \(configurationPath). Export before major changes."
+                )
+
+                Button("Open Setup Health") {
+                    onOpenSetupHealth()
+                }
+            }
+            .formStyle(.grouped)
+
+            Divider()
+
+            HStack {
+                Button("Show Later") {
+                    dismiss()
+                }
+                .keyboardShortcut(.cancelAction)
+
+                Spacer()
+
+                Button("Mark Setup Complete") {
+                    onComplete()
+                }
+                .keyboardShortcut(.defaultAction)
+            }
+            .padding()
+        }
+        .frame(width: 680, height: 620)
+    }
+
+    private func onboardingStep<Content: View>(
+        title: String,
+        detail: String,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.headline)
+            Text(detail)
+                .foregroundStyle(.secondary)
+            content()
+        }
+    }
+
+    private func onboardingStep(
+        title: String,
+        detail: String
+    ) -> some View {
+        onboardingStep(title: title, detail: detail) {
+            EmptyView()
+        }
     }
 }
 

@@ -86,6 +86,8 @@ final class AppState: ObservableObject {
     static let shared = AppState()
     private static let recentSourceApplicationLimit = 8
     private static let recentRoutingHistoryLimit = 20
+    private static let onboardingCompletedKey =
+        "LinkRouterOnboardingCompleted"
 
     @Published private(set) var lastRequest: IncomingURLRequest?
     @Published private(set) var receivedRequestCount = 0
@@ -104,6 +106,7 @@ final class AppState: ObservableObject {
     @Published private(set) var lastRoutingResult: RoutingResult?
     @Published private(set) var pauseRoutingUntil: Date?
     @Published private(set) var nextLinkBrowserOverride: Browser?
+    @Published private(set) var hasCompletedOnboarding: Bool
     @Published private(set) var routingConfiguration: RoutingConfiguration
     @Published private(set) var configurationStatus: ConfigurationLoadStatus
     @Published private(set) var configurationEditMessage: String?
@@ -113,11 +116,19 @@ final class AppState: ObservableObject {
 
     private let configurationStore: ConfigurationStore
     private let configurationEditor = RoutingConfigurationEditor()
+    private let userDefaults: UserDefaults
 
-    init(configurationStore: ConfigurationStore = .shared) {
+    init(
+        configurationStore: ConfigurationStore = .shared,
+        userDefaults: UserDefaults = .standard
+    ) {
         let loadResult = configurationStore.loadOrCreateSeed()
 
         self.configurationStore = configurationStore
+        self.userDefaults = userDefaults
+        hasCompletedOnboarding = userDefaults.bool(
+            forKey: Self.onboardingCompletedKey
+        )
         routingConfiguration = loadResult.configuration
         configurationStatus = loadResult.status
         configurationFileURL = configurationStore.configurationURL
@@ -225,6 +236,10 @@ final class AppState: ObservableObject {
         return "Routing rules are active."
     }
 
+    var shouldShowOnboarding: Bool {
+        !hasCompletedOnboarding
+    }
+
     private var launchAtLoginHealthLevel: SetupHealthLevel {
         switch launchAtLoginStatus {
         case .enabled:
@@ -314,6 +329,16 @@ final class AppState: ObservableObject {
 
     func clearNextLinkOverride() {
         nextLinkBrowserOverride = nil
+    }
+
+    func completeOnboarding() {
+        hasCompletedOnboarding = true
+        userDefaults.set(true, forKey: Self.onboardingCompletedKey)
+    }
+
+    func resetOnboarding() {
+        hasCompletedOnboarding = false
+        userDefaults.set(false, forKey: Self.onboardingCompletedKey)
     }
 
     func recordRoutingHistory(

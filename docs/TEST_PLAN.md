@@ -258,6 +258,31 @@ Record these before each test cycle:
 - Product result: P1-P3 are covered with lightweight local UI and no new
   runtime dependency.
 
+### 2026-06-24: P4 Productization Pass
+
+- Automated result: 62 tests passed and 1 opt-in browser integration test
+  skipped during the normal test run.
+- Release result:
+  - Release `.app` build succeeded.
+  - Release `.app` bundle measured approximately `1.8M`.
+  - Main executable measured approximately `1.7M`.
+  - Manual zip created successfully and measured approximately `424K`.
+- Onboarding behavior:
+  - First launch attempts to open Settings.
+  - Settings shows a compact setup guide until marked complete.
+  - Setup guide can be reopened from the menu bar.
+  - Completion state persists in `UserDefaults`.
+- Distribution behavior:
+  - Added lightweight direct-distribution notes.
+  - Added `scripts/create_release_zip.sh` for manual zipped app releases.
+- Configuration hardening:
+  - Import and save reject LinkRouter as the fallback browser.
+  - Import and save reject malformed rule conditions.
+  - Invalid saved configurations are preserved and replaced by safe in-memory
+    defaults at runtime.
+- Product result: P4 is covered without adding an updater framework or
+  installer package.
+
 ## Core Checklist
 
 | ID | Scenario | Steps | Expected result |
@@ -305,6 +330,9 @@ Record these before each test cycle:
 | T36 | Pause routing | Click `Pause Routing for 10 Minutes`, then open a link | Rules are bypassed and the fallback browser opens |
 | T37 | Next-link override | Choose `Open Next Link With`, then open two links | First link uses selected browser; second link returns to normal rules |
 | T38 | Export/import config | Export JSON, reset defaults, import JSON | Exported rules return after import |
+| T39 | First-run setup guide | Launch with onboarding incomplete | Settings opens and the setup guide explains default browser, testing, privacy, and backup |
+| T40 | Reopen setup guide | Click menu bar `Setup Guide` | Settings opens and the setup guide is shown again |
+| T41 | Manual release zip | Run `scripts/create_release_zip.sh` against a Release `.app` | A timestamped zip is created and keeps the app bundle structure |
 
 ## Source Detection Compatibility Matrix
 

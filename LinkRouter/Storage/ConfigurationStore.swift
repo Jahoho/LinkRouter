@@ -48,11 +48,17 @@ struct ConfigurationLoadResult: Equatable {
 
 enum ConfigurationStoreError: LocalizedError, Equatable {
     case unsupportedSchemaVersion(Int)
+    case invalidFallbackBrowser
+    case invalidRule(String, String)
 
     var errorDescription: String? {
         switch self {
         case let .unsupportedSchemaVersion(version):
             return "Configuration schema version \(version) is not supported."
+        case .invalidFallbackBrowser:
+            return "The fallback browser cannot be LinkRouter itself."
+        case let .invalidRule(ruleName, reason):
+            return "Rule \(ruleName) is invalid: \(reason)"
         }
     }
 }
@@ -142,6 +148,68 @@ final class ConfigurationStore {
         else {
             throw ConfigurationStoreError.unsupportedSchemaVersion(
                 configuration.schemaVersion
+            )
+        }
+
+        guard
+            BrowserDiscovery.isAllowedDestination(
+                bundleIdentifier:
+                    configuration.defaultBrowserBundleIdentifier
+            )
+        else {
+            throw ConfigurationStoreError.invalidFallbackBrowser
+        }
+
+        for rule in configuration.rules {
+            try validate(rule)
+        }
+    }
+
+    private func validate(_ rule: RoutingRule) throws {
+        if let sourceBundleIdentifier = rule.sourceAppBundleIdentifier,
+           !RoutingRuleDraft.isValidBundleIdentifier(sourceBundleIdentifier) {
+            throw ConfigurationStoreError.invalidRule(
+                rule.name,
+                "source bundle identifier is malformed"
+            )
+        }
+
+        if let hostPattern = rule.hostPattern,
+           !RoutingRuleDraft.isValidHostPattern(hostPattern) {
+            throw ConfigurationStoreError.invalidRule(
+                rule.name,
+                "domain pattern is malformed"
+            )
+        }
+
+        if let urlScheme = rule.urlScheme,
+           urlScheme.caseInsensitiveCompare("http") != .orderedSame,
+           urlScheme.caseInsensitiveCompare("https") != .orderedSame {
+            throw ConfigurationStoreError.invalidRule(
+                rule.name,
+                "URL scheme must be http or https"
+            )
+        }
+
+        let hasCondition = rule.sourceAppBundleIdentifier != nil
+            || rule.hostPattern != nil
+            || rule.urlScheme != nil
+
+        guard hasCondition else {
+            throw ConfigurationStoreError.invalidRule(
+                rule.name,
+                "at least one condition is required"
+            )
+        }
+
+        guard
+            BrowserDiscovery.isAllowedDestination(
+                bundleIdentifier: rule.browserBundleIdentifier
+            )
+        else {
+            throw ConfigurationStoreError.invalidRule(
+                rule.name,
+                "destination browser cannot be LinkRouter"
             )
         }
     }

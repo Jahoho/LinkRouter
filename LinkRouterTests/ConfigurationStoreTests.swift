@@ -134,6 +134,87 @@ final class ConfigurationStoreTests: XCTestCase {
         }
     }
 
+    func testSaveRejectsLinkRouterFallback() {
+        let store = makeStore()
+        let configuration = RoutingConfiguration(
+            schemaVersion: RoutingConfiguration.currentSchemaVersion,
+            defaultBrowserBundleIdentifier: "com.james.LinkRouter",
+            defaultBrowserName: "LinkRouter",
+            rules: []
+        )
+
+        XCTAssertThrowsError(
+            try store.save(configuration)
+        ) { error in
+            XCTAssertEqual(
+                error as? ConfigurationStoreError,
+                .invalidFallbackBrowser
+            )
+        }
+    }
+
+    func testSaveRejectsMalformedRuleConditions() {
+        let store = makeStore()
+        let configuration = RoutingConfiguration(
+            schemaVersion: RoutingConfiguration.currentSchemaVersion,
+            defaultBrowserBundleIdentifier: "com.apple.Safari",
+            defaultBrowserName: "Safari",
+            rules: [
+                RoutingRule(
+                    id: "bad-rule",
+                    name: "Bad Rule",
+                    enabled: true,
+                    priority: 50,
+                    sourceAppBundleIdentifier: "not a bundle id",
+                    sourceAppName: "Bad",
+                    hostPattern: nil,
+                    urlScheme: nil,
+                    browserBundleIdentifier: "com.apple.Safari",
+                    browserName: "Safari",
+                    action: .open,
+                    openInBackground: false
+                )
+            ]
+        )
+
+        XCTAssertThrowsError(
+            try store.save(configuration)
+        ) { error in
+            XCTAssertEqual(
+                error as? ConfigurationStoreError,
+                .invalidRule(
+                    "Bad Rule",
+                    "source bundle identifier is malformed"
+                )
+            )
+        }
+    }
+
+    func testInvalidSavedConfigurationIsPreserved() throws {
+        let store = makeStore()
+        try FileManager.default.createDirectory(
+            at: temporaryDirectoryURL,
+            withIntermediateDirectories: true
+        )
+        let configuration = RoutingConfiguration(
+            schemaVersion: RoutingConfiguration.currentSchemaVersion,
+            defaultBrowserBundleIdentifier: "com.james.LinkRouter",
+            defaultBrowserName: "LinkRouter",
+            rules: []
+        )
+        let data = try JSONEncoder().encode(configuration)
+        try data.write(to: store.configurationURL)
+
+        let result = store.loadOrCreateSeed()
+
+        XCTAssertEqual(result.configuration, .seed)
+        XCTAssertTrue(result.status.isUsingInMemoryFallback)
+        XCTAssertEqual(
+            try Data(contentsOf: store.configurationURL),
+            data
+        )
+    }
+
     private func makeStore() -> ConfigurationStore {
         ConfigurationStore(directoryURL: temporaryDirectoryURL)
     }
