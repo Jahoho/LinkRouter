@@ -128,6 +128,9 @@ macOS 26 接受的可信浏览器候选。回到 Xcode 登录 Apple ID，选择
 - Toggle 打开：规则启用。
 - Toggle 关闭：规则保留，但暂时不参与匹配。
 - Priority 数字越大，越先匹配。
+- 规则可以只按 App、只按 Domain，或按 App + Domain 组合匹配。
+- 多个条件会同时生效，例如 `Mail + *.github.com` 只匹配 Mail 里打开的
+  GitHub 链接。
 - 没有规则匹配，或来源识别为 Unknown 时，使用 fallback browser。
 - 修改 Toggle 或 fallback 后会立即保存。
 - Add/Edit 只有点击 `Save` 后才会保存。
@@ -269,8 +272,8 @@ query、fragment 或 token。
 3. 找到 `Routing rules`，点击 `Add Rule`。
 4. 填写：
    - `Rule name`：例如 `Telegram to Chrome`
-   - `Source app name`：例如 `Telegram`
-   - `Source bundle identifier`：使用诊断中实际显示的值
+   - 点击 `Choose Source App`，从最近 App 或已安装 App 中选择 Telegram
+   - 也可以把 Telegram 的 `.app` 文件拖进规则编辑器
    - `Destination browser`：选择目标浏览器
    - `Priority`：建议先用 `50`
    - `Enabled`：打开
@@ -284,6 +287,32 @@ query、fragment 或 token。
 - 真正匹配使用的是 `Source bundle identifier`。
 - Bundle identifier 通常类似 `com.company.App`，不能包含空格。
 - 不要凭 App 名称猜 bundle identifier，优先使用 LinkRouter 诊断中实际检测到的值。
+- `Advanced source fields` 仍然保留给排查或手动修正使用，日常不需要打开。
+
+### 添加域名或组合规则
+
+创建规则时可以填写：
+
+- `Domain pattern`：例如 `github.com` 或 `*.github.com`
+- `URL scheme`：可选，通常留空；需要限制时填 `http` 或 `https`
+
+示例：
+
+- 只填 `Domain pattern = *.github.com`：任何 App 打开的 GitHub 链接都按这条规则走。
+- 选择 `Source App = Mail`，再填 `Domain pattern = *.github.com`：只有 Mail 中打开的 GitHub 链接才按这条规则走。
+
+如果多条规则都能匹配，Priority 更高的规则获胜。`Why this happened`
+会显示被跳过的低优先级匹配规则。
+
+### 使用快速模板
+
+在规则编辑器里点击 `Quick Templates`，可以把当前规则快速改成：
+
+```text
+Always open in Safari / Chrome / Arc ...
+```
+
+这只会修改目标浏览器和规则名称，不会隐藏底层规则。
 
 ## 五、修改、停用和删除规则
 
@@ -322,7 +351,28 @@ Fallback 会在以下情况使用：
 - 没有启用的规则匹配。
 - 某条规则的目标浏览器不存在或启动失败。
 
-## 七、每次操作后检查什么
+## 七、菜单栏临时控制
+
+点击菜单栏 LinkRouter 图标，可以使用：
+
+- `Pause Routing for 10 Minutes`：临时停用规则，所有链接走 fallback browser。
+- `Resume Routing`：提前恢复规则。
+- `Open Next Link With`：只指定下一次链接使用某个浏览器。
+- `Clear Next-Link Override`：取消下一次链接指定。
+
+这几个功能不会改动你的规则文件，适合临时处理一次特殊链接。
+
+## 八、导入、导出和重置配置
+
+在 Settings 的 `Configuration storage` 区域：
+
+- `Export Configuration`：导出当前 JSON 配置，适合备份或分享给另一个测试者。
+- `Import Configuration`：导入一个 LinkRouter JSON 配置，导入成功后立即保存并生效。
+- `Reset to Defaults`：恢复 Codex、WeChat、Mail 和 Safari fallback 的默认配置。
+
+建议在大幅调整规则前先导出一次。
+
+## 九、每次操作后检查什么
 
 ### 每次启动 App
 
@@ -353,7 +403,7 @@ Fallback 会在以下情况使用：
 
 先判断是“来源识别错误”“规则未匹配”还是“浏览器启动失败”。
 
-## 八、配置文件与恢复
+## 十、配置文件与恢复
 
 配置文件位于：
 
@@ -371,17 +421,18 @@ Fallback 会在以下情况使用：
 3. 规则编辑功能会被禁用，防止覆盖损坏文件。
 4. 记录界面显示的错误详情，再进行配置恢复。
 
-## 九、当前版本限制
+## 十一、当前版本限制
 
 - 来源 App 检测是 best-effort，macOS 不保证 URL handler 能知道原始来源。
 - Codex、WeChat 等真实点击兼容性仍需要你逐项测试。
 - 开机自启动需要在 Settings 的 `Launch at login` 中开启。
 - 默认浏览器状态需要点击 `Refresh Default Browser Status` 或重启 App 后刷新。
 - 最近路由历史当前只保存在内存中，退出 App 后会清空。
-- 当前规则界面只编辑来源 App 条件，不编辑域名或 URL scheme 条件。
+- 当前 `Ask me every time` 弹窗队列尚未实现；临时选择请先使用菜单栏
+  `Open Next Link With`。
 - 当前使用 Xcode 开发版，停止 Xcode 的运行任务会退出 LinkRouter。
 
-## 十、推荐的本轮检查顺序
+## 十二、推荐的本轮检查顺序
 
 今天只做以下流程即可：
 

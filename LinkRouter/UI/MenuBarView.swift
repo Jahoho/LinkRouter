@@ -46,6 +46,42 @@ struct MenuBarView: View {
 
             Divider()
 
+            Text(appState.routingControlSummary)
+                .font(.caption)
+                .foregroundStyle(
+                    appState.isRoutingPaused
+                        || appState.nextLinkBrowserOverride != nil
+                        ? Color.orange
+                        : Color.secondary
+                )
+
+            if appState.isRoutingPaused {
+                Button("Resume Routing") {
+                    appState.resumeRouting()
+                }
+            } else {
+                Button("Pause Routing for 10 Minutes") {
+                    appState.pauseRoutingForTenMinutes()
+                }
+            }
+
+            if appState.nextLinkBrowserOverride != nil {
+                Button("Clear Next-Link Override") {
+                    appState.clearNextLinkOverride()
+                }
+            }
+
+            Menu("Open Next Link With") {
+                ForEach(appState.availableBrowsers) { browser in
+                    Button(browser.name) {
+                        appState.openNextLink(in: browser)
+                    }
+                }
+            }
+            .disabled(appState.availableBrowsers.isEmpty)
+
+            Divider()
+
             SettingsLink {
                 Label("Settings", systemImage: "gear")
             }

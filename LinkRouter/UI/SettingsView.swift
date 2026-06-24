@@ -1,8 +1,11 @@
+import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @EnvironmentObject private var appState: AppState
     @State private var showsSetupHealth = false
+    @State private var showsResetConfirmation = false
 
     var body: some View {
         Form {
@@ -193,6 +196,23 @@ struct SettingsView: View {
                             ? Color.red
                             : Color.secondary
                     )
+
+                HStack {
+                    Button("Export Configuration") {
+                        exportConfiguration()
+                    }
+                    .disabled(!appState.canEditConfiguration)
+
+                    Button("Import Configuration") {
+                        importConfiguration()
+                    }
+                    .disabled(!appState.canEditConfiguration)
+
+                    Button("Reset to Defaults", role: .destructive) {
+                        showsResetConfirmation = true
+                    }
+                    .disabled(!appState.canEditConfiguration)
+                }
             }
 
             Section("Last routing result") {
@@ -257,9 +277,48 @@ struct SettingsView: View {
         .sheet(isPresented: $showsSetupHealth) {
             SetupHealthView(items: appState.setupHealthItems)
         }
+        .confirmationDialog(
+            "Reset routing configuration?",
+            isPresented: $showsResetConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Reset to Defaults", role: .destructive) {
+                _ = appState.resetConfiguration()
+            }
+        } message: {
+            Text(
+                "This replaces the current rules with the seed rules. Export first if you want a backup."
+            )
+        }
         .formStyle(.grouped)
         .frame(width: 820, height: 880)
         .navigationTitle("LinkRouter Settings")
+    }
+
+    private func exportConfiguration() {
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.json]
+        panel.canCreateDirectories = true
+        panel.nameFieldStringValue = "linkrouter-routing-config.json"
+
+        guard panel.runModal() == .OK, let url = panel.url else {
+            return
+        }
+
+        _ = appState.exportConfiguration(to: url)
+    }
+
+    private func importConfiguration() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.json]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+
+        guard panel.runModal() == .OK, let url = panel.url else {
+            return
+        }
+
+        _ = appState.importConfiguration(from: url)
     }
 }
 

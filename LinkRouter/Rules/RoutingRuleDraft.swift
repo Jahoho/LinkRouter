@@ -2,15 +2,24 @@ import Foundation
 
 enum RoutingRuleValidationError: LocalizedError, Equatable {
     case missingName
+    case missingConditions
     case invalidSourceBundleIdentifier
+    case invalidHostPattern
+    case invalidURLScheme
     case browserUnavailable
 
     var errorDescription: String? {
         switch self {
         case .missingName:
             return "Enter a rule name."
+        case .missingConditions:
+            return "Choose a source app, domain, or URL scheme for this rule."
         case .invalidSourceBundleIdentifier:
             return "Enter a valid source app bundle identifier, such as com.example.App."
+        case .invalidHostPattern:
+            return "Enter a valid domain, such as github.com or *.github.com."
+        case .invalidURLScheme:
+            return "Use http, https, or leave the URL scheme blank."
         case .browserUnavailable:
             return "Select an installed destination browser."
         }
@@ -26,8 +35,8 @@ struct RoutingRuleDraft: Equatable {
     var sourceAppName: String
     var browserBundleIdentifier: String
     var openInBackground: Bool
-    private let hostPattern: String?
-    private let urlScheme: String?
+    var hostPattern: String
+    var urlScheme: String
     private let action: RoutingAction
 
     init(rule: RoutingRule) {
@@ -40,8 +49,8 @@ struct RoutingRuleDraft: Equatable {
         sourceAppName = rule.sourceAppName ?? ""
         browserBundleIdentifier = rule.browserBundleIdentifier
         openInBackground = rule.openInBackground
-        hostPattern = rule.hostPattern
-        urlScheme = rule.urlScheme
+        hostPattern = rule.hostPattern ?? ""
+        urlScheme = rule.urlScheme ?? ""
         action = rule.action
     }
 
@@ -69,8 +78,8 @@ struct RoutingRuleDraft: Equatable {
         sourceAppName: String = "",
         browserBundleIdentifier: String,
         openInBackground: Bool = false,
-        hostPattern: String? = nil,
-        urlScheme: String? = nil,
+        hostPattern: String = "",
+        urlScheme: String = "",
         action: RoutingAction = .open
     ) {
         self.id = id
@@ -100,9 +109,35 @@ struct RoutingRuleDraft: Equatable {
             sourceAppBundleIdentifier.trimmingCharacters(
                 in: .whitespacesAndNewlines
             )
-        guard Self.isValidBundleIdentifier(trimmedBundleIdentifier) else {
+        if !trimmedBundleIdentifier.isEmpty,
+           !Self.isValidBundleIdentifier(trimmedBundleIdentifier) {
             throw RoutingRuleValidationError
                 .invalidSourceBundleIdentifier
+        }
+
+        let trimmedHostPattern = hostPattern.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+        if !trimmedHostPattern.isEmpty,
+           !Self.isValidHostPattern(trimmedHostPattern) {
+            throw RoutingRuleValidationError.invalidHostPattern
+        }
+
+        let trimmedURLScheme = urlScheme.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        ).lowercased()
+        if !trimmedURLScheme.isEmpty,
+           trimmedURLScheme != "http",
+           trimmedURLScheme != "https" {
+            throw RoutingRuleValidationError.invalidURLScheme
+        }
+
+        guard
+            !trimmedBundleIdentifier.isEmpty
+                || !trimmedHostPattern.isEmpty
+                || !trimmedURLScheme.isEmpty
+        else {
+            throw RoutingRuleValidationError.missingConditions
         }
 
         guard
@@ -124,11 +159,16 @@ struct RoutingRuleDraft: Equatable {
             name: trimmedName,
             enabled: enabled,
             priority: priority,
-            sourceAppBundleIdentifier: trimmedBundleIdentifier,
+            sourceAppBundleIdentifier:
+                trimmedBundleIdentifier.isEmpty
+                    ? nil
+                    : trimmedBundleIdentifier,
             sourceAppName:
                 trimmedSourceName.isEmpty ? nil : trimmedSourceName,
-            hostPattern: hostPattern,
-            urlScheme: urlScheme,
+            hostPattern:
+                trimmedHostPattern.isEmpty ? nil : trimmedHostPattern,
+            urlScheme:
+                trimmedURLScheme.isEmpty ? nil : trimmedURLScheme,
             browserBundleIdentifier: browser.bundleIdentifier,
             browserName: browser.name,
             action: action,
@@ -156,6 +196,34 @@ struct RoutingRuleDraft: Equatable {
                 }
         }
     }
+
+    static func isValidHostPattern(_ value: String) -> Bool {
+        var host = value.lowercased()
+
+        if host.hasPrefix("*.") {
+            host = String(host.dropFirst(2))
+        }
+
+        guard
+            !host.isEmpty,
+            host.contains("."),
+            !host.contains("://"),
+            !host.contains("/"),
+            !host.contains(" "),
+            !host.hasPrefix("."),
+            !host.hasSuffix(".")
+        else {
+            return false
+        }
+
+        let allowedCharacters = CharacterSet.alphanumerics.union(
+            CharacterSet(charactersIn: "-.")
+        )
+
+        return host.unicodeScalars.allSatisfy {
+            allowedCharacters.contains($0)
+        }
+    }
 }
 
 struct RuleHealthWarning: Identifiable, Equatable {
@@ -179,6 +247,18 @@ struct RuleHealthChecker {
                     title: "Invalid source bundle identifier",
                     detail:
                         "\(sourceBundleIdentifier) will never match a normal macOS app bundle identifier."
+                )
+            )
+        }
+
+        if let hostPattern = rule.hostPattern,
+           !RoutingRuleDraft.isValidHostPattern(hostPattern) {
+            warnings.append(
+                RuleHealthWarning(
+                    id: "invalid-host-\(rule.id)",
+                    title: "Invalid domain pattern",
+                    detail:
+                        "\(hostPattern) will never match a normal web domain."
                 )
             )
         }

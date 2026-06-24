@@ -1,4 +1,6 @@
+import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 private struct RuleEditorContext: Identifiable {
     enum Mode {
@@ -103,7 +105,7 @@ struct RuleManagementView: View {
                             VStack(alignment: .leading) {
                                 Text(rule.name)
                                 Text(
-                                    "\(rule.sourceAppName ?? rule.sourceAppBundleIdentifier ?? "Unknown source") -> \(rule.browserName)"
+                                    "\(ruleConditionSummary(rule)) -> \(rule.browserName)"
                                 )
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
@@ -226,7 +228,9 @@ struct RuleManagementView: View {
             RuleEditorView(
                 title: context.title,
                 draft: context.draft,
-                availableBrowsers: appState.availableBrowsers
+                availableBrowsers: appState.availableBrowsers,
+                recentSourceApplications:
+                    appState.recentSourceApplications
             ) { rule in
                 switch context.mode {
                 case .add:
@@ -293,6 +297,27 @@ struct RuleManagementView: View {
             configuration: appState.routingConfiguration,
             availableBrowsers: appState.availableBrowsers
         )
+    }
+
+    private func ruleConditionSummary(_ rule: RoutingRule) -> String {
+        var conditions: [String] = []
+
+        if let source = rule.sourceAppName
+            ?? rule.sourceAppBundleIdentifier {
+            conditions.append(source)
+        }
+
+        if let hostPattern = rule.hostPattern {
+            conditions.append(hostPattern)
+        }
+
+        if let urlScheme = rule.urlScheme {
+            conditions.append(urlScheme)
+        }
+
+        return conditions.isEmpty
+            ? "No conditions"
+            : conditions.joined(separator: " + ")
     }
 
     private func actionTitle(
@@ -445,21 +470,27 @@ private struct RuleEditorView: View {
 
     let title: String
     let availableBrowsers: [Browser]
+    let recentSourceApplications: [RecentSourceApplication]
     let onSave:
         (RoutingRule) -> Result<Void, ConfigurationEditingError>
 
     @State private var draft: RoutingRuleDraft
     @State private var errorMessage: String?
+    @State private var installedApplications: [SourceAppChoice] = []
+    @State private var showsSourcePicker = false
+    @State private var isDropTargeted = false
 
     init(
         title: String,
         draft: RoutingRuleDraft,
         availableBrowsers: [Browser],
+        recentSourceApplications: [RecentSourceApplication],
         onSave: @escaping
             (RoutingRule) -> Result<Void, ConfigurationEditingError>
     ) {
         self.title = title
         self.availableBrowsers = availableBrowsers
+        self.recentSourceApplications = recentSourceApplications
         self.onSave = onSave
         _draft = State(initialValue: draft)
     }
@@ -468,14 +499,62 @@ private struct RuleEditorView: View {
         VStack(spacing: 0) {
             Form {
                 TextField("Rule name", text: $draft.name)
-                TextField(
-                    "Source app name",
-                    text: $draft.sourceAppName
-                )
-                TextField(
-                    "Source bundle identifier",
-                    text: $draft.sourceAppBundleIdentifier
-                )
+
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(sourceSummary)
+                            Text(sourceDetail)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Spacer()
+
+                        Button("Choose Source App") {
+                            showsSourcePicker = true
+                        }
+                    }
+
+                    Text("Drop a .app here to fill the source automatically.")
+                        .font(.caption)
+                        .foregroundStyle(
+                            isDropTargeted ? Color.accentColor : Color.secondary
+                        )
+                        .padding(8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(
+                                    isDropTargeted
+                                        ? Color.accentColor
+                                        : Color.secondary.opacity(0.35),
+                                    style: StrokeStyle(
+                                        lineWidth: 1,
+                                        dash: [4, 4]
+                                    )
+                                )
+                        )
+                        .onDrop(
+                            of: [UTType.fileURL.identifier],
+                            isTargeted: $isDropTargeted,
+                            perform: handleDrop
+                        )
+                }
+
+                DisclosureGroup("Advanced source fields") {
+                    TextField(
+                        "Source app name",
+                        text: $draft.sourceAppName
+                    )
+                    TextField(
+                        "Source bundle identifier",
+                        text: $draft.sourceAppBundleIdentifier
+                    )
+                }
+
+                TextField("Domain pattern", text: $draft.hostPattern)
+                TextField("URL scheme", text: $draft.urlScheme)
 
                 Picker(
                     "Destination browser",
@@ -494,6 +573,15 @@ private struct RuleEditorView: View {
                             .tag(browser.bundleIdentifier)
                     }
                 }
+
+                Menu("Quick Templates") {
+                    ForEach(availableBrowsers) { browser in
+                        Button("Always open in \(browser.name)") {
+                            applyBrowserTemplate(browser)
+                        }
+                    }
+                }
+                .disabled(availableBrowsers.isEmpty)
 
                 Stepper(
                     "Priority: \(draft.priority)",
@@ -531,8 +619,136 @@ private struct RuleEditorView: View {
             }
             .padding()
         }
-        .frame(width: 520, height: 440)
+        .frame(width: 580, height: 620)
         .navigationTitle(title)
+        .sheet(isPresented: $showsSourcePicker) {
+            SourceAppPickerView(
+                recentApplications: recentSourceApplications.map {
+                    SourceAppChoice(
+                        application: $0.application,
+                        subtitle: "\($0.confidence.rawValue) confidence, \($0.method.rawValue)",
+                        applicationURL: NSWorkspace.shared.urlForApplication(
+                            withBundleIdentifier:
+                                $0.application.bundleIdentifier
+                        )
+                    )
+                },
+                installedApplications: installedApplications
+            ) { application in
+                applySourceApplication(application)
+                showsSourcePicker = false
+            }
+        }
+        .onAppear {
+            if installedApplications.isEmpty {
+                installedApplications =
+                    InstalledApplicationScanner.scanApplications()
+            }
+        }
+    }
+
+    private var sourceSummary: String {
+        if !draft.sourceAppName.isEmpty {
+            return draft.sourceAppName
+        }
+
+        if !draft.sourceAppBundleIdentifier.isEmpty {
+            return draft.sourceAppBundleIdentifier
+        }
+
+        return "No source app selected"
+    }
+
+    private var sourceDetail: String {
+        if draft.sourceAppBundleIdentifier.isEmpty {
+            return "Use the picker, recent history, or drag a .app bundle."
+        }
+
+        return draft.sourceAppBundleIdentifier
+    }
+
+    private func applySourceApplication(
+        _ application: SourceApplication
+    ) {
+        draft.sourceAppName = application.name
+        draft.sourceAppBundleIdentifier = application.bundleIdentifier
+
+        if draft.name == "New Rule" || draft.name.isEmpty {
+            draft.name = "\(application.name) to \(selectedBrowserName)"
+        }
+    }
+
+    private func applyBrowserTemplate(_ browser: Browser) {
+        draft.browserBundleIdentifier = browser.bundleIdentifier
+
+        if !draft.sourceAppName.isEmpty {
+            draft.name = "\(draft.sourceAppName) to \(browser.name)"
+        } else if !draft.hostPattern.isEmpty {
+            draft.name = "\(draft.hostPattern) to \(browser.name)"
+        }
+    }
+
+    private var selectedBrowserName: String {
+        availableBrowsers.first {
+            $0.bundleIdentifier == draft.browserBundleIdentifier
+        }?.name ?? "selected browser"
+    }
+
+    private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
+        guard let provider = providers.first else {
+            return false
+        }
+
+        provider.loadItem(
+            forTypeIdentifier: UTType.fileURL.identifier,
+            options: nil
+        ) { item, _ in
+            let url = droppedURL(from: item)
+
+            Task { @MainActor in
+                guard
+                    let url,
+                    url.pathExtension == "app",
+                    let bundle = Bundle(url: url),
+                    let bundleIdentifier = bundle.bundleIdentifier
+                else {
+                    errorMessage = "Drop a valid .app bundle."
+                    return
+                }
+
+                let name = bundle.object(
+                    forInfoDictionaryKey: "CFBundleDisplayName"
+                ) as? String
+                    ?? bundle.object(
+                        forInfoDictionaryKey: "CFBundleName"
+                    ) as? String
+                    ?? url.deletingPathExtension().lastPathComponent
+
+                applySourceApplication(
+                    SourceApplication(
+                        bundleIdentifier: bundleIdentifier,
+                        name: name,
+                        processIdentifier: 0
+                    )
+                )
+                errorMessage = nil
+            }
+        }
+
+        return true
+    }
+
+    private func droppedURL(from item: NSSecureCoding?) -> URL? {
+        if let url = item as? URL {
+            return url
+        }
+
+        if let data = item as? Data,
+           let string = String(data: data, encoding: .utf8) {
+            return URL(string: string)
+        }
+
+        return nil
     }
 
     private func save() {
@@ -549,6 +765,186 @@ private struct RuleEditorView: View {
             }
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+}
+
+private struct SourceAppChoice: Identifiable, Equatable {
+    let application: SourceApplication
+    let subtitle: String
+    let applicationURL: URL?
+
+    var id: String {
+        application.bundleIdentifier
+    }
+}
+
+private struct SourceAppPickerView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    let recentApplications: [SourceAppChoice]
+    let installedApplications: [SourceAppChoice]
+    let onSelect: (SourceApplication) -> Void
+
+    @State private var searchText = ""
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Form {
+                TextField("Search apps", text: $searchText)
+
+                if !filteredRecentApplications.isEmpty {
+                    Section("Recently Detected") {
+                        ForEach(filteredRecentApplications) { choice in
+                            sourceButton(choice)
+                        }
+                    }
+                }
+
+                Section("Installed Apps") {
+                    ForEach(filteredInstalledApplications) { choice in
+                        sourceButton(choice)
+                    }
+                }
+            }
+            .formStyle(.grouped)
+
+            Divider()
+
+            HStack {
+                Spacer()
+
+                Button("Cancel") {
+                    dismiss()
+                }
+                .keyboardShortcut(.cancelAction)
+            }
+            .padding()
+        }
+        .frame(width: 620, height: 620)
+    }
+
+    private var filteredRecentApplications: [SourceAppChoice] {
+        filtered(recentApplications)
+    }
+
+    private var filteredInstalledApplications: [SourceAppChoice] {
+        filtered(installedApplications)
+    }
+
+    private func filtered(_ choices: [SourceAppChoice]) -> [SourceAppChoice] {
+        let query = searchText.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+
+        guard !query.isEmpty else {
+            return choices
+        }
+
+        return choices.filter {
+            $0.application.name.localizedCaseInsensitiveContains(query)
+                || $0.application.bundleIdentifier
+                    .localizedCaseInsensitiveContains(query)
+        }
+    }
+
+    private func sourceButton(_ choice: SourceAppChoice) -> some View {
+        Button {
+            onSelect(choice.application)
+        } label: {
+            HStack(spacing: 10) {
+                AppIconView(applicationURL: choice.applicationURL)
+
+                VStack(alignment: .leading) {
+                    Text(choice.application.name)
+                    Text(choice.application.bundleIdentifier)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(choice.subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private struct AppIconView: View {
+    let applicationURL: URL?
+
+    var body: some View {
+        if let applicationURL {
+            Image(
+                nsImage: NSWorkspace.shared.icon(
+                    forFile: applicationURL.path
+                )
+            )
+            .resizable()
+            .frame(width: 28, height: 28)
+        } else {
+            Image(systemName: "app.dashed")
+                .frame(width: 28, height: 28)
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+
+private struct InstalledApplicationScanner {
+    static func scanApplications() -> [SourceAppChoice] {
+        let fileManager = FileManager.default
+        let directories = [
+            URL(fileURLWithPath: "/Applications", isDirectory: true),
+            URL(fileURLWithPath: "/System/Applications", isDirectory: true),
+            fileManager.homeDirectoryForCurrentUser
+                .appendingPathComponent("Applications", isDirectory: true)
+        ]
+
+        var choicesByBundleIdentifier: [String: SourceAppChoice] = [:]
+
+        for directory in directories {
+            guard
+                let urls = try? fileManager.contentsOfDirectory(
+                    at: directory,
+                    includingPropertiesForKeys: nil
+                )
+            else {
+                continue
+            }
+
+            for url in urls where url.pathExtension == "app" {
+                guard
+                    let bundle = Bundle(url: url),
+                    let bundleIdentifier = bundle.bundleIdentifier
+                else {
+                    continue
+                }
+
+                let name = bundle.object(
+                    forInfoDictionaryKey: "CFBundleDisplayName"
+                ) as? String
+                    ?? bundle.object(
+                        forInfoDictionaryKey: "CFBundleName"
+                    ) as? String
+                    ?? url.deletingPathExtension().lastPathComponent
+
+                choicesByBundleIdentifier[bundleIdentifier] =
+                    SourceAppChoice(
+                        application: SourceApplication(
+                            bundleIdentifier: bundleIdentifier,
+                            name: name,
+                            processIdentifier: 0
+                        ),
+                        subtitle: url.path,
+                        applicationURL: url
+                    )
+            }
+        }
+
+        return choicesByBundleIdentifier.values.sorted {
+            $0.application.name.localizedCaseInsensitiveCompare(
+                $1.application.name
+            ) == .orderedAscending
         }
     }
 }

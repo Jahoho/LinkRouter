@@ -233,6 +233,31 @@ Record these before each test cycle:
 - Product result: diagnostics became more understandable without adding a heavy
   always-visible table or changing the configuration schema.
 
+### 2026-06-24: P1-P3 Lightweight Feature Pass
+
+- Automated result: 58 tests passed and 1 opt-in browser integration test
+  skipped during the normal test run.
+- Release size result:
+  - Release `.app` bundle: approximately `1.7M`
+  - Main executable: approximately `1.7M`
+  - No bundled third-party frameworks, image packs, scripts, or large assets.
+- Rule creation behavior:
+  - Rule editor can choose a source app from recent or installed apps.
+  - Rule editor accepts dropped `.app` bundles to fill source name and bundle
+    identifier.
+  - Quick templates can switch the destination browser without exposing bundle
+    identifiers.
+- Smarter routing behavior:
+  - Domain-only rules are supported through `hostPattern`.
+  - App-plus-domain rules use existing AND semantics.
+  - Lower-priority matching rules are stored in the routing explanation.
+- Daily control behavior:
+  - Menu bar can pause routing for ten minutes.
+  - Menu bar can route only the next link to a selected browser.
+  - Configuration can be exported, imported, or reset from Settings.
+- Product result: P1-P3 are covered with lightweight local UI and no new
+  runtime dependency.
+
 ## Core Checklist
 
 | ID | Scenario | Steps | Expected result |
@@ -272,6 +297,14 @@ Record these before each test cycle:
 | T28 | Setup health panel | Click `View Setup Health` in Settings | A compact sheet shows setup checks with OK, warning, or error states |
 | T29 | Latest routing explanation | Route a link, then inspect `Last routing result` | Settings explains the detected source, matched rule or fallback, final browser, and recovery/error state |
 | T30 | Broken rule warning | Create or load a rule whose destination browser is unavailable or LinkRouter itself | Routing rules show a compact warning before the user discovers the problem through a failed click |
+| T31 | Choose source app from picker | Add a rule and click `Choose Source App` | Recent and installed apps can fill source app name and bundle identifier |
+| T32 | Drop `.app` into rule editor | Drag an app bundle into the rule editor | Source app name and bundle identifier are filled automatically |
+| T33 | Domain-only rule | Create `*.github.com -> Chrome`, then open a GitHub URL from an unmatched app | Domain rule opens the configured browser |
+| T34 | App plus domain rule | Create `Mail + *.github.com -> Chrome`, then open GitHub and non-GitHub links from Mail | Only matching Mail GitHub links use the combined rule |
+| T35 | Conflict explanation | Create two matching rules with different priorities | Higher priority wins and `Why this happened` lists skipped lower-priority matches |
+| T36 | Pause routing | Click `Pause Routing for 10 Minutes`, then open a link | Rules are bypassed and the fallback browser opens |
+| T37 | Next-link override | Choose `Open Next Link With`, then open two links | First link uses selected browser; second link returns to normal rules |
+| T38 | Export/import config | Export JSON, reset defaults, import JSON | Exported rules return after import |
 
 ## Source Detection Compatibility Matrix
 

@@ -120,6 +120,60 @@ final class RuleEngineTests: XCTestCase {
         XCTAssertEqual(decision.browserBundleIdentifier, "browser.fallback")
     }
 
+    func testDomainRuleMatchesHostWithoutSourceApp() throws {
+        let configuration = configuration(
+            rules: [
+                rule(
+                    id: "github",
+                    priority: 100,
+                    browser: "browser.github",
+                    sourceAppBundleIdentifier: nil,
+                    hostPattern: "*.github.com"
+                )
+            ]
+        )
+
+        let decision = ruleEngine.evaluate(
+            request: try request(
+                sourceBundleIdentifier: nil,
+                urlString: "https://docs.github.com/path"
+            ),
+            configuration: configuration
+        )
+
+        XCTAssertEqual(decision.matchedRule?.id, "github")
+        XCTAssertEqual(decision.browserBundleIdentifier, "browser.github")
+    }
+
+    func testConflictExplanationKeepsSkippedMatchingRules() throws {
+        let configuration = configuration(
+            rules: [
+                rule(
+                    id: "specific",
+                    priority: 100,
+                    browser: "browser.specific",
+                    hostPattern: "*.example.com"
+                ),
+                rule(
+                    id: "general",
+                    priority: 50,
+                    browser: "browser.general"
+                )
+            ]
+        )
+
+        let decision = ruleEngine.evaluate(
+            request: try request(
+                sourceBundleIdentifier: "test.source",
+                urlString: "https://docs.example.com/path"
+            ),
+            configuration: configuration
+        )
+
+        XCTAssertEqual(decision.matchedRule?.id, "specific")
+        XCTAssertEqual(decision.skippedRuleNames, ["general"])
+    }
+
     func testCombinedConditionsMustAllMatch() throws {
         let combinedRule = RoutingRule(
             id: "combined",
@@ -209,16 +263,18 @@ final class RuleEngineTests: XCTestCase {
         id: String,
         enabled: Bool = true,
         priority: Int,
-        browser: String
+        browser: String,
+        sourceAppBundleIdentifier: String? = "test.source",
+        hostPattern: String? = nil
     ) -> RoutingRule {
         RoutingRule(
             id: id,
             name: id,
             enabled: enabled,
             priority: priority,
-            sourceAppBundleIdentifier: "test.source",
+            sourceAppBundleIdentifier: sourceAppBundleIdentifier,
             sourceAppName: "Test Source",
-            hostPattern: nil,
+            hostPattern: hostPattern,
             urlScheme: nil,
             browserBundleIdentifier: browser,
             browserName: browser,

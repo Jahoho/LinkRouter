@@ -52,6 +52,12 @@ struct RoutingResult: Equatable {
             lines.append(
                 "Matched rule \(matchedRule.name) and selected \(decision.browserName)."
             )
+
+            if !decision.skippedRuleNames.isEmpty {
+                lines.append(
+                    "Skipped lower-priority matches: \(decision.skippedRuleNames.joined(separator: ", "))."
+                )
+            }
         } else {
             lines.append(
                 "No enabled rule matched, so fallback \(decision.browserName) was selected."

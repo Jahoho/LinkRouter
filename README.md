@@ -29,6 +29,12 @@ The core routing pipeline is now executable:
 - Atomic configuration writes and non-destructive corruption recovery
 - Graphical source-app rule add, edit, enable, disable, and delete controls
 - Installed-browser pickers for rule destinations and fallback
+- Source app picker from recent and installed apps
+- `.app` drag-and-drop source filling in the rule editor
+- Source-app, domain, URL-scheme, and app-plus-domain rule conditions
+- Conflict explanation for lower-priority matching rules
+- Menu bar pause and next-link browser override controls
+- JSON configuration import, export, and reset controls
 - Settings controls for refreshing browsers and opening a test page
 - Default-browser status display in Settings and the menu bar
 - One-click rule creation or editing from the last detected source app
@@ -75,6 +81,10 @@ is protecting an unreadable configuration file.
 Rules and the fallback browser show compact warnings when the destination
 browser is unavailable, the destination points back to LinkRouter, or a stored
 source bundle identifier is invalid. Healthy rules stay visually quiet.
+
+Rule conditions are combined with AND semantics. For example, a rule can match
+only Mail links to `*.github.com`, while a separate domain-only rule can match
+GitHub links from any source app.
 
 ## MVP Scope
 

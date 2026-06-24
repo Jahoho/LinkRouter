@@ -93,6 +93,59 @@ final class ConfigurationEditingTests: XCTestCase {
         }
     }
 
+    func testDraftBuildsDomainOnlyRule() throws {
+        let draft = RoutingRuleDraft(
+            name: "GitHub to Safari",
+            sourceAppBundleIdentifier: "",
+            browserBundleIdentifier: "com.apple.Safari",
+            hostPattern: "*.github.com",
+            urlScheme: "https"
+        )
+
+        let rule = try draft.makeRule(
+            availableBrowsers: [try safari()]
+        )
+
+        XCTAssertNil(rule.sourceAppBundleIdentifier)
+        XCTAssertEqual(rule.hostPattern, "*.github.com")
+        XCTAssertEqual(rule.urlScheme, "https")
+    }
+
+    func testDraftRejectsMissingConditions() throws {
+        let draft = RoutingRuleDraft(
+            name: "No Conditions",
+            sourceAppBundleIdentifier: "",
+            browserBundleIdentifier: "com.apple.Safari"
+        )
+
+        XCTAssertThrowsError(
+            try draft.makeRule(availableBrowsers: [try safari()])
+        ) { error in
+            XCTAssertEqual(
+                error as? RoutingRuleValidationError,
+                .missingConditions
+            )
+        }
+    }
+
+    func testDraftRejectsInvalidHostPattern() throws {
+        let draft = RoutingRuleDraft(
+            name: "Invalid Host",
+            sourceAppBundleIdentifier: "",
+            browserBundleIdentifier: "com.apple.Safari",
+            hostPattern: "https://github.com/path"
+        )
+
+        XCTAssertThrowsError(
+            try draft.makeRule(availableBrowsers: [try safari()])
+        ) { error in
+            XCTAssertEqual(
+                error as? RoutingRuleValidationError,
+                .invalidHostPattern
+            )
+        }
+    }
+
     func testEditingPreservesHiddenFutureConditions() throws {
         let existingRule = RoutingRule(
             id: "future-rule",
@@ -235,6 +288,25 @@ final class ConfigurationEditingTests: XCTestCase {
         XCTAssertTrue(
             warnings.contains {
                 $0.id == "invalid-source-invalid-source"
+            }
+        )
+    }
+
+    func testRuleHealthFlagsInvalidHostPattern() throws {
+        let rule = routingRule(
+            id: "invalid-host",
+            sourceAppBundleIdentifier: nil,
+            hostPattern: "https://example.com/path"
+        )
+
+        let warnings = RuleHealthChecker.warnings(
+            for: rule,
+            availableBrowsers: [try safari()]
+        )
+
+        XCTAssertTrue(
+            warnings.contains {
+                $0.id == "invalid-host-invalid-host"
             }
         )
     }
@@ -572,6 +644,66 @@ final class ConfigurationEditingTests: XCTestCase {
         )
     }
 
+    @MainActor
+    func testAppStateExportsImportsAndResetsConfiguration() throws {
+        let store = ConfigurationStore(
+            directoryURL: temporaryDirectoryURL
+        )
+        let appState = AppState(configurationStore: store)
+        let rule = try makeRule(id: "exported-rule")
+        XCTAssertNoThrow(try appState.addRule(rule).get())
+
+        let exportURL = temporaryDirectoryURL
+            .appendingPathComponent("export.json")
+        XCTAssertNoThrow(
+            try appState.exportConfiguration(to: exportURL).get()
+        )
+
+        XCTAssertNoThrow(
+            try appState.resetConfiguration().get()
+        )
+        XCTAssertFalse(
+            appState.routingConfiguration.rules.contains {
+                $0.id == "exported-rule"
+            }
+        )
+
+        XCTAssertNoThrow(
+            try appState.importConfiguration(from: exportURL).get()
+        )
+        XCTAssertTrue(
+            appState.routingConfiguration.rules.contains {
+                $0.id == "exported-rule"
+            }
+        )
+    }
+
+    @MainActor
+    func testAppStateRoutingControlsTrackPauseAndNextLinkOverride() throws {
+        let appState = AppState(
+            configurationStore: ConfigurationStore(
+                directoryURL: temporaryDirectoryURL
+            )
+        )
+        let safari = try safari()
+
+        appState.pauseRoutingForTenMinutes()
+        XCTAssertTrue(appState.isRoutingPaused)
+        XCTAssertTrue(
+            appState.routingControlSummary.contains("paused")
+        )
+
+        appState.openNextLink(in: safari)
+        XCTAssertFalse(appState.isRoutingPaused)
+        XCTAssertEqual(
+            appState.nextLinkBrowserOverride?.bundleIdentifier,
+            "com.apple.Safari"
+        )
+
+        appState.clearNextLinkOverride()
+        XCTAssertNil(appState.nextLinkBrowserOverride)
+    }
+
     private func makeRule(
         id: String,
         name: String = "New Rule"
@@ -593,7 +725,8 @@ final class ConfigurationEditingTests: XCTestCase {
         id: String,
         sourceAppBundleIdentifier: String? = "com.example.Source",
         browserBundleIdentifier: String = "com.apple.Safari",
-        browserName: String = "Safari"
+        browserName: String = "Safari",
+        hostPattern: String? = nil
     ) -> RoutingRule {
         RoutingRule(
             id: id,
@@ -602,7 +735,7 @@ final class ConfigurationEditingTests: XCTestCase {
             priority: 50,
             sourceAppBundleIdentifier: sourceAppBundleIdentifier,
             sourceAppName: "Source",
-            hostPattern: nil,
+            hostPattern: hostPattern,
             urlScheme: nil,
             browserBundleIdentifier: browserBundleIdentifier,
             browserName: browserName,
@@ -646,6 +779,7 @@ final class ConfigurationEditingTests: XCTestCase {
             requestID: requestID,
             decision: RoutingDecision(
                 matchedRule: nil,
+                skippedRuleNames: [],
                 browserBundleIdentifier: "com.apple.Safari",
                 browserName: "Safari",
                 openInBackground: false,

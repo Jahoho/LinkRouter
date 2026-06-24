@@ -102,6 +102,8 @@ final class AppState: ObservableObject {
     @Published private(set) var browserLaunchStatus: String?
     @Published private(set) var isLaunchingBrowser = false
     @Published private(set) var lastRoutingResult: RoutingResult?
+    @Published private(set) var pauseRoutingUntil: Date?
+    @Published private(set) var nextLinkBrowserOverride: Browser?
     @Published private(set) var routingConfiguration: RoutingConfiguration
     @Published private(set) var configurationStatus: ConfigurationLoadStatus
     @Published private(set) var configurationEditMessage: String?
@@ -203,6 +205,26 @@ final class AppState: ObservableObject {
         return "\(attentionCount) checks need review"
     }
 
+    var isRoutingPaused: Bool {
+        guard let pauseRoutingUntil else {
+            return false
+        }
+
+        return pauseRoutingUntil > Date()
+    }
+
+    var routingControlSummary: String {
+        if let nextLinkBrowserOverride {
+            return "Next link will open in \(nextLinkBrowserOverride.name)."
+        }
+
+        if isRoutingPaused {
+            return "Routing is paused; links use the fallback browser."
+        }
+
+        return "Routing rules are active."
+    }
+
     private var launchAtLoginHealthLevel: SetupHealthLevel {
         switch launchAtLoginStatus {
         case .enabled:
@@ -223,9 +245,11 @@ final class AppState: ObservableObject {
         )
         RoutingLogger.shared.logReceived(request)
 
+        let effectiveConfiguration = routingConfiguration(for: request)
+
         RoutingCoordinator.shared.route(
             request,
-            configuration: routingConfiguration
+            configuration: effectiveConfiguration
         ) { [weak self] result in
             guard let self else {
                 return
@@ -272,6 +296,24 @@ final class AppState: ObservableObject {
             launchAtLoginMessage =
                 "Launch at login could not be changed: \(error.localizedDescription)"
         }
+    }
+
+    func pauseRoutingForTenMinutes() {
+        pauseRoutingUntil = Date().addingTimeInterval(10 * 60)
+        nextLinkBrowserOverride = nil
+    }
+
+    func resumeRouting() {
+        pauseRoutingUntil = nil
+    }
+
+    func openNextLink(in browser: Browser) {
+        nextLinkBrowserOverride = browser
+        pauseRoutingUntil = nil
+    }
+
+    func clearNextLinkOverride() {
+        nextLinkBrowserOverride = nil
     }
 
     func recordRoutingHistory(
@@ -432,6 +474,40 @@ final class AppState: ObservableObject {
         }
     }
 
+    func exportConfiguration(
+        to url: URL
+    ) -> Result<Void, ConfigurationEditingError> {
+        do {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            let data = try encoder.encode(routingConfiguration)
+            try data.write(to: url, options: .atomic)
+            configurationEditMessage = "Exported configuration."
+            configurationEditFailed = false
+            return .success(())
+        } catch {
+            return failure(.saveFailed(error.localizedDescription))
+        }
+    }
+
+    func importConfiguration(
+        from url: URL
+    ) -> Result<Void, ConfigurationEditingError> {
+        applyConfigurationChange(action: "Imported configuration") {
+            let data = try Data(contentsOf: url)
+            return try JSONDecoder().decode(
+                RoutingConfiguration.self,
+                from: data
+            )
+        }
+    }
+
+    func resetConfiguration() -> Result<Void, ConfigurationEditingError> {
+        applyConfigurationChange(action: "Reset configuration") {
+            RoutingConfiguration.seed
+        }
+    }
+
     private func applyConfigurationChange(
         action: String,
         change: () throws -> RoutingConfiguration
@@ -463,5 +539,52 @@ final class AppState: ObservableObject {
         configurationEditMessage = error.localizedDescription
         configurationEditFailed = true
         return .failure(error)
+    }
+
+    private func routingConfiguration(
+        for request: IncomingURLRequest
+    ) -> RoutingConfiguration {
+        if let nextLinkBrowserOverride {
+            self.nextLinkBrowserOverride = nil
+            return fallbackOnlyConfiguration(
+                browser: nextLinkBrowserOverride
+            )
+        }
+
+        if let pauseRoutingUntil,
+           pauseRoutingUntil <= request.receivedAt {
+            self.pauseRoutingUntil = nil
+        }
+
+        if isRoutingPaused {
+            return fallbackOnlyConfiguration(
+                bundleIdentifier:
+                    routingConfiguration.defaultBrowserBundleIdentifier,
+                name: routingConfiguration.defaultBrowserName
+            )
+        }
+
+        return routingConfiguration
+    }
+
+    private func fallbackOnlyConfiguration(
+        browser: Browser
+    ) -> RoutingConfiguration {
+        fallbackOnlyConfiguration(
+            bundleIdentifier: browser.bundleIdentifier,
+            name: browser.name
+        )
+    }
+
+    private func fallbackOnlyConfiguration(
+        bundleIdentifier: String,
+        name: String
+    ) -> RoutingConfiguration {
+        RoutingConfiguration(
+            schemaVersion: routingConfiguration.schemaVersion,
+            defaultBrowserBundleIdentifier: bundleIdentifier,
+            defaultBrowserName: name,
+            rules: []
+        )
     }
 }

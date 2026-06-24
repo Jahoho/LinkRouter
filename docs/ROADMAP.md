@@ -38,15 +38,19 @@ Status values:
 | Setup health panel | Done | MVP | Compact health sheet for default browser, fallback, config, startup, and diagnostics |
 | Routing result explanation | Done | MVP | Latest result and recent history explain source, matched rule or fallback, recovery, and final browser |
 | Broken rule warnings | Done | MVP | Compact warnings for missing browsers, self-routing destinations, invalid source bundle identifiers, and fallback issues |
+| App picker from recent and installed apps | Done | Post-MVP | Rule editor can choose recent or installed apps without manual bundle identifier lookup |
+| Drag `.app` into rule editor | Done | Post-MVP | Dropped app bundles fill source name and bundle identifier |
+| Rule quick templates | Done | Post-MVP | Rule editor can quickly switch destination browser and rename the rule |
 | Drag-to-reorder rule priority | Planned | Post-MVP | Current UI uses an explicit numeric priority |
-| Menu bar pause/quick controls | Planned | Post-MVP | Temporary bypass and status |
-| Temporary browser chooser | Planned | Post-MVP | Useful when source confidence is low |
-| Domain rules | Planned | Post-MVP | Exact host and subdomain matching |
-| App plus domain rules | Planned | Post-MVP | Deterministic priority and conflict UI |
+| Menu bar pause/quick controls | Done | Post-MVP | Pause for ten minutes and route only the next link to a selected browser |
+| Temporary browser chooser | Deferred | Later | Next-link override covers the lightweight case; modal queue is postponed |
+| Domain rules | Done | Post-MVP | Exact host and wildcard subdomain matching through `hostPattern` |
+| App plus domain rules | Done | Post-MVP | Reuses existing AND semantics and priority system |
+| Rule conflict explanation | Done | Post-MVP | Routing explanations list skipped lower-priority matching rules |
 | Recent link history | Done | MVP | In-memory last 20 routing results with sanitized URLs and rule actions |
 | iCloud rule sync | Deferred | Later | Requires migration and conflict strategy |
-| Import/export configuration | Planned | Post-MVP | Versioned JSON with validation |
-| Rule conflict detection | Planned | Post-MVP | Explain which rule wins |
+| Import/export configuration | Done | Post-MVP | Versioned JSON import, export, and reset controls in Settings |
+| Lightweight release size check | Done | Post-MVP | Release app bundle is approximately 1.7M with no extra asset packs or third-party frameworks |
 | Onboarding | Planned | Productization | Default-browser and privacy guidance |
 | Installed browser detection | Done | MVP | Launch Services handlers are listed in Settings by bundle identifier |
 | Login at startup | Done | MVP | Settings toggle backed by `SMAppService` |
@@ -100,3 +104,8 @@ Status values:
 | 2026-06-24 | Add setup health panel | Done | Settings summarizes runtime health checks and opens detailed setup diagnostics in a sheet |
 | 2026-06-24 | Explain routing results | Done | Settings and recent history show why each link used a rule, fallback, or recovery path |
 | 2026-06-24 | Warn about broken rules | Done | Rules and fallback display compact warnings for unavailable destinations, LinkRouter loops, and invalid source bundle identifiers |
+| 2026-06-24 | Add app picker and `.app` drop source filling | Done | Rule creation no longer requires manually finding bundle identifiers |
+| 2026-06-24 | Expose domain and app-plus-domain rules | Done | Reused stored `hostPattern` and `urlScheme` fields with validation |
+| 2026-06-24 | Add menu bar pause and next-link override | Done | Lightweight alternative to a heavier per-link chooser queue |
+| 2026-06-24 | Add configuration import/export/reset | Done | Local JSON workflow for backup and tester sharing |
+| 2026-06-24 | Check release app size | Done | Release bundle measured at about 1.7M |

@@ -21,6 +21,7 @@ struct RoutingRule: Identifiable, Codable, Equatable {
 
 struct RoutingDecision: Equatable {
     let matchedRule: RoutingRule?
+    let skippedRuleNames: [String]
     let browserBundleIdentifier: String
     let browserName: String
     let openInBackground: Bool

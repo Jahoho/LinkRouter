@@ -17,11 +17,15 @@ struct RuleEngine {
             }
             .map(\.element)
 
-        if let matchedRule = orderedRules.first(where: {
+        let matchingRules = orderedRules.filter {
             matches($0, request: request)
-        }) {
+        }
+
+        if let matchedRule = matchingRules.first {
             return RoutingDecision(
                 matchedRule: matchedRule,
+                skippedRuleNames:
+                    matchingRules.dropFirst().map(\.name),
                 browserBundleIdentifier: matchedRule.browserBundleIdentifier,
                 browserName: matchedRule.browserName,
                 openInBackground: matchedRule.openInBackground,
@@ -31,6 +35,7 @@ struct RuleEngine {
 
         return RoutingDecision(
             matchedRule: nil,
+            skippedRuleNames: [],
             browserBundleIdentifier:
                 configuration.defaultBrowserBundleIdentifier,
             browserName: configuration.defaultBrowserName,
