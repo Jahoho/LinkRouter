@@ -183,6 +183,24 @@ Record these before each test cycle:
 - Product result: users can test several apps first, then create rules from the
   recent source list without typing bundle identifiers.
 
+### 2026-06-24: Recent Routing History and Launch at Login
+
+- Automated result: 42 tests passed and 1 opt-in browser integration test
+  skipped during the normal test run.
+- Recent history behavior:
+  - AppState keeps the most recent 20 routing results in memory.
+  - The history sheet is opened from a button, so Settings does not become
+    crowded.
+  - Each history item stores sanitized URL, source app, detection method,
+    confidence, matched rule, selected browser, final browser, and error state.
+  - Unknown-source records are visible but cannot create rules.
+  - Source-backed records can open the rule editor to create or edit a rule.
+  - URL path, query, fragment, credentials, and tokens remain omitted.
+- Launch at login behavior:
+  - Settings includes a `Launch at login` toggle backed by `SMAppService`.
+  - The UI shows enabled, disabled, requires-approval, and unavailable states.
+  - No Accessibility, Automation, or AppleScript permission was requested.
+
 ## Core Checklist
 
 | ID | Scenario | Steps | Expected result |
@@ -215,6 +233,10 @@ Record these before each test cycle:
 | T21 | Create rule from recent source | Open a link from a source without a rule, then click `Create Rule from This App` in `Recent source apps` | The editor is prefilled with the detected app and lets the user choose a browser without manually typing a bundle identifier |
 | T22 | Edit rule from recent source | Open a link from a source with an existing rule, then click `Edit Rule for This App` | The existing rule opens for editing instead of creating a duplicate |
 | T23 | Multiple recent sources | Open links from several apps before creating a rule | Each credible source appears once in `Recent source apps`, with the newest source first |
+| T24 | View recent routing history | Route several links, then click `View Recent Routing History` | A sheet opens with the most recent sanitized routing records; Settings main page stays compact |
+| T25 | Create rule from history | Open a history item with a detected source app and click `Create or Edit Rule` | The rule editor opens for that source app without manually typing a bundle identifier |
+| T26 | Unknown history item | Route a link with unknown source and open history | The item is visible for debugging, but rule creation is disabled for that row |
+| T27 | Launch at login | Toggle `Launch at login` in Settings | LinkRouter registers or unregisters with `SMAppService` and shows the current status |
 
 ## Source Detection Compatibility Matrix
 

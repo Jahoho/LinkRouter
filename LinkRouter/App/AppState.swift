@@ -1,17 +1,80 @@
 import Foundation
+import ServiceManagement
+
+enum LaunchAtLoginStatus: Equatable {
+    case enabled
+    case disabled
+    case requiresApproval
+    case unavailable(String)
+
+    var isEnabled: Bool {
+        if case .enabled = self {
+            return true
+        }
+
+        return false
+    }
+
+    var title: String {
+        switch self {
+        case .enabled:
+            return "Enabled"
+        case .disabled:
+            return "Disabled"
+        case .requiresApproval:
+            return "Requires approval"
+        case .unavailable:
+            return "Unavailable"
+        }
+    }
+
+    var detail: String {
+        switch self {
+        case .enabled:
+            return "LinkRouter will open when you log in."
+        case .disabled:
+            return "LinkRouter will not open automatically."
+        case .requiresApproval:
+            return "Approve LinkRouter in System Settings to enable launch at login."
+        case let .unavailable(message):
+            return message
+        }
+    }
+
+    static func current() -> LaunchAtLoginStatus {
+        switch SMAppService.mainApp.status {
+        case .enabled:
+            return .enabled
+        case .notRegistered:
+            return .disabled
+        case .requiresApproval:
+            return .requiresApproval
+        case .notFound:
+            return .unavailable("macOS could not locate this app as a login item.")
+        @unknown default:
+            return .unavailable("macOS returned an unknown login item status.")
+        }
+    }
+}
 
 @MainActor
 final class AppState: ObservableObject {
     static let shared = AppState()
     private static let recentSourceApplicationLimit = 8
+    private static let recentRoutingHistoryLimit = 20
 
     @Published private(set) var lastRequest: IncomingURLRequest?
     @Published private(set) var receivedRequestCount = 0
     @Published private(set) var recentSourceApplications:
         [RecentSourceApplication] = []
+    @Published private(set) var recentRoutingHistory:
+        [RoutingHistoryItem] = []
     @Published private(set) var availableBrowsers: [Browser] = []
     @Published private(set) var defaultBrowserStatus: DefaultBrowserStatus =
         .unknown
+    @Published private(set) var launchAtLoginStatus:
+        LaunchAtLoginStatus = .current()
+    @Published private(set) var launchAtLoginMessage: String?
     @Published private(set) var browserLaunchStatus: String?
     @Published private(set) var isLaunchingBrowser = false
     @Published private(set) var lastRoutingResult: RoutingResult?
@@ -53,7 +116,15 @@ final class AppState: ObservableObject {
             request,
             configuration: routingConfiguration
         ) { [weak self] result in
-            self?.lastRoutingResult = result
+            guard let self else {
+                return
+            }
+
+            self.lastRoutingResult = result
+            self.recordRoutingHistory(
+                request: request,
+                result: result
+            )
         }
     }
 
@@ -67,6 +138,49 @@ final class AppState: ObservableObject {
     func refreshDefaultBrowserStatus() {
         defaultBrowserStatus = BrowserDiscovery.shared
             .currentDefaultBrowserStatus()
+    }
+
+    func refreshLaunchAtLoginStatus() {
+        launchAtLoginStatus = .current()
+    }
+
+    func setLaunchAtLoginEnabled(_ enabled: Bool) {
+        do {
+            if enabled {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+
+            launchAtLoginStatus = .current()
+            launchAtLoginMessage = enabled
+                ? "Launch at login was enabled."
+                : "Launch at login was disabled."
+        } catch {
+            launchAtLoginStatus = .current()
+            launchAtLoginMessage =
+                "Launch at login could not be changed: \(error.localizedDescription)"
+        }
+    }
+
+    func recordRoutingHistory(
+        request: IncomingURLRequest,
+        result: RoutingResult
+    ) {
+        recentRoutingHistory.insert(
+            RoutingHistoryItem(
+                request: request,
+                result: result
+            ),
+            at: 0
+        )
+
+        if recentRoutingHistory.count > Self.recentRoutingHistoryLimit {
+            recentRoutingHistory = Array(
+                recentRoutingHistory
+                    .prefix(Self.recentRoutingHistoryLimit)
+            )
+        }
     }
 
     func rememberSourceApplication(

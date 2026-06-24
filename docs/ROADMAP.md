@@ -40,13 +40,13 @@ Status values:
 | Temporary browser chooser | Planned | Post-MVP | Useful when source confidence is low |
 | Domain rules | Planned | Post-MVP | Exact host and subdomain matching |
 | App plus domain rules | Planned | Post-MVP | Deterministic priority and conflict UI |
-| Recent link history | Planned | Post-MVP | Sanitized by default with retention limit |
+| Recent link history | Done | MVP | In-memory last 20 routing results with sanitized URLs and rule actions |
 | iCloud rule sync | Deferred | Later | Requires migration and conflict strategy |
 | Import/export configuration | Planned | Post-MVP | Versioned JSON with validation |
 | Rule conflict detection | Planned | Post-MVP | Explain which rule wins |
 | Onboarding | Planned | Productization | Default-browser and privacy guidance |
 | Installed browser detection | Done | MVP | Launch Services handlers are listed in Settings by bundle identifier |
-| Login at startup | Planned | Post-MVP | Use `SMAppService` |
+| Login at startup | Done | MVP | Settings toggle backed by `SMAppService` |
 | Version update mechanism | Deferred | Distribution | Evaluate Sparkle or managed delivery |
 | Developer ID signing and notarization | Planned | External beta | Needed for smooth tester installation |
 | App Store feasibility review | Research | Later | Reassess sandbox and review constraints |
@@ -92,3 +92,5 @@ Status values:
 | 2026-06-16 | Add Apple Mail seed rule | Done | `com.apple.mail` routes to Safari in the seed configuration and rule-engine tests |
 | 2026-06-16 | Create or edit rules from last source | Done | Settings pre-fills rule fields from the last credible source app and edits existing source rules to avoid duplicates |
 | 2026-06-16 | Add recent source app list | Done | Users can test several apps and then create or edit rules from a de-duplicated recent source list |
+| 2026-06-24 | Add recent routing history sheet | Done | Last 20 in-memory sanitized routing results can create or edit source rules without crowding Settings |
+| 2026-06-24 | Add launch at login setting | Done | Settings can register or unregister LinkRouter with `SMAppService` |

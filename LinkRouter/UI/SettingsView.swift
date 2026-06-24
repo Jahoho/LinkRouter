@@ -28,6 +28,43 @@ struct SettingsView: View {
                 }
             }
 
+            Section("Startup") {
+                Toggle(
+                    "Launch at login",
+                    isOn: Binding(
+                        get: { appState.launchAtLoginStatus.isEnabled },
+                        set: { isEnabled in
+                            appState.setLaunchAtLoginEnabled(isEnabled)
+                        }
+                    )
+                )
+
+                LabeledContent(
+                    "Status",
+                    value: appState.launchAtLoginStatus.title
+                )
+
+                Text(appState.launchAtLoginStatus.detail)
+                    .font(.caption)
+                    .foregroundStyle(
+                        appState.launchAtLoginStatus == .requiresApproval
+                            ? Color.orange
+                            : Color.secondary
+                    )
+
+                if let launchAtLoginMessage =
+                    appState.launchAtLoginMessage
+                {
+                    Text(launchAtLoginMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Button("Refresh Launch at Login Status") {
+                    appState.refreshLaunchAtLoginStatus()
+                }
+            }
+
             Section("Last received link") {
                 if let lastRequest = appState.lastRequest {
                     LabeledContent("Sanitized URL") {

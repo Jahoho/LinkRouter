@@ -34,6 +34,38 @@ struct RoutingResult: Equatable {
     }
 }
 
+struct RoutingHistoryItem: Identifiable, Equatable {
+    let id: UUID
+    let routedAt: Date
+    let sanitizedURLDescription: String
+    let sourceApplication: SourceApplication?
+    let detectionMethod: SourceDetectionMethod
+    let confidence: SourceDetectionConfidence
+    let matchedRuleName: String?
+    let selectedBrowserName: String
+    let finalBrowserName: String?
+    let statusDescription: String
+    let errorDescription: String?
+
+    init(
+        request: IncomingURLRequest,
+        result: RoutingResult,
+        routedAt: Date = Date()
+    ) {
+        id = UUID()
+        self.routedAt = routedAt
+        sanitizedURLDescription = request.sanitizedDescription
+        sourceApplication = request.source.application
+        detectionMethod = request.source.method
+        confidence = request.source.confidence
+        matchedRuleName = result.decision.matchedRule?.name
+        selectedBrowserName = result.decision.browserName
+        finalBrowserName = result.finalBrowserName
+        statusDescription = result.statusDescription
+        errorDescription = result.errorDescription
+    }
+}
+
 @MainActor
 final class RoutingCoordinator {
     static let shared = RoutingCoordinator()

@@ -1,7 +1,7 @@
 # LinkRouter 使用与验收指南
 
 本文档适用于当前开发版 LinkRouter。它是菜单栏 App，没有 Dock 图标，
-目前需要通过 Xcode 启动，也不会自动开机运行。
+目前主要通过 Xcode 启动，也可以在 Settings 中开启登录后自动启动。
 
 ## 一、现在先完成这些检查
 
@@ -38,6 +38,11 @@
   `Created default configuration` 或 `Saved to disk`。
 - 如果状态为红色的 `Using in-memory fallback`，先不要修改规则，
   参见本文“配置损坏”部分。
+
+在 `Startup` 区域：
+
+- 打开 `Launch at login` 可以让 LinkRouter 登录后自动启动。
+- 如果状态显示 `Requires approval`，按提示去 System Settings 里批准。
 
 ### 3. 测试浏览器能否被指定打开
 
@@ -234,6 +239,17 @@ App Store 链接或系统设置深链。
 如果看到橙色置信度提示，说明来源检测不是最高置信度。可以保存，但建议先确认
 `Source app` 和 bundle identifier 确实是你想配置的 App。
 
+### 从最近路由历史创建
+
+1. 在 `Routing rules` 顶部点击 `View Recent Routing History`。
+2. 从最近 20 条记录中找到想配置的 App。
+3. 点击 `Create or Edit Rule`。
+4. 如果该来源已有规则，会打开已有规则；否则会创建新规则。
+5. 确认目标浏览器后点击 `Save`。
+
+历史记录只显示脱敏 URL，例如 `https://example.com`，不会显示 path、
+query、fragment 或 token。
+
 ### 手动方式：高级编辑
 
 以 Telegram 为例：
@@ -349,8 +365,9 @@ Fallback 会在以下情况使用：
 
 - 来源 App 检测是 best-effort，macOS 不保证 URL handler 能知道原始来源。
 - Codex、WeChat 等真实点击兼容性仍需要你逐项测试。
-- 当前没有开机自启动，重启 Mac 后需要重新运行 App。
+- 开机自启动需要在 Settings 的 `Launch at login` 中开启。
 - 默认浏览器状态需要点击 `Refresh Default Browser Status` 或重启 App 后刷新。
+- 最近路由历史当前只保存在内存中，退出 App 后会清空。
 - 当前规则界面只编辑来源 App 条件，不编辑域名或 URL scheme 条件。
 - 当前使用 Xcode 开发版，停止 Xcode 的运行任务会退出 LinkRouter。
 

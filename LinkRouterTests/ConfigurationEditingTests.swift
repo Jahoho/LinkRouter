@@ -280,6 +280,50 @@ final class ConfigurationEditingTests: XCTestCase {
     }
 
     @MainActor
+    func testAppStateKeepsRecentRoutingHistoryLimitedAndSanitized() throws {
+        let appState = AppState(
+            configurationStore: ConfigurationStore(
+                directoryURL: temporaryDirectoryURL
+            )
+        )
+
+        for index in 0..<25 {
+            let request = try IncomingURLRequest(
+                urlString:
+                    "https://example\(index).com/private?token=secret",
+                source: sourceResult(
+                    bundleIdentifier: "com.example.Source\(index)",
+                    name: "Source \(index)"
+                )
+            )
+            appState.recordRoutingHistory(
+                request: request,
+                result: routingResult(
+                    requestID: request.id,
+                    finalBrowserName: "Safari"
+                )
+            )
+        }
+
+        XCTAssertEqual(appState.recentRoutingHistory.count, 20)
+        XCTAssertEqual(
+            appState.recentRoutingHistory.first?
+                .sanitizedURLDescription,
+            "https://example24.com"
+        )
+        XCTAssertEqual(
+            appState.recentRoutingHistory.first?
+                .sourceApplication?.bundleIdentifier,
+            "com.example.Source24"
+        )
+        XCTAssertFalse(
+            appState.recentRoutingHistory.contains {
+                $0.sanitizedURLDescription.contains("token")
+            }
+        )
+    }
+
+    @MainActor
     func testAppStatePersistsAddedRule() throws {
         let store = ConfigurationStore(
             directoryURL: temporaryDirectoryURL
@@ -371,6 +415,29 @@ final class ConfigurationEditingTests: XCTestCase {
             method: .appleEventSender,
             confidence: .high,
             reason: "Configuration editing test"
+        )
+    }
+
+    private func routingResult(
+        requestID: UUID,
+        finalBrowserName: String?
+    ) -> RoutingResult {
+        RoutingResult(
+            requestID: requestID,
+            decision: RoutingDecision(
+                matchedRule: nil,
+                browserBundleIdentifier: "com.apple.Safari",
+                browserName: "Safari",
+                openInBackground: false,
+                reason: "Configuration editing test"
+            ),
+            finalBrowserBundleIdentifier: finalBrowserName == nil
+                ? nil
+                : "com.apple.Safari",
+            finalBrowserName: finalBrowserName,
+            usedRecoveryFallback: false,
+            notice: nil,
+            errorDescription: nil
         )
     }
 }

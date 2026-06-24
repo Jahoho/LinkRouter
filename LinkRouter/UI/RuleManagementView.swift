@@ -25,9 +25,21 @@ struct RuleManagementView: View {
 
     @State private var editorContext: RuleEditorContext?
     @State private var rulePendingDeletion: RoutingRule?
+    @State private var showsRoutingHistory = false
 
     var body: some View {
         Group {
+            HStack {
+                Button("View Recent Routing History") {
+                    showsRoutingHistory = true
+                }
+                .disabled(appState.recentRoutingHistory.isEmpty)
+
+                Text("\(appState.recentRoutingHistory.count) recent")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             if !appState.recentSourceApplications.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Recent source apps")
@@ -209,6 +221,16 @@ struct RuleManagementView: View {
                 }
             }
         }
+        .sheet(isPresented: $showsRoutingHistory) {
+            RoutingHistoryView(
+                history: appState.recentRoutingHistory,
+                canEditConfiguration: appState.canEditConfiguration,
+                canCreateRule: defaultBrowserForNewRule != nil
+            ) { sourceApplication in
+                showsRoutingHistory = false
+                openEditor(for: sourceApplication)
+            }
+        }
         .confirmationDialog(
             "Delete this rule?",
             isPresented: Binding(
@@ -279,6 +301,93 @@ struct RuleManagementView: View {
                 browser: browser
             )
         )
+    }
+}
+
+private struct RoutingHistoryView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    let history: [RoutingHistoryItem]
+    let canEditConfiguration: Bool
+    let canCreateRule: Bool
+    let onOpenRule: (SourceApplication) -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Form {
+                if history.isEmpty {
+                    Text("No routing history yet.")
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(history) { item in
+                        HStack(alignment: .top) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(itemTitle(item))
+                                    .font(.headline)
+                                Text(item.sanitizedURLDescription)
+                                    .font(.caption)
+                                    .textSelection(.enabled)
+                                Text(item.routedAt, format: .dateTime)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Text(
+                                    "\(item.confidence.rawValue) confidence via \(item.detectionMethod.rawValue)"
+                                )
+                                .font(.caption)
+                                .foregroundStyle(
+                                    item.confidence == .high
+                                        ? Color.secondary
+                                        : Color.orange
+                                )
+                                Text(item.statusDescription)
+                                    .font(.caption)
+                                    .foregroundStyle(
+                                        item.errorDescription == nil
+                                            ? Color.secondary
+                                            : Color.red
+                                    )
+                            }
+
+                            Spacer()
+
+                            if let sourceApplication = item.sourceApplication {
+                                Button("Create or Edit Rule") {
+                                    onOpenRule(sourceApplication)
+                                }
+                                .disabled(
+                                    !canEditConfiguration
+                                        || !canCreateRule
+                                )
+                            } else {
+                                Text("No source app detected")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+            }
+            .formStyle(.grouped)
+
+            Divider()
+
+            HStack {
+                Spacer()
+
+                Button("Close") {
+                    dismiss()
+                }
+                .keyboardShortcut(.cancelAction)
+            }
+            .padding()
+        }
+        .frame(width: 760, height: 560)
+    }
+
+    private func itemTitle(_ item: RoutingHistoryItem) -> String {
+        let sourceName = item.sourceApplication?.name ?? "Unknown source"
+        let finalBrowserName = item.finalBrowserName ?? "No browser"
+        return "\(sourceName) -> \(finalBrowserName)"
     }
 }
 
