@@ -5,6 +5,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         AppSourceDetector.shared.start()
         URLRequestReceiver.shared.start()
         AppState.shared.refreshBrowsers()
+        AppState.shared.refreshFileDefaultApps()
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {

@@ -53,6 +53,10 @@ struct RoutingResult: Equatable {
                 "Matched rule \(matchedRule.name) and selected \(decision.browserName)."
             )
 
+            if let browserProfileName = decision.browserProfileName {
+                lines.append("Selected browser profile: \(browserProfileName).")
+            }
+
             if !decision.skippedRuleNames.isEmpty {
                 lines.append(
                     "Skipped lower-priority matches: \(decision.skippedRuleNames.joined(separator: ", "))."
@@ -212,6 +216,7 @@ final class RoutingCoordinator {
         browserLauncher.open(
             job.request.url,
             in: browser,
+            profileDirectory: decision.browserProfileDirectory,
             activate: !decision.openInBackground
         ) { [weak self] result in
             guard let self else {
@@ -227,7 +232,7 @@ final class RoutingCoordinator {
                         decision: decision,
                         finalBrowserBundleIdentifier:
                             browser.bundleIdentifier,
-                        finalBrowserName: browser.name,
+                        finalBrowserName: decision.browserDisplayName,
                         usedRecoveryFallback: false,
                         notice: nil,
                         errorDescription: nil

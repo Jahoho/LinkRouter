@@ -191,6 +191,20 @@ final class ConfigurationStore {
             )
         }
 
+        if let profileDirectory = rule.browserProfileDirectory {
+            guard
+                rule.browserProfileName != nil,
+                BrowserProfileDiscovery.isValidProfileDirectory(
+                    profileDirectory
+                )
+            else {
+                throw ConfigurationStoreError.invalidRule(
+                    rule.name,
+                    "browser profile is malformed"
+                )
+            }
+        }
+
         let hasCondition = rule.sourceAppBundleIdentifier != nil
             || rule.hostPattern != nil
             || rule.urlScheme != nil

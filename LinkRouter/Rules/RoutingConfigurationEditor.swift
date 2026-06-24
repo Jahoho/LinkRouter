@@ -92,6 +92,8 @@ struct RoutingConfigurationEditor {
             browserBundleIdentifier:
                 rule.browserBundleIdentifier,
             browserName: rule.browserName,
+            browserProfileName: rule.browserProfileName,
+            browserProfileDirectory: rule.browserProfileDirectory,
             action: rule.action,
             openInBackground: rule.openInBackground
         )

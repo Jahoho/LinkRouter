@@ -49,6 +49,7 @@
 - `Overview` / `概览`：默认浏览器、语言、启动项、浏览器测试。
 - `Rules` / `规则`：路由规则、fallback browser、最近来源 App。
 - `Diagnostics` / `诊断`：最近收到的链接、最近路由结果。
+- `Default Apps` / `默认 App`：常见文件类型的默认打开 App。
 - `Advanced` / `高级`：配置文件、导入导出、隐私说明。
 
 在 `Overview` 的 `Language` 中可以切换 English / 中文。这个设置会保存，
@@ -156,6 +157,8 @@ macOS 26 接受的可信浏览器候选。回到 Xcode 登录 Apple ID，选择
 - Toggle 关闭：规则保留，但暂时不参与匹配。
 - Priority 数字越大，越先匹配。
 - 规则可以只按 App、只按 Domain，或按 App + Domain 组合匹配。
+- 如果目标浏览器有检测到的 Chromium Profile，可以在规则编辑器中选择
+  `Browser profile`，用于区分 Work / Personal 等浏览器上下文。
 - 多个条件会同时生效，例如 `Mail + *.github.com` 只匹配 Mail 里打开的
   GitHub 链接。
 - 没有规则匹配，或来源识别为 Unknown 时，使用 fallback browser。
@@ -341,7 +344,73 @@ Always open in Safari / Chrome / Arc ...
 
 这只会修改目标浏览器和规则名称，不会隐藏底层规则。
 
-## 五、修改、停用和删除规则
+## 五、浏览器 Profile 路由
+
+这个功能用于解决“工作链接进工作 Profile、个人链接进个人 Profile”的痛点，
+是 LinkRouter 相比普通浏览器分流工具更有差异化的方向之一。
+
+当前支持范围：
+
+- Google Chrome
+- Microsoft Edge
+- Brave
+
+这些浏览器的 Profile 信息来自本机 Chromium `Local State` 文件。Safari 和 Arc
+暂不强行支持，因为没有同样稳定的无权限启动方式。
+
+测试步骤：
+
+1. 确认 Chrome 里至少有两个 Profile，例如 `Personal` 和 `Work`。
+2. 重启 LinkRouter，或在 `Overview` 中点击 `Refresh Browser List`。
+3. 打开 `Rules`，新增或编辑一条规则。
+4. `Destination browser` 选择 Google Chrome。
+5. 如果 LinkRouter 检测到了 Profile，会出现 `Browser profile` 下拉框。
+6. 选择一个 Profile，点击 `Save`。
+7. 从匹配来源 App 打开链接。
+
+预期结果：
+
+- 链接由 Chrome 打开。
+- Chrome 使用所选 Profile。
+- `Diagnostics` 的 `Final browser` 或解释文本中能看到 profile 名称。
+
+如果没有看到 `Browser profile`：
+
+- 先确认目标浏览器是 Chrome/Edge/Brave。
+- 确认该浏览器已经创建过 Profile。
+- 点击 `Refresh Browser List` 后重新打开规则编辑器。
+- 如果仍然没有，说明本机没有可读的 Chromium profile metadata；这时规则仍可按普通浏览器路由。
+
+## 六、Default Apps 文件默认打开方式
+
+`Default Apps` 是一个轻量相邻模块，用来解决“我不知道 `.md` 对应什么 UTI，
+也不知道该去哪里改默认打开 App”的问题。
+
+当前支持：
+
+- `.md`
+- `.pdf`
+- `.csv`
+- `.json`
+- `.txt`
+
+测试 `.md` 的建议流程：
+
+1. 打开 Settings → `Default Apps`。
+2. 找到 `.md`。
+3. 查看当前默认 App。
+4. 从右侧下拉选择一个候选 App，例如 Obsidian、VS Code 或 TextEdit。
+5. 点击 `Refresh Default Apps`。
+6. 在 Finder 中双击一个 `.md` 文件验证。
+
+注意：
+
+- 这里修改的是 macOS 全局默认打开方式，不是 LinkRouter 自己内部的规则。
+- 这个模块和网页链接路由互不影响。
+- 如果某个扩展名没有候选 App，说明 macOS 没有报告可打开该类型的应用。
+- 如果不确定，先只测试 `.md`，不要一次性改多个文件类型。
+
+## 七、修改、停用和删除规则
 
 ### 修改
 
@@ -364,7 +433,7 @@ Always open in Safari / Chrome / Arc ...
 
 不确定是否以后还会用时，建议先停用，不要删除。
 
-## 六、设置 Fallback Browser
+## 八、设置 Fallback Browser
 
 在 `Routing rules` 底部找到 `Fallback browser`：
 
@@ -378,7 +447,7 @@ Fallback 会在以下情况使用：
 - 没有启用的规则匹配。
 - 某条规则的目标浏览器不存在或启动失败。
 
-## 七、菜单栏临时控制
+## 九、菜单栏临时控制
 
 点击菜单栏 LinkRouter 图标，可以使用：
 
@@ -389,7 +458,7 @@ Fallback 会在以下情况使用：
 
 这几个功能不会改动你的规则文件，适合临时处理一次特殊链接。
 
-## 八、导入、导出和重置配置
+## 十、导入、导出和重置配置
 
 在 Settings 的 `Configuration storage` 区域：
 
@@ -399,7 +468,7 @@ Fallback 会在以下情况使用：
 
 建议在大幅调整规则前先导出一次。
 
-## 九、每次操作后检查什么
+## 十一、每次操作后检查什么
 
 ### 每次启动 App
 

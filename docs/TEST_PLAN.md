@@ -320,6 +320,32 @@ Record these before each test cycle:
   - LinkRouter now helps the user decide which source-app rules are
     trustworthy before adding more automation.
 
+### 2026-06-24: P1-P2 Differentiated Feature Pass
+
+- Automated result: 69 tests passed and 1 opt-in browser integration test
+  skipped during the normal test run.
+- Browser profile behavior:
+  - LinkRouter discovers Chromium-family browser profiles from local profile
+    metadata when available.
+  - Rule editor shows a `Browser profile` picker only for browsers with
+    detected profiles.
+  - Saved rules can target a specific profile through `--profile-directory`
+    without AppleScript permissions.
+  - Switching the destination browser clears incompatible profile selections.
+- Default Apps behavior:
+  - Settings includes a separate `Default Apps` tab.
+  - `.md`, `.pdf`, `.csv`, `.json`, and `.txt` defaults are shown through
+    user-friendly extensions instead of raw UTI identifiers.
+  - Changes use Launch Services and affect global macOS defaults.
+  - The module remains separate from link routing rules to keep the core app
+    lightweight.
+- Product result:
+  - P1 adds a clear differentiator for work/personal browser contexts.
+  - P2 addresses an adjacent user pain without turning LinkRouter into a broad
+    default-app suite.
+- Lightweight result:
+  - Release `.app` bundle measured approximately `2.2M`.
+
 ## Core Checklist
 
 | ID | Scenario | Steps | Expected result |
@@ -373,6 +399,8 @@ Record these before each test cycle:
 | T42 | Switch interface language | Change `Language` in Overview | Main Settings, menu bar, onboarding, and setup health switch between English and Chinese |
 | T43 | Compact settings navigation | Open each Settings tab | Overview, Rules, Diagnostics, and Advanced each show focused content without one long crowded page |
 | T44 | Source compatibility report | Open links from several apps, then expand `Source compatibility` in Diagnostics | Apps are grouped by source, unknown samples are counted, and reliability labels reflect recent confidence |
+| T45 | Browser profile rule | Open a rule whose destination browser has detected profiles, choose a profile, save, then route a matching link | The destination browser opens with the selected profile and diagnostics show the profile name |
+| T46 | Default Apps tab | Open `Default Apps`, change `.md` to a candidate editor, then refresh | macOS reports the new current default app for `.md`; link routing rules are unchanged |
 
 ## Source Detection Compatibility Matrix
 

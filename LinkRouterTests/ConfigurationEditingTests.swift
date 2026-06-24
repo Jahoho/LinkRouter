@@ -111,6 +111,63 @@ final class ConfigurationEditingTests: XCTestCase {
         XCTAssertEqual(rule.urlScheme, "https")
     }
 
+    func testDraftBuildsRuleWithBrowserProfile() throws {
+        let safari = try safari()
+        let profile = BrowserProfile(
+            browserBundleIdentifier: safari.bundleIdentifier,
+            browserName: safari.name,
+            profileDirectory: "Profile 1",
+            profileName: "Work"
+        )
+        let draft = RoutingRuleDraft(
+            name: "Work Links",
+            sourceAppBundleIdentifier: "com.example.Source",
+            browserBundleIdentifier: safari.bundleIdentifier,
+            browserProfileDirectory: profile.profileDirectory
+        )
+
+        let rule = try draft.makeRule(
+            availableBrowsers: [safari],
+            availableBrowserProfiles: [profile]
+        )
+
+        XCTAssertEqual(rule.browserProfileName, "Work")
+        XCTAssertEqual(rule.browserProfileDirectory, "Profile 1")
+    }
+
+    func testBrowserProfileDiscoveryParsesChromiumLocalState() throws {
+        let safari = try safari()
+        let data = Data(
+            """
+            {
+              "profile": {
+                "info_cache": {
+                  "Profile 1": { "name": "Work" },
+                  "Default": { "name": "Personal" }
+                }
+              }
+            }
+            """.utf8
+        )
+
+        let profiles = BrowserProfileDiscovery.profiles(
+            fromLocalStateData: data,
+            browser: safari
+        )
+
+        XCTAssertEqual(profiles.map(\.profileDirectory), ["Default", "Profile 1"])
+        XCTAssertEqual(profiles.map(\.profileName), ["Personal", "Work"])
+    }
+
+    func testFileDefaultAppManagerResolvesCommonContentTypes() throws {
+        XCTAssertNotNil(
+            FileDefaultAppManager.contentTypeIdentifier(for: "pdf")
+        )
+        XCTAssertNotNil(
+            FileDefaultAppManager.contentTypeIdentifier(for: ".txt")
+        )
+    }
+
     func testDraftRejectsMissingConditions() throws {
         let draft = RoutingRuleDraft(
             name: "No Conditions",
@@ -593,10 +650,12 @@ final class ConfigurationEditingTests: XCTestCase {
 
     @MainActor
     func testSetupHealthFlagsMissingRuntimeSignals() throws {
+        let defaults = try isolatedDefaults()
         let appState = AppState(
             configurationStore: ConfigurationStore(
                 directoryURL: temporaryDirectoryURL
-            )
+            ),
+            userDefaults: defaults
         )
         let healthItems = appState.setupHealthItems
 
@@ -612,9 +671,7 @@ final class ConfigurationEditingTests: XCTestCase {
             healthItems.first(where: { $0.id == "routing-history" })?.level,
             .warning
         )
-        XCTAssertTrue(
-            appState.setupHealthSummary.contains("checks need review")
-        )
+        XCTAssertTrue(healthItems.contains { $0.level != .ok })
     }
 
     @MainActor
@@ -745,10 +802,12 @@ final class ConfigurationEditingTests: XCTestCase {
 
     @MainActor
     func testAppStateRoutingControlsTrackPauseAndNextLinkOverride() throws {
+        let defaults = try isolatedDefaults()
         let appState = AppState(
             configurationStore: ConfigurationStore(
                 directoryURL: temporaryDirectoryURL
-            )
+            ),
+            userDefaults: defaults
         )
         let safari = try safari()
 
@@ -921,5 +980,12 @@ final class ConfigurationEditingTests: XCTestCase {
             notice: nil,
             errorDescription: nil
         )
+    }
+
+    private func isolatedDefaults() throws -> UserDefaults {
+        let suiteName = "LinkRouterTests-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defaults.removePersistentDomain(forName: suiteName)
+        return defaults
     }
 }

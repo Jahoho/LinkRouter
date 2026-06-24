@@ -32,12 +32,14 @@ The core routing pipeline is now executable:
 - Source app picker from recent and installed apps
 - `.app` drag-and-drop source filling in the rule editor
 - Source-app, domain, URL-scheme, and app-plus-domain rule conditions
+- Optional Chromium browser profile selection for rules
 - Conflict explanation for lower-priority matching rules
+- Compact Default Apps tab for common file extensions
 - Menu bar pause and next-link browser override controls
 - JSON configuration import, export, and reset controls
 - First-run setup guide with default-browser, rule creation, privacy, and backup guidance
 - English / Chinese interface switch in Settings
-- Compact native settings layout with Overview, Rules, Diagnostics, and Advanced tabs
+- Compact native settings layout with Overview, Rules, Diagnostics, Default Apps, and Advanced tabs
 - Lightweight manual release zip script
 - Settings controls for refreshing browsers and opening a test page
 - Default-browser status display in Settings and the menu bar
@@ -66,8 +68,8 @@ The configuration file is stored at:
 ~/Library/Application Support/LinkRouter/routing-config.json
 ```
 
-Onboarding and broader source-app compatibility testing are the next
-development milestones.
+Broader source-app compatibility testing and external beta distribution are
+the next development milestones.
 
 ## Editing Rules
 

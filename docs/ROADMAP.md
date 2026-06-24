@@ -60,8 +60,8 @@ Status values:
 | Version update mechanism | Deferred | Distribution | Manual zip release is enough until external testers need automatic updates |
 | Developer ID signing and notarization | Research | External beta | Distribution notes document the direct notarization flow; real Developer ID validation remains |
 | App Store feasibility review | Research | Later | Reassess sandbox and review constraints |
-| Browser profile support | Research | Differentiation | Could route work/personal links to browser profiles without becoming a heavy browser suite |
-| Default file-app manager | Research | Adjacent | Validate `.md`, `.pdf`, `.csv`, `.json`, and `.txt` defaults as a separate compact module before implementation |
+| Browser profile support | Done | Differentiation | Rules can target detected Chromium profiles for work/personal browser contexts |
+| Default file-app manager | Done | Adjacent | Default Apps tab manages `.md`, `.pdf`, `.csv`, `.json`, and `.txt` as a compact separate module |
 
 ## Technical Research
 
@@ -73,8 +73,8 @@ Status values:
 | Accessibility detector | Deferred | Does it materially improve accuracy enough to justify permission? |
 | Lower deployment target | Deferred | After MVP, should support extend below macOS 26? |
 | App Sandbox | Research | Can all required behavior pass tests with sandbox enabled? |
-| File default-app APIs | Research | Which Launch Services APIs are stable enough for a compact Default Apps tab? |
-| Browser profile launching | Research | Which browsers expose reliable profile launch arguments without AppleScript permissions? |
+| File default-app APIs | Done | Launch Services can query and set common file default apps without exposing UTI details to the user |
+| Browser profile launching | Done | Chromium profile launch uses local profile metadata plus `--profile-directory` without AppleScript permissions |
 
 ## Improvement Log
 
@@ -122,6 +122,8 @@ Status values:
 | 2026-06-24 | Compact Settings into native tabs | Done | Settings now uses Overview, Rules, Diagnostics, and Advanced tabs |
 | 2026-06-24 | Validate market need and define differentiation | Done | Position LinkRouter around local, lightweight, explainable source-aware routing rather than a broad browser suite |
 | 2026-06-24 | Add source compatibility report | Done | Diagnostics derive app reliability from the last 20 sanitized routing results |
+| 2026-06-24 | Add browser profile routing | Done | Chromium profiles can be detected locally and selected per routing rule |
+| 2026-06-24 | Add compact Default Apps tab | Done | Common file extensions can be assigned to default apps without requiring UTI knowledge |
 
 ## Product Strategy Notes
 
@@ -145,7 +147,7 @@ Priority after the current iteration:
 | Priority | Direction | Rationale |
 |---|---|---|
 | P0 | Source compatibility report | Helps users know which app rules are trustworthy |
-| P1 | Browser profile support research | Strong differentiator for work/personal browser contexts |
-| P2 | Compact Default Apps research | Useful adjacent need, but should not dilute the core link router |
+| P1 | Browser profile support | Done; strong differentiator for work/personal browser contexts |
+| P2 | Compact Default Apps | Done; useful adjacent need kept separate from link routing |
 | P3 | Optional chooser polish | Good for uncertain links, but can interrupt flow if overused |
 | P4 | External beta distribution | Only valuable after real source compatibility is proven |

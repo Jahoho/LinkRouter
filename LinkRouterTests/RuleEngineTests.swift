@@ -174,6 +174,29 @@ final class RuleEngineTests: XCTestCase {
         XCTAssertEqual(decision.skippedRuleNames, ["general"])
     }
 
+    func testMatchedRuleCarriesBrowserProfileSelection() throws {
+        let configuration = configuration(
+            rules: [
+                rule(
+                    id: "profile-rule",
+                    priority: 100,
+                    browser: "com.google.Chrome",
+                    browserProfileName: "Work",
+                    browserProfileDirectory: "Profile 1"
+                )
+            ]
+        )
+
+        let decision = ruleEngine.evaluate(
+            request: try request(sourceBundleIdentifier: "test.source"),
+            configuration: configuration
+        )
+
+        XCTAssertEqual(decision.browserProfileName, "Work")
+        XCTAssertEqual(decision.browserProfileDirectory, "Profile 1")
+        XCTAssertEqual(decision.browserDisplayName, "com.google.Chrome (Work)")
+    }
+
     func testCombinedConditionsMustAllMatch() throws {
         let combinedRule = RoutingRule(
             id: "combined",
@@ -265,7 +288,9 @@ final class RuleEngineTests: XCTestCase {
         priority: Int,
         browser: String,
         sourceAppBundleIdentifier: String? = "test.source",
-        hostPattern: String? = nil
+        hostPattern: String? = nil,
+        browserProfileName: String? = nil,
+        browserProfileDirectory: String? = nil
     ) -> RoutingRule {
         RoutingRule(
             id: id,
@@ -278,6 +303,8 @@ final class RuleEngineTests: XCTestCase {
             urlScheme: nil,
             browserBundleIdentifier: browser,
             browserName: browser,
+            browserProfileName: browserProfileName,
+            browserProfileDirectory: browserProfileDirectory,
             action: .open,
             openInBackground: false
         )

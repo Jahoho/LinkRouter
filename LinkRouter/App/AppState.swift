@@ -1,5 +1,8 @@
+import AppKit
+import CoreServices
 import Foundation
 import ServiceManagement
+import UniformTypeIdentifiers
 
 enum AppLanguage: String, CaseIterable, Identifiable {
     case english = "en"
@@ -188,6 +191,205 @@ struct SourceCompatibilityReport: Identifiable, Equatable {
     }
 }
 
+struct FileDefaultApplication: Identifiable, Equatable {
+    let bundleIdentifier: String
+    let name: String
+    let applicationURL: URL
+
+    var id: String {
+        bundleIdentifier
+    }
+}
+
+struct FileDefaultAppRecord: Identifiable, Equatable {
+    let fileExtension: String
+    let contentTypeIdentifier: String?
+    let currentApplication: FileDefaultApplication?
+    let candidates: [FileDefaultApplication]
+
+    var id: String {
+        fileExtension
+    }
+
+    var isSupported: Bool {
+        contentTypeIdentifier != nil
+    }
+}
+
+enum FileDefaultAppError: LocalizedError, Equatable {
+    case unsupportedExtension(String)
+    case applicationUnavailable(String)
+    case launchServicesFailed(OSStatus)
+
+    var errorDescription: String? {
+        switch self {
+        case let .unsupportedExtension(fileExtension):
+            return ".\(fileExtension) does not resolve to a known macOS content type."
+        case let .applicationUnavailable(bundleIdentifier):
+            return "\(bundleIdentifier) is not installed or cannot be located."
+        case let .launchServicesFailed(status):
+            return "macOS rejected the default-app change with status \(status)."
+        }
+    }
+}
+
+struct FileDefaultAppManager {
+    static let supportedExtensions = ["md", "pdf", "csv", "json", "txt"]
+
+    static func records() -> [FileDefaultAppRecord] {
+        supportedExtensions.map(record)
+    }
+
+    static func record(for fileExtension: String) -> FileDefaultAppRecord {
+        let normalizedExtension = normalizeExtension(fileExtension)
+        let contentTypeIdentifier = contentTypeIdentifier(
+            for: normalizedExtension
+        )
+
+        guard let contentTypeIdentifier else {
+            return FileDefaultAppRecord(
+                fileExtension: normalizedExtension,
+                contentTypeIdentifier: nil,
+                currentApplication: nil,
+                candidates: []
+            )
+        }
+
+        let currentApplication = currentDefaultApplication(
+            contentTypeIdentifier: contentTypeIdentifier
+        )
+        let candidates = candidateApplications(
+            fileExtension: normalizedExtension
+        )
+
+        return FileDefaultAppRecord(
+            fileExtension: normalizedExtension,
+            contentTypeIdentifier: contentTypeIdentifier,
+            currentApplication: currentApplication,
+            candidates: candidates
+        )
+    }
+
+    static func setDefaultApplication(
+        bundleIdentifier: String,
+        for fileExtension: String
+    ) -> Result<Void, FileDefaultAppError> {
+        let normalizedExtension = normalizeExtension(fileExtension)
+
+        guard
+            let contentTypeIdentifier = contentTypeIdentifier(
+                for: normalizedExtension
+            )
+        else {
+            return .failure(.unsupportedExtension(normalizedExtension))
+        }
+
+        guard
+            NSWorkspace.shared.urlForApplication(
+                withBundleIdentifier: bundleIdentifier
+            ) != nil
+        else {
+            return .failure(.applicationUnavailable(bundleIdentifier))
+        }
+
+        let status = LSSetDefaultRoleHandlerForContentType(
+            contentTypeIdentifier as CFString,
+            .viewer,
+            bundleIdentifier as CFString
+        )
+
+        guard status == noErr else {
+            return .failure(.launchServicesFailed(status))
+        }
+
+        return .success(())
+    }
+
+    static func contentTypeIdentifier(
+        for fileExtension: String
+    ) -> String? {
+        UTType(filenameExtension: normalizeExtension(fileExtension))?
+            .identifier
+    }
+
+    private static func normalizeExtension(_ fileExtension: String) -> String {
+        fileExtension
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "."))
+            .lowercased()
+    }
+
+    private static func currentDefaultApplication(
+        contentTypeIdentifier: String
+    ) -> FileDefaultApplication? {
+        guard
+            let unmanagedBundleIdentifier =
+                LSCopyDefaultRoleHandlerForContentType(
+                    contentTypeIdentifier as CFString,
+                    .viewer
+                ),
+            let bundleIdentifier =
+                unmanagedBundleIdentifier.takeRetainedValue() as String?,
+            let applicationURL = NSWorkspace.shared.urlForApplication(
+                withBundleIdentifier: bundleIdentifier
+            )
+        else {
+            return nil
+        }
+
+        return FileDefaultApplication(
+            bundleIdentifier: bundleIdentifier,
+            name: applicationName(at: applicationURL),
+            applicationURL: applicationURL
+        )
+    }
+
+    private static func candidateApplications(
+        fileExtension: String
+    ) -> [FileDefaultApplication] {
+        let sampleURL = URL(fileURLWithPath: "/tmp")
+            .appendingPathComponent("LinkRouterSample")
+            .appendingPathExtension(fileExtension)
+        let applications = NSWorkspace.shared.urlsForApplications(
+            toOpen: sampleURL
+        )
+        var candidatesByBundleIdentifier:
+            [String: FileDefaultApplication] = [:]
+
+        for applicationURL in applications {
+            guard
+                let bundle = Bundle(url: applicationURL),
+                let bundleIdentifier = bundle.bundleIdentifier
+            else {
+                continue
+            }
+
+            candidatesByBundleIdentifier[bundleIdentifier] =
+                FileDefaultApplication(
+                    bundleIdentifier: bundleIdentifier,
+                    name: applicationName(at: applicationURL),
+                    applicationURL: applicationURL
+                )
+        }
+
+        return candidatesByBundleIdentifier.values.sorted {
+            $0.name.localizedCaseInsensitiveCompare($1.name)
+                == .orderedAscending
+        }
+    }
+
+    private static func applicationName(at url: URL) -> String {
+        let bundle = Bundle(url: url)
+        return bundle?.object(
+            forInfoDictionaryKey: "CFBundleDisplayName"
+        ) as? String
+            ?? bundle?.object(
+                forInfoDictionaryKey: "CFBundleName"
+            ) as? String
+            ?? url.deletingPathExtension().lastPathComponent
+    }
+}
+
 @MainActor
 final class AppState: ObservableObject {
     static let shared = AppState()
@@ -204,6 +406,12 @@ final class AppState: ObservableObject {
     @Published private(set) var recentRoutingHistory:
         [RoutingHistoryItem] = []
     @Published private(set) var availableBrowsers: [Browser] = []
+    @Published private(set) var availableBrowserProfiles:
+        [BrowserProfile] = []
+    @Published private(set) var fileDefaultAppRecords:
+        [FileDefaultAppRecord] = []
+    @Published private(set) var fileDefaultAppMessage: String?
+    @Published private(set) var fileDefaultAppFailed = false
     @Published private(set) var defaultBrowserStatus: DefaultBrowserStatus =
         .unknown
     @Published private(set) var launchAtLoginStatus:
@@ -566,8 +774,14 @@ final class AppState: ObservableObject {
     func refreshBrowsers() {
         availableBrowsers = BrowserDiscovery.shared
             .discoverInstalledBrowsers()
+        availableBrowserProfiles = BrowserProfileDiscovery
+            .discoverProfiles(for: availableBrowsers)
         refreshDefaultBrowserStatus()
         RoutingLogger.shared.logBrowserDiscovery(availableBrowsers)
+    }
+
+    func refreshFileDefaultApps() {
+        fileDefaultAppRecords = FileDefaultAppManager.records()
     }
 
     func refreshDefaultBrowserStatus() {
@@ -791,6 +1005,32 @@ final class AppState: ObservableObject {
                 in: routingConfiguration
             )
         }
+    }
+
+    func setDefaultApplication(
+        bundleIdentifier: String,
+        forFileExtension fileExtension: String
+    ) -> Result<Void, FileDefaultAppError> {
+        let result = FileDefaultAppManager.setDefaultApplication(
+            bundleIdentifier: bundleIdentifier,
+            for: fileExtension
+        )
+
+        switch result {
+        case .success:
+            fileDefaultAppMessage =
+                text(
+                    "Changed default app for .\(fileExtension).",
+                    "已修改 .\(fileExtension) 的默认打开 App。"
+                )
+            fileDefaultAppFailed = false
+            refreshFileDefaultApps()
+        case let .failure(error):
+            fileDefaultAppMessage = error.localizedDescription
+            fileDefaultAppFailed = true
+        }
+
+        return result
     }
 
     func exportConfiguration(

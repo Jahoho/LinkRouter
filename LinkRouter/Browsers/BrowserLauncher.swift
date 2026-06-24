@@ -13,6 +13,7 @@ final class BrowserLauncher {
     func open(
         _ url: URL,
         in browser: Browser,
+        profileDirectory: String? = nil,
         activate: Bool = true,
         completion: @escaping (Result<NSRunningApplication, BrowserLaunchError>) -> Void
     ) {
@@ -32,6 +33,22 @@ final class BrowserLauncher {
             return
         }
 
+        if let profileDirectory {
+            guard BrowserProfileDiscovery.supportsProfiles(
+                browserBundleIdentifier: browser.bundleIdentifier
+            ) else {
+                completion(.failure(.profileUnsupported(browser.name)))
+                return
+            }
+
+            guard BrowserProfileDiscovery.isValidProfileDirectory(
+                profileDirectory
+            ) else {
+                completion(.failure(.profileUnavailable(profileDirectory)))
+                return
+            }
+        }
+
         guard let applicationURL = workspace.urlForApplication(
             withBundleIdentifier: browser.bundleIdentifier
         ) else {
@@ -44,6 +61,11 @@ final class BrowserLauncher {
         configuration.addsToRecentItems = false
         configuration.allowsRunningApplicationSubstitution = false
         configuration.promptsUserIfNeeded = true
+        if let profileDirectory {
+            configuration.arguments = [
+                "--profile-directory=\(profileDirectory)"
+            ]
+        }
 
         workspace.open(
             [url],
@@ -71,6 +93,8 @@ enum BrowserLaunchError: LocalizedError, Equatable {
     case invalidWebURL
     case routingLoopPrevented
     case browserNotInstalled(String)
+    case profileUnsupported(String)
+    case profileUnavailable(String)
     case workspaceFailure(String)
     case missingLaunchResult
 
@@ -82,6 +106,10 @@ enum BrowserLaunchError: LocalizedError, Equatable {
             return "LinkRouter cannot open a link in itself."
         case let .browserNotInstalled(browserName):
             return "\(browserName) is not installed or cannot be located."
+        case let .profileUnsupported(browserName):
+            return "\(browserName) does not expose a supported local profile launch mode."
+        case let .profileUnavailable(profileName):
+            return "\(profileName) is not a valid browser profile."
         case let .workspaceFailure(message):
             return "macOS could not open the browser: \(message)"
         case .missingLaunchResult:

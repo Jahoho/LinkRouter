@@ -54,6 +54,48 @@ final class ConfigurationStoreTests: XCTestCase {
         XCTAssertEqual(result.status, .loaded)
     }
 
+    func testLoadsLegacyConfigurationWithoutBrowserProfileFields() throws {
+        let store = makeStore()
+        try FileManager.default.createDirectory(
+            at: temporaryDirectoryURL,
+            withIntermediateDirectories: true
+        )
+        let legacyJSON = Data(
+            """
+            {
+              "schemaVersion": 1,
+              "defaultBrowserBundleIdentifier": "com.apple.Safari",
+              "defaultBrowserName": "Safari",
+              "rules": [
+                {
+                  "id": "legacy-rule",
+                  "name": "Legacy Rule",
+                  "enabled": true,
+                  "priority": 50,
+                  "sourceAppBundleIdentifier": "com.example.Source",
+                  "sourceAppName": "Source",
+                  "hostPattern": null,
+                  "urlScheme": null,
+                  "browserBundleIdentifier": "com.apple.Safari",
+                  "browserName": "Safari",
+                  "action": "open",
+                  "openInBackground": false
+                }
+              ]
+            }
+            """.utf8
+        )
+        try legacyJSON.write(to: store.configurationURL)
+
+        let result = store.loadOrCreateSeed()
+
+        XCTAssertEqual(result.status, .loaded)
+        XCTAssertEqual(result.configuration.rules.first?.id, "legacy-rule")
+        XCTAssertNil(
+            result.configuration.rules.first?.browserProfileDirectory
+        )
+    }
+
     func testSaveAtomicallyReplacesExistingConfiguration() throws {
         let store = makeStore()
         try store.save(.seed)

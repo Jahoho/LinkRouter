@@ -7,6 +7,7 @@ enum RoutingRuleValidationError: LocalizedError, Equatable {
     case invalidHostPattern
     case invalidURLScheme
     case browserUnavailable
+    case browserProfileUnavailable
 
     var errorDescription: String? {
         switch self {
@@ -22,6 +23,8 @@ enum RoutingRuleValidationError: LocalizedError, Equatable {
             return "Use http, https, or leave the URL scheme blank."
         case .browserUnavailable:
             return "Select an installed destination browser."
+        case .browserProfileUnavailable:
+            return "Select a profile that belongs to the destination browser."
         }
     }
 }
@@ -34,6 +37,8 @@ struct RoutingRuleDraft: Equatable {
     var sourceAppBundleIdentifier: String
     var sourceAppName: String
     var browserBundleIdentifier: String
+    var browserProfileName: String
+    var browserProfileDirectory: String
     var openInBackground: Bool
     var hostPattern: String
     var urlScheme: String
@@ -48,6 +53,8 @@ struct RoutingRuleDraft: Equatable {
             rule.sourceAppBundleIdentifier ?? ""
         sourceAppName = rule.sourceAppName ?? ""
         browserBundleIdentifier = rule.browserBundleIdentifier
+        browserProfileName = rule.browserProfileName ?? ""
+        browserProfileDirectory = rule.browserProfileDirectory ?? ""
         openInBackground = rule.openInBackground
         hostPattern = rule.hostPattern ?? ""
         urlScheme = rule.urlScheme ?? ""
@@ -77,6 +84,8 @@ struct RoutingRuleDraft: Equatable {
         sourceAppBundleIdentifier: String = "",
         sourceAppName: String = "",
         browserBundleIdentifier: String,
+        browserProfileName: String = "",
+        browserProfileDirectory: String = "",
         openInBackground: Bool = false,
         hostPattern: String = "",
         urlScheme: String = "",
@@ -89,6 +98,8 @@ struct RoutingRuleDraft: Equatable {
         self.sourceAppBundleIdentifier = sourceAppBundleIdentifier
         self.sourceAppName = sourceAppName
         self.browserBundleIdentifier = browserBundleIdentifier
+        self.browserProfileName = browserProfileName
+        self.browserProfileDirectory = browserProfileDirectory
         self.openInBackground = openInBackground
         self.hostPattern = hostPattern
         self.urlScheme = urlScheme
@@ -96,7 +107,8 @@ struct RoutingRuleDraft: Equatable {
     }
 
     func makeRule(
-        availableBrowsers: [Browser]
+        availableBrowsers: [Browser],
+        availableBrowserProfiles: [BrowserProfile] = []
     ) throws -> RoutingRule {
         let trimmedName = name.trimmingCharacters(
             in: .whitespacesAndNewlines
@@ -153,6 +165,27 @@ struct RoutingRuleDraft: Equatable {
         let trimmedSourceName = sourceAppName.trimmingCharacters(
             in: .whitespacesAndNewlines
         )
+        let trimmedProfileDirectory =
+            browserProfileDirectory.trimmingCharacters(
+                in: .whitespacesAndNewlines
+            )
+        let selectedProfile: BrowserProfile?
+        if trimmedProfileDirectory.isEmpty {
+            selectedProfile = nil
+        } else {
+            guard
+                let profile = availableBrowserProfiles.first(where: {
+                    $0.browserBundleIdentifier.caseInsensitiveCompare(
+                        browser.bundleIdentifier
+                    ) == .orderedSame
+                        && $0.profileDirectory == trimmedProfileDirectory
+                })
+            else {
+                throw RoutingRuleValidationError.browserProfileUnavailable
+            }
+
+            selectedProfile = profile
+        }
 
         return RoutingRule(
             id: id,
@@ -171,6 +204,8 @@ struct RoutingRuleDraft: Equatable {
                 trimmedURLScheme.isEmpty ? nil : trimmedURLScheme,
             browserBundleIdentifier: browser.bundleIdentifier,
             browserName: browser.name,
+            browserProfileName: selectedProfile?.profileName,
+            browserProfileDirectory: selectedProfile?.profileDirectory,
             action: action,
             openInBackground: openInBackground
         )
@@ -235,7 +270,8 @@ struct RuleHealthWarning: Identifiable, Equatable {
 struct RuleHealthChecker {
     static func warnings(
         for rule: RoutingRule,
-        availableBrowsers: [Browser]
+        availableBrowsers: [Browser],
+        availableBrowserProfiles: [BrowserProfile] = []
     ) -> [RuleHealthWarning] {
         var warnings: [RuleHealthWarning] = []
 
@@ -271,6 +307,26 @@ struct RuleHealthChecker {
                 availableBrowsers: availableBrowsers
             )
         )
+
+        if let profileDirectory = rule.browserProfileDirectory {
+            let profileAvailable = availableBrowserProfiles.contains {
+                $0.browserBundleIdentifier.caseInsensitiveCompare(
+                    rule.browserBundleIdentifier
+                ) == .orderedSame
+                    && $0.profileDirectory == profileDirectory
+            }
+
+            if !profileAvailable {
+                warnings.append(
+                    RuleHealthWarning(
+                        id: "missing-profile-\(rule.id)",
+                        title: "Browser profile unavailable",
+                        detail:
+                            "\(rule.browserProfileName ?? profileDirectory) is not available for \(rule.browserName)."
+                    )
+                )
+            }
+        }
 
         return warnings
     }

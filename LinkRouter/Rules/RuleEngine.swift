@@ -28,6 +28,8 @@ struct RuleEngine {
                     matchingRules.dropFirst().map(\.name),
                 browserBundleIdentifier: matchedRule.browserBundleIdentifier,
                 browserName: matchedRule.browserName,
+                browserProfileName: matchedRule.browserProfileName,
+                browserProfileDirectory: matchedRule.browserProfileDirectory,
                 openInBackground: matchedRule.openInBackground,
                 reason: "Matched enabled rule \(matchedRule.name)."
             )
@@ -39,6 +41,8 @@ struct RuleEngine {
             browserBundleIdentifier:
                 configuration.defaultBrowserBundleIdentifier,
             browserName: configuration.defaultBrowserName,
+            browserProfileName: nil,
+            browserProfileDirectory: nil,
             openInBackground: false,
             reason: "No enabled rule matched, so the configured fallback was selected."
         )

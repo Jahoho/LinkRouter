@@ -25,6 +25,11 @@ struct SettingsView: View {
                     Label(t("Diagnostics", "诊断"), systemImage: "waveform.path.ecg")
                 }
 
+            defaultAppsTab
+                .tabItem {
+                    Label(t("Default Apps", "默认 App"), systemImage: "doc.badge.gearshape")
+                }
+
             advancedTab
                 .tabItem {
                     Label(t("Advanced", "高级"), systemImage: "gearshape")
@@ -287,6 +292,56 @@ struct SettingsView: View {
 
             Section(t("Source compatibility", "来源兼容性")) {
                 sourceCompatibilityView
+            }
+        }
+        .formStyle(.grouped)
+        .padding(.top, 6)
+    }
+
+    private var defaultAppsTab: some View {
+        Form {
+            Section(t("File default apps", "文件默认打开方式")) {
+                Text(
+                    t(
+                        "Manage a small set of common file types without needing to know UTI identifiers. These are global macOS defaults, separate from link routing rules.",
+                        "管理一小组常见文件类型的默认打开 App，无需了解 UTI。这里修改的是 macOS 全局默认值，独立于链接路由规则。"
+                    )
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+                if appState.fileDefaultAppRecords.isEmpty {
+                    Text(t("No file type data loaded yet.", "还没有加载文件类型数据。"))
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(appState.fileDefaultAppRecords) { record in
+                        FileDefaultAppRow(
+                            record: record,
+                            language: appState.language
+                        ) { bundleIdentifier in
+                            _ = appState.setDefaultApplication(
+                                bundleIdentifier: bundleIdentifier,
+                                forFileExtension: record.fileExtension
+                            )
+                        }
+                    }
+                }
+
+                HStack {
+                    Button(t("Refresh Default Apps", "刷新默认 App")) {
+                        appState.refreshFileDefaultApps()
+                    }
+
+                    if let message = appState.fileDefaultAppMessage {
+                        Text(message)
+                            .font(.caption)
+                            .foregroundStyle(
+                                appState.fileDefaultAppFailed
+                                    ? Color.red
+                                    : Color.secondary
+                            )
+                    }
+                }
             }
         }
         .formStyle(.grouped)
@@ -844,5 +899,89 @@ private struct SourceCompatibilityRow: View {
         case .unstable:
             return .red
         }
+    }
+}
+
+private struct FileDefaultAppRow: View {
+    let record: FileDefaultAppRecord
+    let language: AppLanguage
+    let onSelect: (String) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(".\(record.fileExtension)")
+                        .font(.headline)
+                    Text(record.contentTypeIdentifier ?? t("Unsupported type", "不支持的类型"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
+                }
+
+                Spacer()
+
+                if record.isSupported, !record.candidates.isEmpty {
+                    Picker(
+                        t("Default app", "默认 App"),
+                        selection: Binding(
+                            get: {
+                                record.currentApplication?
+                                    .bundleIdentifier
+                                    ?? ""
+                            },
+                            set: onSelect
+                        )
+                    ) {
+                        if let currentApplication =
+                            record.currentApplication,
+                           !record.candidates.contains(where: {
+                               $0.bundleIdentifier
+                                   == currentApplication.bundleIdentifier
+                           }) {
+                            Text(
+                                "\(currentApplication.name) (\(t("Current", "当前")))"
+                            )
+                            .tag(currentApplication.bundleIdentifier)
+                        }
+
+                        ForEach(record.candidates) { application in
+                            Text(application.name)
+                                .tag(application.bundleIdentifier)
+                        }
+                    }
+                    .frame(width: 240)
+                }
+            }
+
+            Text(currentSummary)
+                .font(.caption)
+                .foregroundStyle(record.isSupported ? Color.secondary : Color.orange)
+        }
+    }
+
+    private var currentSummary: String {
+        guard record.isSupported else {
+            return t(
+                "macOS did not report a stable content type for this extension.",
+                "macOS 没有为此扩展名返回稳定的内容类型。"
+            )
+        }
+
+        guard let currentApplication = record.currentApplication else {
+            return t(
+                "No current default app was reported by macOS.",
+                "macOS 没有返回当前默认 App。"
+            )
+        }
+
+        return t(
+            "Current default: \(currentApplication.name)",
+            "当前默认：\(currentApplication.name)"
+        )
+    }
+
+    private func t(_ english: String, _ chinese: String) -> String {
+        language.text(english, chinese)
     }
 }

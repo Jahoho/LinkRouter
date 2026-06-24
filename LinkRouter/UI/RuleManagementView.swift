@@ -105,7 +105,7 @@ struct RuleManagementView: View {
                             VStack(alignment: .leading) {
                                 Text(rule.name)
                                 Text(
-                                    "\(ruleConditionSummary(rule)) -> \(rule.browserName)"
+                                    "\(ruleConditionSummary(rule)) -> \(browserSummary(rule))"
                                 )
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
@@ -135,7 +135,9 @@ struct RuleManagementView: View {
 
                     let warnings = RuleHealthChecker.warnings(
                         for: rule,
-                        availableBrowsers: appState.availableBrowsers
+                        availableBrowsers: appState.availableBrowsers,
+                        availableBrowserProfiles:
+                            appState.availableBrowserProfiles
                     )
 
                     ForEach(warnings) { warning in
@@ -232,6 +234,8 @@ struct RuleManagementView: View {
                 title: editorTitle(for: context),
                 draft: context.draft,
                 availableBrowsers: appState.availableBrowsers,
+                availableBrowserProfiles:
+                    appState.availableBrowserProfiles,
                 recentSourceApplications:
                     appState.recentSourceApplications,
                 language: appState.language
@@ -335,6 +339,14 @@ struct RuleManagementView: View {
         return conditions.isEmpty
             ? t("No conditions", "无条件")
             : conditions.joined(separator: " + ")
+    }
+
+    private func browserSummary(_ rule: RoutingRule) -> String {
+        if let browserProfileName = rule.browserProfileName {
+            return "\(rule.browserName) (\(browserProfileName))"
+        }
+
+        return rule.browserName
     }
 
     private func actionTitle(
@@ -496,6 +508,7 @@ private struct RuleEditorView: View {
 
     let title: String
     let availableBrowsers: [Browser]
+    let availableBrowserProfiles: [BrowserProfile]
     let recentSourceApplications: [RecentSourceApplication]
     let language: AppLanguage
     let onSave:
@@ -511,6 +524,7 @@ private struct RuleEditorView: View {
         title: String,
         draft: RoutingRuleDraft,
         availableBrowsers: [Browser],
+        availableBrowserProfiles: [BrowserProfile],
         recentSourceApplications: [RecentSourceApplication],
         language: AppLanguage,
         onSave: @escaping
@@ -518,6 +532,7 @@ private struct RuleEditorView: View {
     ) {
         self.title = title
         self.availableBrowsers = availableBrowsers
+        self.availableBrowserProfiles = availableBrowserProfiles
         self.recentSourceApplications = recentSourceApplications
         self.language = language
         self.onSave = onSave
@@ -587,7 +602,13 @@ private struct RuleEditorView: View {
 
                 Picker(
                     t("Destination browser", "目标浏览器"),
-                    selection: $draft.browserBundleIdentifier
+                    selection: Binding(
+                        get: { draft.browserBundleIdentifier },
+                        set: { bundleIdentifier in
+                            draft.browserBundleIdentifier = bundleIdentifier
+                            clearProfileIfNeeded()
+                        }
+                    )
                 ) {
                     if !availableBrowsers.contains(where: {
                         $0.bundleIdentifier
@@ -601,6 +622,41 @@ private struct RuleEditorView: View {
                         Text(browser.name)
                             .tag(browser.bundleIdentifier)
                     }
+                }
+
+                if !profilesForSelectedBrowser.isEmpty {
+                    Picker(
+                        t("Browser profile", "浏览器 Profile"),
+                        selection: Binding(
+                            get: { draft.browserProfileDirectory },
+                            set: { profileDirectory in
+                                draft.browserProfileDirectory =
+                                    profileDirectory
+                                draft.browserProfileName =
+                                    profilesForSelectedBrowser.first {
+                                        $0.profileDirectory
+                                            == profileDirectory
+                                    }?.profileName ?? ""
+                            }
+                        )
+                    ) {
+                        Text(t("No specific profile", "不指定 Profile"))
+                            .tag("")
+
+                        ForEach(profilesForSelectedBrowser) { profile in
+                            Text(profile.profileName)
+                                .tag(profile.profileDirectory)
+                        }
+                    }
+
+                    Text(
+                        t(
+                            "Profile routing currently supports Chromium-based browsers detected from local profile metadata.",
+                            "Profile 路由目前支持从本地 profile 元数据中识别出的 Chromium 系浏览器。"
+                        )
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 }
 
                 Menu(t("Quick Templates", "快速模板")) {
@@ -713,6 +769,7 @@ private struct RuleEditorView: View {
 
     private func applyBrowserTemplate(_ browser: Browser) {
         draft.browserBundleIdentifier = browser.bundleIdentifier
+        clearProfileIfNeeded()
 
         if !draft.sourceAppName.isEmpty {
             draft.name = "\(draft.sourceAppName) to \(browser.name)"
@@ -725,6 +782,25 @@ private struct RuleEditorView: View {
         availableBrowsers.first {
             $0.bundleIdentifier == draft.browserBundleIdentifier
         }?.name ?? t("selected browser", "选中的浏览器")
+    }
+
+    private var profilesForSelectedBrowser: [BrowserProfile] {
+        availableBrowserProfiles.filter {
+            $0.browserBundleIdentifier.caseInsensitiveCompare(
+                draft.browserBundleIdentifier
+            ) == .orderedSame
+        }
+    }
+
+    private func clearProfileIfNeeded() {
+        if profilesForSelectedBrowser.contains(where: {
+            $0.profileDirectory == draft.browserProfileDirectory
+        }) {
+            return
+        }
+
+        draft.browserProfileName = ""
+        draft.browserProfileDirectory = ""
     }
 
     private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
@@ -790,7 +866,8 @@ private struct RuleEditorView: View {
     private func save() {
         do {
             let rule = try draft.makeRule(
-                availableBrowsers: availableBrowsers
+                availableBrowsers: availableBrowsers,
+                availableBrowserProfiles: availableBrowserProfiles
             )
 
             switch onSave(rule) {

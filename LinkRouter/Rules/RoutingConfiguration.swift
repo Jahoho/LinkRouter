@@ -24,6 +24,8 @@ struct RoutingConfiguration: Codable, Equatable {
                 urlScheme: nil,
                 browserBundleIdentifier: "com.google.Chrome",
                 browserName: "Google Chrome",
+                browserProfileName: nil,
+                browserProfileDirectory: nil,
                 action: .open,
                 openInBackground: false
             ),
@@ -38,6 +40,8 @@ struct RoutingConfiguration: Codable, Equatable {
                 urlScheme: nil,
                 browserBundleIdentifier: "com.apple.Safari",
                 browserName: "Safari",
+                browserProfileName: nil,
+                browserProfileDirectory: nil,
                 action: .open,
                 openInBackground: false
             ),
@@ -52,6 +56,8 @@ struct RoutingConfiguration: Codable, Equatable {
                 urlScheme: nil,
                 browserBundleIdentifier: "com.apple.Safari",
                 browserName: "Safari",
+                browserProfileName: nil,
+                browserProfileDirectory: nil,
                 action: .open,
                 openInBackground: false
             )
