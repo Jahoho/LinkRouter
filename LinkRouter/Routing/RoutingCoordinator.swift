@@ -32,6 +32,54 @@ struct RoutingResult: Equatable {
 
         return "No rule matched; opened fallback browser \(finalBrowserName)."
     }
+
+    func explanationLines(
+        source: SourceDetectionResult?
+    ) -> [String] {
+        var lines: [String] = []
+
+        if let application = source?.application {
+            lines.append(
+                "Source detected as \(application.name) (\(application.bundleIdentifier))."
+            )
+        } else {
+            lines.append(
+                "Source app was unknown, so source-app rules could not match."
+            )
+        }
+
+        if let matchedRule = decision.matchedRule {
+            lines.append(
+                "Matched rule \(matchedRule.name) and selected \(decision.browserName)."
+            )
+        } else {
+            lines.append(
+                "No enabled rule matched, so fallback \(decision.browserName) was selected."
+            )
+        }
+
+        if usedRecoveryFallback {
+            lines.append(
+                "The selected browser was unavailable or failed, so LinkRouter used the recovery fallback."
+            )
+        }
+
+        if let finalBrowserName {
+            lines.append("Final browser: \(finalBrowserName).")
+        } else {
+            lines.append("No browser was opened.")
+        }
+
+        if let notice {
+            lines.append(notice)
+        }
+
+        if let errorDescription {
+            lines.append(errorDescription)
+        }
+
+        return lines
+    }
 }
 
 struct RoutingHistoryItem: Identifiable, Equatable {
@@ -45,6 +93,7 @@ struct RoutingHistoryItem: Identifiable, Equatable {
     let selectedBrowserName: String
     let finalBrowserName: String?
     let statusDescription: String
+    let explanationLines: [String]
     let errorDescription: String?
 
     init(
@@ -62,6 +111,7 @@ struct RoutingHistoryItem: Identifiable, Equatable {
         selectedBrowserName = result.decision.browserName
         finalBrowserName = result.finalBrowserName
         statusDescription = result.statusDescription
+        explanationLines = result.explanationLines(source: request.source)
         errorDescription = result.errorDescription
     }
 }

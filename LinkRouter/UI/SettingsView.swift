@@ -226,6 +226,23 @@ struct SettingsView: View {
                         Text(errorDescription)
                             .foregroundStyle(.red)
                     }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Why this happened")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        ForEach(
+                            result.explanationLines(
+                                source: appState.lastRequest?.source
+                            ),
+                            id: \.self
+                        ) { line in
+                            Text("• \(line)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 } else {
                     Text("No routing decision has been completed yet.")
                         .foregroundStyle(.secondary)

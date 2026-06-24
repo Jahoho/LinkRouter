@@ -157,3 +157,95 @@ struct RoutingRuleDraft: Equatable {
         }
     }
 }
+
+struct RuleHealthWarning: Identifiable, Equatable {
+    let id: String
+    let title: String
+    let detail: String
+}
+
+struct RuleHealthChecker {
+    static func warnings(
+        for rule: RoutingRule,
+        availableBrowsers: [Browser]
+    ) -> [RuleHealthWarning] {
+        var warnings: [RuleHealthWarning] = []
+
+        if let sourceBundleIdentifier = rule.sourceAppBundleIdentifier,
+           !RoutingRuleDraft.isValidBundleIdentifier(sourceBundleIdentifier) {
+            warnings.append(
+                RuleHealthWarning(
+                    id: "invalid-source-\(rule.id)",
+                    title: "Invalid source bundle identifier",
+                    detail:
+                        "\(sourceBundleIdentifier) will never match a normal macOS app bundle identifier."
+                )
+            )
+        }
+
+        warnings.append(
+            contentsOf: destinationWarnings(
+                idPrefix: rule.id,
+                browserName: rule.browserName,
+                browserBundleIdentifier: rule.browserBundleIdentifier,
+                availableBrowsers: availableBrowsers
+            )
+        )
+
+        return warnings
+    }
+
+    static func fallbackWarnings(
+        configuration: RoutingConfiguration,
+        availableBrowsers: [Browser]
+    ) -> [RuleHealthWarning] {
+        destinationWarnings(
+            idPrefix: "fallback",
+            browserName: configuration.defaultBrowserName,
+            browserBundleIdentifier:
+                configuration.defaultBrowserBundleIdentifier,
+            availableBrowsers: availableBrowsers
+        )
+    }
+
+    private static func destinationWarnings(
+        idPrefix: String,
+        browserName: String,
+        browserBundleIdentifier: String,
+        availableBrowsers: [Browser]
+    ) -> [RuleHealthWarning] {
+        var warnings: [RuleHealthWarning] = []
+
+        if !BrowserDiscovery.isAllowedDestination(
+            bundleIdentifier: browserBundleIdentifier
+        ) {
+            warnings.append(
+                RuleHealthWarning(
+                    id: "self-loop-\(idPrefix)",
+                    title: "Destination points back to LinkRouter",
+                    detail:
+                        "Choose another browser to avoid routing the same link back into LinkRouter."
+                )
+            )
+        }
+
+        let browserAvailable = availableBrowsers.contains {
+            $0.bundleIdentifier.caseInsensitiveCompare(
+                browserBundleIdentifier
+            ) == .orderedSame
+        }
+
+        if !browserAvailable {
+            warnings.append(
+                RuleHealthWarning(
+                    id: "missing-browser-\(idPrefix)",
+                    title: "Destination browser unavailable",
+                    detail:
+                        "\(browserName) is not in the installed browser list right now."
+                )
+            )
+        }
+
+        return warnings
+    }
+}

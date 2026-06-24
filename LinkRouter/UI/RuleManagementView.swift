@@ -87,47 +87,58 @@ struct RuleManagementView: View {
             }
 
             ForEach(appState.routingConfiguration.rules) { rule in
-                HStack {
-                    Toggle(
-                        isOn: Binding(
-                            get: { rule.enabled },
-                            set: { enabled in
-                                _ = appState.setRuleEnabled(
-                                    id: rule.id,
-                                    enabled: enabled
-                                )
-                            }
-                        )
-                    ) {
-                        VStack(alignment: .leading) {
-                            Text(rule.name)
-                            Text(
-                                "\(rule.sourceAppName ?? rule.sourceAppBundleIdentifier ?? "Unknown source") -> \(rule.browserName)"
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Toggle(
+                            isOn: Binding(
+                                get: { rule.enabled },
+                                set: { enabled in
+                                    _ = appState.setRuleEnabled(
+                                        id: rule.id,
+                                        enabled: enabled
+                                    )
+                                }
                             )
+                        ) {
+                            VStack(alignment: .leading) {
+                                Text(rule.name)
+                                Text(
+                                    "\(rule.sourceAppName ?? rule.sourceAppBundleIdentifier ?? "Unknown source") -> \(rule.browserName)"
+                                )
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            }
+                        }
+                        .disabled(!appState.canEditConfiguration)
+
+                        Spacer()
+
+                        Text("Priority \(rule.priority)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
+
+                        Button("Edit") {
+                            editorContext = RuleEditorContext(
+                                mode: .edit,
+                                draft: RoutingRuleDraft(rule: rule)
+                            )
                         }
+                        .disabled(!appState.canEditConfiguration)
+
+                        Button("Delete", role: .destructive) {
+                            rulePendingDeletion = rule
+                        }
+                        .disabled(!appState.canEditConfiguration)
                     }
-                    .disabled(!appState.canEditConfiguration)
 
-                    Spacer()
+                    let warnings = RuleHealthChecker.warnings(
+                        for: rule,
+                        availableBrowsers: appState.availableBrowsers
+                    )
 
-                    Text("Priority \(rule.priority)")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-
-                    Button("Edit") {
-                        editorContext = RuleEditorContext(
-                            mode: .edit,
-                            draft: RoutingRuleDraft(rule: rule)
-                        )
+                    ForEach(warnings) { warning in
+                        RuleHealthWarningView(warning: warning)
                     }
-                    .disabled(!appState.canEditConfiguration)
-
-                    Button("Delete", role: .destructive) {
-                        rulePendingDeletion = rule
-                    }
-                    .disabled(!appState.canEditConfiguration)
                 }
             }
 
@@ -195,6 +206,10 @@ struct RuleManagementView: View {
                     !appState.canEditConfiguration
                         || appState.availableBrowsers.isEmpty
                 )
+            }
+
+            ForEach(fallbackWarnings) { warning in
+                RuleHealthWarningView(warning: warning)
             }
 
             if let message = appState.configurationEditMessage {
@@ -273,6 +288,13 @@ struct RuleManagementView: View {
         } ?? appState.availableBrowsers.first
     }
 
+    private var fallbackWarnings: [RuleHealthWarning] {
+        RuleHealthChecker.fallbackWarnings(
+            configuration: appState.routingConfiguration,
+            availableBrowsers: appState.availableBrowsers
+        )
+    }
+
     private func actionTitle(
         for sourceApplication: SourceApplication
     ) -> String {
@@ -301,6 +323,26 @@ struct RuleManagementView: View {
                 browser: browser
             )
         )
+    }
+}
+
+private struct RuleHealthWarningView: View {
+    let warning: RuleHealthWarning
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 6) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(warning.title)
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+                Text(warning.detail)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 }
 
@@ -346,6 +388,13 @@ private struct RoutingHistoryView: View {
                                             ? Color.secondary
                                             : Color.red
                                     )
+
+                                ForEach(item.explanationLines, id: \.self) {
+                                    line in
+                                    Text("• \(line)")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
                             }
 
                             Spacer()

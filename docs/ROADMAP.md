@@ -36,6 +36,8 @@ Status values:
 | Create rule from last detected source | Done | MVP | Avoids requiring users to manually type bundle identifiers for new apps |
 | Recent source app list | Done | MVP | Keeps recently detected sources available for rule creation and editing |
 | Setup health panel | Done | MVP | Compact health sheet for default browser, fallback, config, startup, and diagnostics |
+| Routing result explanation | Done | MVP | Latest result and recent history explain source, matched rule or fallback, recovery, and final browser |
+| Broken rule warnings | Done | MVP | Compact warnings for missing browsers, self-routing destinations, invalid source bundle identifiers, and fallback issues |
 | Drag-to-reorder rule priority | Planned | Post-MVP | Current UI uses an explicit numeric priority |
 | Menu bar pause/quick controls | Planned | Post-MVP | Temporary bypass and status |
 | Temporary browser chooser | Planned | Post-MVP | Useful when source confidence is low |
@@ -96,3 +98,5 @@ Status values:
 | 2026-06-24 | Add recent routing history sheet | Done | Last 20 in-memory sanitized routing results can create or edit source rules without crowding Settings |
 | 2026-06-24 | Add launch at login setting | Done | Settings can register or unregister LinkRouter with `SMAppService` |
 | 2026-06-24 | Add setup health panel | Done | Settings summarizes runtime health checks and opens detailed setup diagnostics in a sheet |
+| 2026-06-24 | Explain routing results | Done | Settings and recent history show why each link used a rule, fallback, or recovery path |
+| 2026-06-24 | Warn about broken rules | Done | Rules and fallback display compact warnings for unavailable destinations, LinkRouter loops, and invalid source bundle identifiers |

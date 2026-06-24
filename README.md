@@ -37,6 +37,8 @@ The core routing pipeline is now executable:
 - Launch at login setting
 - Setup health sheet for default-browser, fallback, storage, startup, and diagnostics checks
 - Routing decision and final-browser diagnostics
+- Human-readable routing explanations for the latest decision and recent history
+- Broken-rule warnings for missing browsers, invalid source bundle identifiers, and self-routing destinations
 - Configuration path, schema, and recovery status diagnostics
 - Privacy-conscious URL validation and logging
 - Unit and integration tests for URL handling and browser launching
@@ -69,6 +71,10 @@ Open LinkRouter Settings and use the **Routing rules** section:
 Changes are validated and written atomically before the running router adopts
 them. Delete actions require confirmation. Editing is disabled when LinkRouter
 is protecting an unreadable configuration file.
+
+Rules and the fallback browser show compact warnings when the destination
+browser is unavailable, the destination points back to LinkRouter, or a stored
+source bundle identifier is invalid. Healthy rules stay visually quiet.
 
 ## MVP Scope
 

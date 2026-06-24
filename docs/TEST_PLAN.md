@@ -215,6 +215,24 @@ Record these before each test cycle:
 - Product result: setup and debugging state are visible without making the main
   Settings page crowded.
 
+### 2026-06-24: Routing Explanations and Rule Health Warnings
+
+- Automated result: 50 tests passed and 1 opt-in browser integration test
+  skipped during the normal test run.
+- Explanation behavior:
+  - The latest routing result explains detected source app, matched rule or
+    fallback, recovery fallback, final browser, and error state.
+  - Recent routing history stores the same explanation lines for each
+    sanitized record.
+- Rule health behavior:
+  - Rules warn when their destination browser is unavailable.
+  - Rules warn when their destination points back to LinkRouter.
+  - Rules warn when a stored source bundle identifier is malformed.
+  - The fallback browser warns when it is unavailable or points back to
+    LinkRouter.
+- Product result: diagnostics became more understandable without adding a heavy
+  always-visible table or changing the configuration schema.
+
 ## Core Checklist
 
 | ID | Scenario | Steps | Expected result |
@@ -252,6 +270,8 @@ Record these before each test cycle:
 | T26 | Unknown history item | Route a link with unknown source and open history | The item is visible for debugging, but rule creation is disabled for that row |
 | T27 | Launch at login | Toggle `Launch at login` in Settings | LinkRouter registers or unregisters with `SMAppService` and shows the current status |
 | T28 | Setup health panel | Click `View Setup Health` in Settings | A compact sheet shows setup checks with OK, warning, or error states |
+| T29 | Latest routing explanation | Route a link, then inspect `Last routing result` | Settings explains the detected source, matched rule or fallback, final browser, and recovery/error state |
+| T30 | Broken rule warning | Create or load a rule whose destination browser is unavailable or LinkRouter itself | Routing rules show a compact warning before the user discovers the problem through a failed click |
 
 ## Source Detection Compatibility Matrix
 

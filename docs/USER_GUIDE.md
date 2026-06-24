@@ -131,6 +131,8 @@ macOS 26 接受的可信浏览器候选。回到 Xcode 登录 Apple ID，选择
 - 没有规则匹配，或来源识别为 Unknown 时，使用 fallback browser。
 - 修改 Toggle 或 fallback 后会立即保存。
 - Add/Edit 只有点击 `Save` 后才会保存。
+- 如果规则或 fallback 出现橙色提示，说明目标浏览器不存在、目标误指向
+  LinkRouter，或来源 bundle identifier 格式异常；正常规则不会显示额外提示。
 
 ## 三、现在执行核心验收
 
@@ -159,6 +161,7 @@ open 'https://example.com/fallback-test'
 - Source app 可能是 Terminal，也可能是 `Unknown`，两者都可接受。
 - `Last routing result` 的 `Matched rule` 为 `Fallback`。
 - `Final browser` 为 Safari。
+- `Why this happened` 会解释为什么没有规则命中以及最终使用哪个浏览器。
 
 ### 测试 B：Codex
 
@@ -173,6 +176,7 @@ open 'https://example.com/fallback-test'
 - Bundle identifier 为 `com.openai.codex`。
 - `Matched rule` 为 `Codex to Chrome`。
 - `Final browser` 为 Google Chrome。
+- `Why this happened` 应说明检测到 Codex、命中 Codex 规则，并最终打开 Chrome。
 
 如果链接打开了 Safari：
 
@@ -251,6 +255,10 @@ App Store 链接或系统设置深链。
 
 历史记录只显示脱敏 URL，例如 `https://example.com`，不会显示 path、
 query、fragment 或 token。
+
+每条历史记录还会显示简短解释，例如来源检测结果、命中的规则或 fallback、
+最终浏览器，以及是否发生过 recovery fallback。这用于排查“为什么这次打开了
+这个浏览器”。
 
 ### 手动方式：高级编辑
 

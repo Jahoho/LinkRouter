@@ -183,6 +183,137 @@ final class ConfigurationEditingTests: XCTestCase {
         XCTAssertEqual(updated.defaultBrowserName, "Google Chrome")
     }
 
+    func testRuleHealthFlagsUnavailableDestinationBrowser() throws {
+        let rule = routingRule(
+            id: "missing-browser",
+            browserBundleIdentifier: "com.example.MissingBrowser",
+            browserName: "Missing Browser"
+        )
+
+        let warnings = RuleHealthChecker.warnings(
+            for: rule,
+            availableBrowsers: [try safari()]
+        )
+
+        XCTAssertTrue(
+            warnings.contains {
+                $0.id == "missing-browser-missing-browser"
+            }
+        )
+    }
+
+    func testRuleHealthFlagsDestinationSelfLoop() throws {
+        let rule = routingRule(
+            id: "self-loop",
+            browserBundleIdentifier: "com.james.LinkRouter",
+            browserName: "LinkRouter"
+        )
+
+        let warnings = RuleHealthChecker.warnings(
+            for: rule,
+            availableBrowsers: [try safari()]
+        )
+
+        XCTAssertTrue(
+            warnings.contains {
+                $0.id == "self-loop-self-loop"
+            }
+        )
+    }
+
+    func testRuleHealthFlagsInvalidSourceBundleIdentifier() throws {
+        let rule = routingRule(
+            id: "invalid-source",
+            sourceAppBundleIdentifier: "not a bundle id"
+        )
+
+        let warnings = RuleHealthChecker.warnings(
+            for: rule,
+            availableBrowsers: [try safari()]
+        )
+
+        XCTAssertTrue(
+            warnings.contains {
+                $0.id == "invalid-source-invalid-source"
+            }
+        )
+    }
+
+    func testRuleHealthFlagsUnavailableFallbackBrowser() throws {
+        let configuration = RoutingConfiguration(
+            schemaVersion: 1,
+            defaultBrowserBundleIdentifier: "com.example.MissingBrowser",
+            defaultBrowserName: "Missing Browser",
+            rules: []
+        )
+
+        let warnings = RuleHealthChecker.fallbackWarnings(
+            configuration: configuration,
+            availableBrowsers: [try safari()]
+        )
+
+        XCTAssertTrue(
+            warnings.contains {
+                $0.id == "missing-browser-fallback"
+            }
+        )
+    }
+
+    func testRoutingResultExplainsFallbackDecision() throws {
+        let request = try IncomingURLRequest(
+            urlString: "https://example.com/private?token=secret",
+            source: sourceResult(
+                bundleIdentifier: "com.apple.mail",
+                name: "Mail"
+            )
+        )
+        let result = routingResult(
+            requestID: request.id,
+            finalBrowserName: "Safari"
+        )
+
+        let lines = result.explanationLines(source: request.source)
+
+        XCTAssertTrue(
+            lines.contains {
+                $0.contains("Source detected as Mail")
+            }
+        )
+        XCTAssertTrue(
+            lines.contains {
+                $0.contains("No enabled rule matched")
+            }
+        )
+        XCTAssertTrue(
+            lines.contains {
+                $0.contains("Final browser: Safari")
+            }
+        )
+    }
+
+    func testRoutingHistoryStoresExplanationLines() throws {
+        let request = try IncomingURLRequest(
+            urlString: "https://example.com/private?token=secret",
+            source: sourceResult(
+                bundleIdentifier: "com.apple.mail",
+                name: "Mail"
+            )
+        )
+        let item = RoutingHistoryItem(
+            request: request,
+            result: routingResult(
+                requestID: request.id,
+                finalBrowserName: "Safari"
+            )
+        )
+
+        XCTAssertTrue(
+            item.explanationLines.contains {
+                $0.contains("Source detected as Mail")
+            }
+        )
+    }
+
     @MainActor
     func testAppStateTracksRecentSourceApplications() throws {
         let appState = AppState(
@@ -455,6 +586,28 @@ final class ConfigurationEditingTests: XCTestCase {
 
         return try draft.makeRule(
             availableBrowsers: [try safari()]
+        )
+    }
+
+    private func routingRule(
+        id: String,
+        sourceAppBundleIdentifier: String? = "com.example.Source",
+        browserBundleIdentifier: String = "com.apple.Safari",
+        browserName: String = "Safari"
+    ) -> RoutingRule {
+        RoutingRule(
+            id: id,
+            name: "Test Rule",
+            enabled: true,
+            priority: 50,
+            sourceAppBundleIdentifier: sourceAppBundleIdentifier,
+            sourceAppName: "Source",
+            hostPattern: nil,
+            urlScheme: nil,
+            browserBundleIdentifier: browserBundleIdentifier,
+            browserName: browserName,
+            action: .open,
+            openInBackground: false
         )
     }
 
