@@ -279,6 +279,60 @@ final class ConfigurationEditingTests: XCTestCase {
         )
     }
 
+    func testMovesRuleEarlierAndNormalizesMatchOrder() throws {
+        let first = routingRule(
+            id: "first",
+            browserBundleIdentifier: "browser.first",
+            browserName: "First",
+            priority: 30
+        )
+        let second = routingRule(
+            id: "second",
+            browserBundleIdentifier: "browser.second",
+            browserName: "Second",
+            priority: 20
+        )
+        let third = routingRule(
+            id: "third",
+            browserBundleIdentifier: "browser.third",
+            browserName: "Third",
+            priority: 10
+        )
+        let configuration = RoutingConfiguration(
+            schemaVersion: 1,
+            defaultBrowserBundleIdentifier: "com.apple.Safari",
+            defaultBrowserName: "Safari",
+            rules: [first, second, third]
+        )
+
+        let updated = try editor.movingRuleEarlier(
+            ruleID: "third",
+            in: configuration
+        )
+
+        XCTAssertEqual(
+            RoutingConfigurationEditor.effectiveRuleOrder(
+                updated.rules
+            ).map(\.id),
+            ["first", "third", "second"]
+        )
+        XCTAssertEqual(updated.rules.map(\.priority), [30, 20, 10])
+    }
+
+    func testMoveRuleLaterRejectsLastRule() throws {
+        XCTAssertThrowsError(
+            try editor.movingRuleLater(
+                ruleID: "mail-to-safari",
+                in: .seed
+            )
+        ) { error in
+            XCTAssertEqual(
+                error as? ConfigurationEditingError,
+                .ruleAlreadyLast
+            )
+        }
+    }
+
     func testChangesFallbackBrowser() throws {
         let chrome = try browser(
             at: "/Applications/Google Chrome.app"
@@ -911,13 +965,14 @@ final class ConfigurationEditingTests: XCTestCase {
         sourceAppBundleIdentifier: String? = "com.example.Source",
         browserBundleIdentifier: String = "com.apple.Safari",
         browserName: String = "Safari",
-        hostPattern: String? = nil
+        hostPattern: String? = nil,
+        priority: Int = 50
     ) -> RoutingRule {
         RoutingRule(
             id: id,
             name: "Test Rule",
             enabled: true,
-            priority: 50,
+            priority: priority,
             sourceAppBundleIdentifier: sourceAppBundleIdentifier,
             sourceAppName: "Source",
             hostPattern: hostPattern,

@@ -53,20 +53,16 @@ No current P0 product blocker is visible in the codebase after the P4 pass.
    - This is the highest-value next step because routing quality depends on
      source identity quality.
 
-2. **Rule ordering polish**
-   - Replace numeric match order with simple `Move Up` / `Move Down` controls.
-   - This would improve usability without changing the engine.
-
-3. **Compact rule detail drawer**
+2. **Compact rule detail drawer**
    - Keep the main rule row simple.
    - Put advanced fields, explanations, and warnings behind a disclosure.
    - This prevents the settings window from becoming crowded.
 
-4. **Developer ID notarization trial**
+3. **Developer ID notarization trial**
    - Build a real signed/notarized zip.
    - Test on a clean macOS user account or a second Mac.
 
-5. **Optional full URL debug mode**
+4. **Optional full URL debug mode**
    - Disabled by default.
    - Time-limited and clearly labeled.
    - Useful only for diagnosing tricky domain/path workflows.

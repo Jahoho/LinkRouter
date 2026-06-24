@@ -174,7 +174,7 @@ macOS 26 接受的可信浏览器候选。回到 Xcode 登录 Apple ID，选择
 
 - Toggle 打开：规则启用。
 - Toggle 关闭：规则保留，但暂时不参与匹配。
-- 匹配顺序数字越大，越先检查。只有多条规则都可能命中时，这个数字才重要。
+- 规则列表里的 `提前` / `稍后` 用来调整检查顺序。只有多条规则都可能命中时，检查顺序才重要。
 - 规则可以只按 App、只按 Domain，或按 App + Domain 组合匹配。
 - 如果目标浏览器有检测到的 Chromium Profile，可以在规则编辑器中选择
   `Browser profile`，用于区分 Work / Personal 等浏览器上下文。
@@ -324,7 +324,6 @@ query、fragment 或 token。
    - 点击 `Choose Source App`，从最近 App 或已安装 App 中选择 Telegram
    - 也可以把 Telegram 的 `.app` 文件拖进规则编辑器
    - `Destination browser`：选择目标浏览器
-   - `Match order` / `匹配顺序`：建议先用 `50`
    - `Enabled`：打开
    - `Open without activating browser`：日常使用建议关闭
 5. 点击 `Save`。
@@ -350,7 +349,7 @@ query、fragment 或 token。
 - 只填 `Domain pattern = *.github.com`：任何 App 打开的 GitHub 链接都按这条规则走。
 - 选择 `Source App = Mail`，再填 `Domain pattern = *.github.com`：只有 Mail 中打开的 GitHub 链接才按这条规则走。
 
-如果多条规则都能匹配，匹配顺序数字更高的规则会先被使用。`Why this happened`
+如果多条规则都能匹配，列表里更靠前的规则会先被使用。`Why this happened`
 会显示其他同样匹配、但检查顺序更靠后的规则。
 
 ### 使用快速模板
@@ -434,9 +433,19 @@ Always open in Safari / Chrome / Arc ...
 ### 修改
 
 1. 点击规则右侧 `Edit`。
-2. 修改浏览器、名称或匹配顺序。
+2. 修改浏览器或名称。
 3. 点击 `Save`。
 4. 从对应 App 再打开一次链接验证。
+
+### 调整检查顺序
+
+1. 在规则列表中找到要调整的规则。
+2. 点击 `提前`，让它更早被检查。
+3. 点击 `稍后`，让它更晚被检查。
+4. 再从对应 App 打开链接验证。
+
+普通用户不需要理解内部数字。规则编辑器里的 `Advanced match order`
+只用于极少数需要精细调试的情况。
 
 ### 临时停用
 

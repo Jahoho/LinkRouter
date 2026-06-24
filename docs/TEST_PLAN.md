@@ -426,8 +426,21 @@ Record these before each test cycle:
 | T44 | Source compatibility report | Open links from several apps, then expand `Source compatibility` in Diagnostics | Apps are grouped by source, unknown samples are counted, and reliability labels reflect recent confidence |
 | T45 | Browser profile rule | Open a rule whose destination browser has detected profiles, choose a profile, save, then route a matching link | The destination browser opens with the selected profile and diagnostics show the profile name |
 | T46 | Default Apps tab | Open `Default Apps`, change `.md` to a candidate editor, then refresh | macOS reports the new current default app for `.md`; link routing rules are unchanged |
-| T47 | Match order wording | Add or edit a rule | UI shows `Match order` / `匹配顺序` and explains that higher numbers are checked first |
+| T47 | Rule check order controls | Move a rule with `Earlier` / `Later`, then route a link that matches multiple rules | The moved rule is checked in the new position and the result explanation lists other matching rules checked later |
 | T48 | Standalone app build | Run `scripts/build_release_app.sh`, copy the printed app to `/Applications`, then launch it | LinkRouter runs without Xcode and can be selected as the default browser |
+
+### 2026-06-25: Earlier/Later Rule Ordering
+
+- Automated result:
+  - Full test run passed with 71 passing tests and 1 opt-in browser launch
+    test skipped.
+- Rule ordering behavior:
+  - Rules are displayed in the same effective order used by the rule engine.
+  - `Earlier` moves a rule toward the top of the check order.
+  - `Later` moves a rule toward the bottom of the check order.
+  - Boundary buttons are disabled in the UI and guarded in the editor layer.
+  - Internal `priority` values are normalized after a move, preserving schema
+    compatibility while avoiding user-facing number editing.
 
 ## Source Detection Compatibility Matrix
 

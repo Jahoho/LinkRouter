@@ -986,6 +986,28 @@ final class AppState: ObservableObject {
         }
     }
 
+    func moveRuleEarlier(
+        id: String
+    ) -> Result<Void, ConfigurationEditingError> {
+        applyConfigurationChange(action: "Moved rule earlier") {
+            try configurationEditor.movingRuleEarlier(
+                ruleID: id,
+                in: routingConfiguration
+            )
+        }
+    }
+
+    func moveRuleLater(
+        id: String
+    ) -> Result<Void, ConfigurationEditingError> {
+        applyConfigurationChange(action: "Moved rule later") {
+            try configurationEditor.movingRuleLater(
+                ruleID: id,
+                in: routingConfiguration
+            )
+        }
+    }
+
     func setFallbackBrowser(
         bundleIdentifier: String
     ) -> Result<Void, ConfigurationEditingError> {

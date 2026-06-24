@@ -41,7 +41,7 @@ Status values:
 | App picker from recent and installed apps | Done | Post-MVP | Rule editor can choose recent or installed apps without manual bundle identifier lookup |
 | Drag `.app` into rule editor | Done | Post-MVP | Dropped app bundles fill source name and bundle identifier |
 | Rule quick templates | Done | Post-MVP | Rule editor can quickly switch destination browser and rename the rule |
-| Drag-to-reorder rule match order | Planned | Post-MVP | Current UI uses an explicit numeric match order |
+| Rule match-order controls | Done | Post-MVP | Rules can be moved earlier or later without editing internal numbers |
 | Menu bar pause/quick controls | Done | Post-MVP | Pause for ten minutes and route only the next link to a selected browser |
 | Temporary browser chooser | Deferred | Later | Next-link override covers the lightweight case; modal queue is postponed |
 | Domain rules | Done | Post-MVP | Exact host and wildcard subdomain matching through `hostPattern` |
@@ -130,6 +130,7 @@ Status values:
 | 2026-06-25 | Rename user-facing priority to match order | Done | Keeps the engine compatible while making rule ordering easier to understand |
 | 2026-06-25 | Document repository file boundaries | Done | `docs/REPOSITORY_STRUCTURE.md` separates public docs, local-only notes, generated files, and signing config |
 | 2026-06-25 | Add standalone release build helper | Done | `scripts/build_release_app.sh` builds a Release `.app` that can be copied to `/Applications` |
+| 2026-06-25 | Add earlier/later rule ordering controls | Done | Users can reorder rule checks without touching internal match-order numbers |
 
 ## Product Strategy Notes
 

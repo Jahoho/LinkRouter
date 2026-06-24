@@ -88,7 +88,9 @@ struct RuleManagementView: View {
                 Divider()
             }
 
-            ForEach(appState.routingConfiguration.rules) { rule in
+            ForEach(Array(orderedRules.enumerated()), id: \.element.id) {
+                index,
+                rule in
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
                         Toggle(
@@ -117,12 +119,28 @@ struct RuleManagementView: View {
 
                         Text(
                             t(
-                                "Match order \(rule.priority)",
-                                "匹配顺序 \(rule.priority)"
+                                "Checked #\(index + 1)",
+                                "第 \(index + 1) 位检查"
                             )
                         )
                             .font(.caption)
                             .foregroundStyle(.secondary)
+
+                        Button(t("Earlier", "提前")) {
+                            _ = appState.moveRuleEarlier(id: rule.id)
+                        }
+                        .disabled(
+                            !appState.canEditConfiguration
+                                || index == 0
+                        )
+
+                        Button(t("Later", "稍后")) {
+                            _ = appState.moveRuleLater(id: rule.id)
+                        }
+                        .disabled(
+                            !appState.canEditConfiguration
+                                || index == orderedRules.count - 1
+                        )
 
                         Button(t("Edit", "编辑")) {
                             editorContext = RuleEditorContext(
@@ -322,6 +340,12 @@ struct RuleManagementView: View {
         RuleHealthChecker.fallbackWarnings(
             configuration: appState.routingConfiguration,
             availableBrowsers: appState.availableBrowsers
+        )
+    }
+
+    private var orderedRules: [RoutingRule] {
+        RoutingConfigurationEditor.effectiveRuleOrder(
+            appState.routingConfiguration.rules
         )
     }
 
@@ -673,22 +697,24 @@ private struct RuleEditorView: View {
                 }
                 .disabled(availableBrowsers.isEmpty)
 
-                Stepper(
-                    t(
-                        "Match order: \(draft.priority)",
-                        "匹配顺序：\(draft.priority)"
-                    ),
-                    value: $draft.priority,
-                    in: 0...1000
-                )
-                Text(
-                    t(
-                        "When multiple rules match, higher numbers are checked first.",
-                        "当多条规则都匹配时，数字越大越先检查。"
+                DisclosureGroup(t("Advanced match order", "高级匹配顺序")) {
+                    Stepper(
+                        t(
+                            "Internal order value: \(draft.priority)",
+                            "内部顺序值：\(draft.priority)"
+                        ),
+                        value: $draft.priority,
+                        in: 0...1000
                     )
-                )
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                    Text(
+                        t(
+                            "Most users should use Earlier and Later in the rules list. Higher numbers are checked first when multiple rules match.",
+                            "大多数情况下，请在规则列表里使用“提前”和“稍后”。当多条规则都匹配时，数字越大越先检查。"
+                        )
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
 
                 Toggle(t("Enabled", "启用"), isOn: $draft.enabled)
                 Toggle(
