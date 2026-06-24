@@ -1,8 +1,4 @@
-# Product
-
-## Register
-
-product
+# LinkRouter Product Principles
 
 ## Users
 

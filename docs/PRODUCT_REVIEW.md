@@ -54,7 +54,7 @@ No current P0 product blocker is visible in the codebase after the P4 pass.
      source identity quality.
 
 2. **Rule ordering polish**
-   - Replace raw numeric priority with simple `Move Up` / `Move Down` controls.
+   - Replace numeric match order with simple `Move Up` / `Move Down` controls.
    - This would improve usability without changing the engine.
 
 3. **Compact rule detail drawer**

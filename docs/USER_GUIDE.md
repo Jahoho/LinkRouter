@@ -26,6 +26,8 @@
 
 ### 1. 启动 LinkRouter
 
+开发调试时：
+
 1. 用 Xcode 打开 `LinkRouter.xcodeproj`。
 2. 顶部 Scheme 选择 `LinkRouter`。
 3. 运行目标选择 `My Mac`。
@@ -38,6 +40,23 @@
 - 菜单栏出现 LinkRouter 图标。
 - 点击图标后显示 `URL listener is active`。
 - App 必须保持运行；停止 Xcode 或退出 LinkRouter 后，链接不会再被接管。
+
+独立日常使用时：
+
+1. 在项目目录运行：
+
+```sh
+scripts/build_release_app.sh
+```
+
+2. 脚本会输出一个 Release 版 `LinkRouter.app` 路径。
+3. 把这个 `LinkRouter.app` 放到 `/Applications`。
+4. 以后从 `/Applications/LinkRouter.app` 打开，不需要再从 Xcode 运行。
+5. 第一次换成独立 App 后，需要重新在系统设置里选择默认浏览器为
+   `/Applications` 里的 LinkRouter。
+
+注意：Xcode 仍然是“构建工具”，但日常使用不需要 Xcode。每次你改代码并想用新版，
+都需要重新 build 一次并替换 `/Applications/LinkRouter.app`。
 
 ### 2. 打开设置窗口
 
@@ -143,7 +162,7 @@ macOS 26 接受的可信浏览器候选。回到 Xcode 登录 Apple ID，选择
 
 当前默认规则应该是：
 
-| 来源 App | Bundle identifier | 目标浏览器 | Priority |
+| 来源 App | Bundle identifier | 目标浏览器 | 匹配顺序 |
 |---|---|---|---:|
 | Codex | `com.openai.codex` | Google Chrome | 100 |
 | WeChat | `com.tencent.xinWeChat` | Safari | 90 |
@@ -155,7 +174,7 @@ macOS 26 接受的可信浏览器候选。回到 Xcode 登录 Apple ID，选择
 
 - Toggle 打开：规则启用。
 - Toggle 关闭：规则保留，但暂时不参与匹配。
-- Priority 数字越大，越先匹配。
+- 匹配顺序数字越大，越先检查。只有多条规则都可能命中时，这个数字才重要。
 - 规则可以只按 App、只按 Domain，或按 App + Domain 组合匹配。
 - 如果目标浏览器有检测到的 Chromium Profile，可以在规则编辑器中选择
   `Browser profile`，用于区分 Work / Personal 等浏览器上下文。
@@ -305,7 +324,7 @@ query、fragment 或 token。
    - 点击 `Choose Source App`，从最近 App 或已安装 App 中选择 Telegram
    - 也可以把 Telegram 的 `.app` 文件拖进规则编辑器
    - `Destination browser`：选择目标浏览器
-   - `Priority`：建议先用 `50`
+   - `Match order` / `匹配顺序`：建议先用 `50`
    - `Enabled`：打开
    - `Open without activating browser`：日常使用建议关闭
 5. 点击 `Save`。
@@ -331,8 +350,8 @@ query、fragment 或 token。
 - 只填 `Domain pattern = *.github.com`：任何 App 打开的 GitHub 链接都按这条规则走。
 - 选择 `Source App = Mail`，再填 `Domain pattern = *.github.com`：只有 Mail 中打开的 GitHub 链接才按这条规则走。
 
-如果多条规则都能匹配，Priority 更高的规则获胜。`Why this happened`
-会显示被跳过的低优先级匹配规则。
+如果多条规则都能匹配，匹配顺序数字更高的规则会先被使用。`Why this happened`
+会显示其他同样匹配、但检查顺序更靠后的规则。
 
 ### 使用快速模板
 
@@ -415,7 +434,7 @@ Always open in Safari / Chrome / Arc ...
 ### 修改
 
 1. 点击规则右侧 `Edit`。
-2. 修改浏览器、名称或 Priority。
+2. 修改浏览器、名称或匹配顺序。
 3. 点击 `Save`。
 4. 从对应 App 再打开一次链接验证。
 

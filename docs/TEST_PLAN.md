@@ -65,7 +65,7 @@ Record these before each test cycle:
   - `com.tencent.xinWeChat` selects `com.apple.Safari`.
   - `com.apple.mail` selects `com.apple.Safari`.
   - Unknown or unmatched sources select fallback `com.apple.Safari`.
-- Ordering result: higher priority wins; equal priority preserves
+- Ordering result: higher match order wins; equal match order preserves
   configuration order; disabled rules do not match.
 - Runtime coordinator behavior: requests are queued and processed in arrival
   order; a failed matched destination attempts fallback once.
@@ -158,7 +158,7 @@ Record these before each test cycle:
   skipped during the normal test run.
 - Rule creation behavior:
   - `RoutingRuleDraft` can prefill source app name, source bundle identifier,
-    rule name, priority, and destination browser from a detected source app.
+    rule name, match order, and destination browser from a detected source app.
   - `Routing rules` shows the last detected credible source app.
   - If no rule exists for that source, Settings offers
     `Create Rule from This App`.
@@ -250,7 +250,7 @@ Record these before each test cycle:
 - Smarter routing behavior:
   - Domain-only rules are supported through `hostPattern`.
   - App-plus-domain rules use existing AND semantics.
-  - Lower-priority matching rules are stored in the routing explanation.
+  - Other matching rules checked later are stored in the routing explanation.
 - Daily control behavior:
   - Menu bar can pause routing for ten minutes.
   - Menu bar can route only the next link to a selected browser.
@@ -346,6 +346,31 @@ Record these before each test cycle:
 - Lightweight result:
   - Release `.app` bundle measured approximately `2.2M`.
 
+### 2026-06-25: Match Order and Repository Boundaries
+
+- Copy behavior:
+  - User-facing UI says `Match order` / `匹配顺序`.
+  - Settings explains that higher numbers are checked first only when multiple
+    rules match.
+  - The stored `priority` field remains unchanged for configuration
+    compatibility.
+- Repository behavior:
+  - Public product principles now live in `docs/PRODUCT.md`.
+  - Public/private/generated file boundaries are documented in
+    `docs/REPOSITORY_STRUCTURE.md`.
+  - `local/` remains ignored and now contains a local-only README.
+  - `releases/` is ignored because release zips are generated artifacts.
+- Distribution behavior:
+  - `scripts/build_release_app.sh` builds a standalone Release `.app`.
+  - `docs/DISTRIBUTION.md` distinguishes personal `/Applications` installs
+    from Developer ID notarized external tester builds.
+- Automated verification:
+  - Full test run passed with 69 passing tests and 1 opt-in browser launch
+    test skipped.
+  - `scripts/build_release_app.sh /private/tmp/LinkRouterStandaloneBuild`
+    produced a Release `LinkRouter.app`.
+  - Release `.app` bundle measured approximately `2.2M`.
+
 ## Core Checklist
 
 | ID | Scenario | Steps | Expected result |
@@ -389,7 +414,7 @@ Record these before each test cycle:
 | T32 | Drop `.app` into rule editor | Drag an app bundle into the rule editor | Source app name and bundle identifier are filled automatically |
 | T33 | Domain-only rule | Create `*.github.com -> Chrome`, then open a GitHub URL from an unmatched app | Domain rule opens the configured browser |
 | T34 | App plus domain rule | Create `Mail + *.github.com -> Chrome`, then open GitHub and non-GitHub links from Mail | Only matching Mail GitHub links use the combined rule |
-| T35 | Conflict explanation | Create two matching rules with different priorities | Higher priority wins and `Why this happened` lists skipped lower-priority matches |
+| T35 | Conflict explanation | Create two matching rules with different match-order values | The higher match order wins and `Why this happened` lists other matching rules checked later |
 | T36 | Pause routing | Click `Pause Routing for 10 Minutes`, then open a link | Rules are bypassed and the fallback browser opens |
 | T37 | Next-link override | Choose `Open Next Link With`, then open two links | First link uses selected browser; second link returns to normal rules |
 | T38 | Export/import config | Export JSON, reset defaults, import JSON | Exported rules return after import |
@@ -401,6 +426,8 @@ Record these before each test cycle:
 | T44 | Source compatibility report | Open links from several apps, then expand `Source compatibility` in Diagnostics | Apps are grouped by source, unknown samples are counted, and reliability labels reflect recent confidence |
 | T45 | Browser profile rule | Open a rule whose destination browser has detected profiles, choose a profile, save, then route a matching link | The destination browser opens with the selected profile and diagnostics show the profile name |
 | T46 | Default Apps tab | Open `Default Apps`, change `.md` to a candidate editor, then refresh | macOS reports the new current default app for `.md`; link routing rules are unchanged |
+| T47 | Match order wording | Add or edit a rule | UI shows `Match order` / `匹配顺序` and explains that higher numbers are checked first |
+| T48 | Standalone app build | Run `scripts/build_release_app.sh`, copy the printed app to `/Applications`, then launch it | LinkRouter runs without Xcode and can be selected as the default browser |
 
 ## Source Detection Compatibility Matrix
 

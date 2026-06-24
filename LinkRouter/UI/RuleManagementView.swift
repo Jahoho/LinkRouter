@@ -115,7 +115,12 @@ struct RuleManagementView: View {
 
                         Spacer()
 
-                        Text(t("Priority \(rule.priority)", "优先级 \(rule.priority)"))
+                        Text(
+                            t(
+                                "Match order \(rule.priority)",
+                                "匹配顺序 \(rule.priority)"
+                            )
+                        )
                             .font(.caption)
                             .foregroundStyle(.secondary)
 
@@ -669,10 +674,21 @@ private struct RuleEditorView: View {
                 .disabled(availableBrowsers.isEmpty)
 
                 Stepper(
-                    t("Priority: \(draft.priority)", "优先级：\(draft.priority)"),
+                    t(
+                        "Match order: \(draft.priority)",
+                        "匹配顺序：\(draft.priority)"
+                    ),
                     value: $draft.priority,
                     in: 0...1000
                 )
+                Text(
+                    t(
+                        "When multiple rules match, higher numbers are checked first.",
+                        "当多条规则都匹配时，数字越大越先检查。"
+                    )
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
 
                 Toggle(t("Enabled", "启用"), isOn: $draft.enabled)
                 Toggle(

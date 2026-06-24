@@ -71,7 +71,7 @@ handler, evaluates a local rule, and forwards each URL to the selected browser.
 - Full browsing history.
 - Login at startup.
 - Import/export and iCloud synchronization.
-- Rule conflict detection and drag-to-reorder priority UI.
+- Rule conflict detection and drag-to-reorder match order UI.
 - Automatic update mechanism.
 - App Store distribution.
 
@@ -118,10 +118,14 @@ Proposed extensible model:
 }
 ```
 
+`priority` is the stored configuration field. The user-facing label should be
+`Match order` / `匹配顺序`: higher numbers are checked first when more than one
+rule can match.
+
 MVP evaluation:
 
 1. Reject unsupported or malformed URLs.
-2. Sort enabled rules by descending priority, then stable creation order.
+2. Sort enabled rules by descending match order, then stable creation order.
 3. Match the detected source bundle identifier.
 4. Use the first match.
 5. If no match exists, use the fallback browser.
@@ -187,4 +191,3 @@ entitlement is needed merely to forward a URL to another browser.
   and final browser.
 - Missing browsers and invalid URLs do not crash or create routing loops.
 - The app remains usable from the menu bar and can open its settings window.
-

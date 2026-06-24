@@ -22,7 +22,7 @@ The core routing pipeline is now executable:
 - Best-effort source-app detection with method and confidence
 - Launch Services browser discovery by bundle identifier
 - Explicit destination-browser launch with loop prevention
-- Deterministic source-app rule matching with stable priority
+- Deterministic source-app rule matching with clear match order
 - Automatic Safari fallback when no rule matches
 - One-time recovery fallback when a rule browser cannot be opened
 - Versioned JSON configuration in Application Support
@@ -33,7 +33,7 @@ The core routing pipeline is now executable:
 - `.app` drag-and-drop source filling in the rule editor
 - Source-app, domain, URL-scheme, and app-plus-domain rule conditions
 - Optional Chromium browser profile selection for rules
-- Conflict explanation for lower-priority matching rules
+- Conflict explanation when more than one rule matches
 - Compact Default Apps tab for common file extensions
 - Menu bar pause and next-link browser override controls
 - JSON configuration import, export, and reset controls
@@ -77,7 +77,7 @@ Open LinkRouter Settings and use the **Routing rules** section:
 
 1. Select **Add Rule**.
 2. Enter a label and the source app's bundle identifier.
-3. Choose an installed browser and priority.
+3. Choose an installed browser and match order.
 4. Select **Save**.
 
 Changes are validated and written atomically before the running router adopts
@@ -109,9 +109,11 @@ fallback strategy.
 
 - [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md): setup, daily use, and manual verification
 - [`docs/PRD.md`](docs/PRD.md): product requirements
+- [`docs/PRODUCT.md`](docs/PRODUCT.md): public product principles
 - [`docs/TECHNICAL_DESIGN.md`](docs/TECHNICAL_DESIGN.md): architecture and technical decisions
 - [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md): MVP test checklist
 - [`docs/ROADMAP.md`](docs/ROADMAP.md): future features and improvement tracker
+- [`docs/REPOSITORY_STRUCTURE.md`](docs/REPOSITORY_STRUCTURE.md): public/private file boundaries
 - [`docs/DISTRIBUTION.md`](docs/DISTRIBUTION.md): direct distribution and notarization notes
 - [`docs/PRODUCT_REVIEW.md`](docs/PRODUCT_REVIEW.md): product and engineering review after P4
 
@@ -125,9 +127,21 @@ fallback strategy.
 
 ## Build and Test
 
+For development:
+
 Open `LinkRouter.xcodeproj` in Xcode, select the `LinkRouter` scheme and
 `My Mac`, then press Run. LinkRouter runs as a menu bar app and does not show a
 Dock icon.
+
+For standalone personal use:
+
+```sh
+scripts/build_release_app.sh
+```
+
+Copy the printed `LinkRouter.app` path to `/Applications`, open it from there,
+then set that installed app as the macOS default web browser. After that,
+normal use does not require Xcode.
 
 Command-line build:
 

@@ -59,7 +59,7 @@ struct RoutingResult: Equatable {
 
             if !decision.skippedRuleNames.isEmpty {
                 lines.append(
-                    "Skipped lower-priority matches: \(decision.skippedRuleNames.joined(separator: ", "))."
+                    "Other matching rules were checked later: \(decision.skippedRuleNames.joined(separator: ", "))."
                 )
             }
         } else {

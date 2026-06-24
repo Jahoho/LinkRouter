@@ -225,10 +225,12 @@ seed:
 - `com.apple.mail` -> `com.apple.Safari`
 - fallback -> `com.apple.Safari`
 
-The rule engine sorts enabled rules by descending priority and preserves
-configuration order when priorities are equal. Conditions are combined with
-AND semantics. Source bundle identifier matching is case-insensitive; the
-model also reserves optional host and URL scheme conditions for later UI use.
+The rule engine sorts enabled rules by descending match order and preserves
+configuration order when match-order values are equal. The stored field is
+still named `priority` for schema compatibility, but the UI should call it
+`Match order` / `匹配顺序`. Conditions are combined with AND semantics. Source
+bundle identifier matching is case-insensitive; the model also reserves
+optional host and URL scheme conditions for later UI use.
 
 Later launches decode and validate the existing file. Writes use Foundation's
 atomic data-write option, which writes a temporary file before replacing the
