@@ -38,6 +38,8 @@
   `Created default configuration` 或 `Saved to disk`。
 - 如果状态为红色的 `Using in-memory fallback`，先不要修改规则，
   参见本文“配置损坏”部分。
+- 点击 `View Setup Health` 可以查看完整健康检查，包括默认浏览器、
+  fallback 浏览器、配置文件、来源检测、路由历史和登录启动状态。
 
 在 `Startup` 区域：
 

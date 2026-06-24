@@ -201,6 +201,20 @@ Record these before each test cycle:
   - The UI shows enabled, disabled, requires-approval, and unavailable states.
   - No Accessibility, Automation, or AppleScript permission was requested.
 
+### 2026-06-24: Setup Health Panel
+
+- Automated result: 44 tests passed and 1 opt-in browser integration test
+  skipped during the normal test run.
+- Health behavior:
+  - Settings shows a compact `View Setup Health` button and summary.
+  - The health sheet checks URL listener, default browser, configuration
+    storage, fallback browser, source detection, routing history, and launch at
+    login.
+  - Missing runtime signals are warnings rather than hard failures.
+  - Broken configuration or unavailable fallback browser appears as an error.
+- Product result: setup and debugging state are visible without making the main
+  Settings page crowded.
+
 ## Core Checklist
 
 | ID | Scenario | Steps | Expected result |
@@ -237,6 +251,7 @@ Record these before each test cycle:
 | T25 | Create rule from history | Open a history item with a detected source app and click `Create or Edit Rule` | The rule editor opens for that source app without manually typing a bundle identifier |
 | T26 | Unknown history item | Route a link with unknown source and open history | The item is visible for debugging, but rule creation is disabled for that row |
 | T27 | Launch at login | Toggle `Launch at login` in Settings | LinkRouter registers or unregisters with `SMAppService` and shows the current status |
+| T28 | Setup health panel | Click `View Setup Health` in Settings | A compact sheet shows setup checks with OK, warning, or error states |
 
 ## Source Detection Compatibility Matrix
 

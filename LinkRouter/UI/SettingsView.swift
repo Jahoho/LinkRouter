@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject private var appState: AppState
+    @State private var showsSetupHealth = false
 
     var body: some View {
         Form {
@@ -23,8 +24,32 @@ struct SettingsView: View {
                     value: String(appState.receivedRequestCount)
                 )
 
-                Button("Refresh Default Browser Status") {
-                    appState.refreshDefaultBrowserStatus()
+                HStack {
+                    Button("View Setup Health") {
+                        appState.refreshDefaultBrowserStatus()
+                        appState.refreshLaunchAtLoginStatus()
+                        showsSetupHealth = true
+                    }
+
+                    Text(appState.setupHealthSummary)
+                        .font(.caption)
+                        .foregroundStyle(
+                            appState.setupHealthItems.allSatisfy {
+                                $0.level == .ok
+                            }
+                                ? Color.secondary
+                                : Color.orange
+                        )
+                }
+
+                HStack {
+                    Button("Refresh Default Browser Status") {
+                        appState.refreshDefaultBrowserStatus()
+                    }
+
+                    Button("Refresh Launch at Login Status") {
+                        appState.refreshLaunchAtLoginStatus()
+                    }
                 }
             }
 
@@ -60,9 +85,6 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Button("Refresh Launch at Login Status") {
-                    appState.refreshLaunchAtLoginStatus()
-                }
             }
 
             Section("Last received link") {
@@ -215,8 +237,77 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .sheet(isPresented: $showsSetupHealth) {
+            SetupHealthView(items: appState.setupHealthItems)
+        }
         .formStyle(.grouped)
         .frame(width: 820, height: 880)
         .navigationTitle("LinkRouter Settings")
+    }
+}
+
+private struct SetupHealthView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    let items: [SetupHealthItem]
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Form {
+                ForEach(items) { item in
+                    HStack(alignment: .top) {
+                        Image(systemName: iconName(for: item.level))
+                            .foregroundStyle(color(for: item.level))
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(item.title)
+                                .font(.headline)
+                            Text(item.level.title)
+                                .font(.caption)
+                                .foregroundStyle(color(for: item.level))
+                            Text(item.detail)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+            .formStyle(.grouped)
+
+            Divider()
+
+            HStack {
+                Spacer()
+
+                Button("Close") {
+                    dismiss()
+                }
+                .keyboardShortcut(.cancelAction)
+            }
+            .padding()
+        }
+        .frame(width: 620, height: 520)
+    }
+
+    private func iconName(for level: SetupHealthLevel) -> String {
+        switch level {
+        case .ok:
+            return "checkmark.circle.fill"
+        case .warning:
+            return "exclamationmark.triangle.fill"
+        case .error:
+            return "xmark.octagon.fill"
+        }
+    }
+
+    private func color(for level: SetupHealthLevel) -> Color {
+        switch level {
+        case .ok:
+            return .green
+        case .warning:
+            return .orange
+        case .error:
+            return .red
+        }
     }
 }

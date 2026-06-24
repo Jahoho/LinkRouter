@@ -324,6 +324,73 @@ final class ConfigurationEditingTests: XCTestCase {
     }
 
     @MainActor
+    func testSetupHealthFlagsMissingRuntimeSignals() throws {
+        let appState = AppState(
+            configurationStore: ConfigurationStore(
+                directoryURL: temporaryDirectoryURL
+            )
+        )
+        let healthItems = appState.setupHealthItems
+
+        XCTAssertEqual(
+            healthItems.first(where: { $0.id == "listener" })?.level,
+            .ok
+        )
+        XCTAssertEqual(
+            healthItems.first(where: { $0.id == "source-detection" })?.level,
+            .warning
+        )
+        XCTAssertEqual(
+            healthItems.first(where: { $0.id == "routing-history" })?.level,
+            .warning
+        )
+        XCTAssertTrue(
+            appState.setupHealthSummary.contains("checks need review")
+        )
+    }
+
+    @MainActor
+    func testSetupHealthImprovesAfterRuntimeSignals() throws {
+        let appState = AppState(
+            configurationStore: ConfigurationStore(
+                directoryURL: temporaryDirectoryURL
+            )
+        )
+        let request = try IncomingURLRequest(
+            urlString: "https://example.com/private?token=secret",
+            source: sourceResult(
+                bundleIdentifier: "com.apple.mail",
+                name: "Mail"
+            )
+        )
+
+        appState.rememberSourceApplication(
+            request.source,
+            at: request.receivedAt
+        )
+        appState.recordRoutingHistory(
+            request: request,
+            result: routingResult(
+                requestID: request.id,
+                finalBrowserName: "Safari"
+            )
+        )
+
+        XCTAssertEqual(
+            appState.setupHealthItems.first {
+                $0.id == "source-detection"
+            }?.level,
+            .ok
+        )
+        XCTAssertEqual(
+            appState.setupHealthItems.first {
+                $0.id == "routing-history"
+            }?.level,
+            .ok
+        )
+    }
+
+    @MainActor
     func testAppStatePersistsAddedRule() throws {
         let store = ConfigurationStore(
             directoryURL: temporaryDirectoryURL

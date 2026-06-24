@@ -57,6 +57,30 @@ enum LaunchAtLoginStatus: Equatable {
     }
 }
 
+enum SetupHealthLevel: Equatable {
+    case ok
+    case warning
+    case error
+
+    var title: String {
+        switch self {
+        case .ok:
+            return "OK"
+        case .warning:
+            return "Check"
+        case .error:
+            return "Needs attention"
+        }
+    }
+}
+
+struct SetupHealthItem: Identifiable, Equatable {
+    let id: String
+    let title: String
+    let level: SetupHealthLevel
+    let detail: String
+}
+
 @MainActor
 final class AppState: ObservableObject {
     static let shared = AppState()
@@ -101,6 +125,93 @@ final class AppState: ObservableObject {
 
     var canEditConfiguration: Bool {
         !configurationStatus.isUsingInMemoryFallback
+    }
+
+    var setupHealthItems: [SetupHealthItem] {
+        let fallbackBrowserAvailable = availableBrowsers.contains {
+            $0.bundleIdentifier.caseInsensitiveCompare(
+                routingConfiguration.defaultBrowserBundleIdentifier
+            ) == .orderedSame
+        }
+
+        return [
+            SetupHealthItem(
+                id: "listener",
+                title: "URL listener",
+                level: .ok,
+                detail: "LinkRouter is running and ready to receive URL events."
+            ),
+            SetupHealthItem(
+                id: "default-browser",
+                title: "Default web browser",
+                level: defaultBrowserStatus.isLinkRouterDefault
+                    ? .ok
+                    : .warning,
+                detail: defaultBrowserStatus.detail
+            ),
+            SetupHealthItem(
+                id: "configuration",
+                title: "Configuration storage",
+                level: configurationStatus.isUsingInMemoryFallback
+                    ? .error
+                    : .ok,
+                detail: configurationStatus.detail
+            ),
+            SetupHealthItem(
+                id: "fallback-browser",
+                title: "Fallback browser",
+                level: fallbackBrowserAvailable ? .ok : .error,
+                detail: fallbackBrowserAvailable
+                    ? "\(routingConfiguration.defaultBrowserName) is available as the fallback browser."
+                    : "\(routingConfiguration.defaultBrowserName) is unavailable. Choose an installed fallback browser."
+            ),
+            SetupHealthItem(
+                id: "source-detection",
+                title: "Source detection",
+                level: recentSourceApplications.isEmpty ? .warning : .ok,
+                detail: recentSourceApplications.isEmpty
+                    ? "Open a link from Mail, Codex, WeChat, or another app to verify source detection."
+                    : "Recent source apps have been detected."
+            ),
+            SetupHealthItem(
+                id: "routing-history",
+                title: "Routing history",
+                level: recentRoutingHistory.isEmpty ? .warning : .ok,
+                detail: recentRoutingHistory.isEmpty
+                    ? "Route a link to populate recent history diagnostics."
+                    : "Recent routing diagnostics are available."
+            ),
+            SetupHealthItem(
+                id: "launch-at-login",
+                title: "Launch at login",
+                level: launchAtLoginHealthLevel,
+                detail: launchAtLoginStatus.detail
+            )
+        ]
+    }
+
+    var setupHealthSummary: String {
+        let items = setupHealthItems
+        let attentionCount = items.filter { item in
+            item.level != .ok
+        }.count
+
+        if attentionCount == 0 {
+            return "All checks passed"
+        }
+
+        return "\(attentionCount) checks need review"
+    }
+
+    private var launchAtLoginHealthLevel: SetupHealthLevel {
+        switch launchAtLoginStatus {
+        case .enabled:
+            return .ok
+        case .disabled, .requiresApproval:
+            return .warning
+        case .unavailable:
+            return .error
+        }
     }
 
     func handle(_ request: IncomingURLRequest) {

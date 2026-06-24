@@ -35,6 +35,7 @@ The core routing pipeline is now executable:
 - Recent source app list for creating or editing rules after testing several apps
 - Recent routing history sheet with sanitized diagnostics and rule actions
 - Launch at login setting
+- Setup health sheet for default-browser, fallback, storage, startup, and diagnostics checks
 - Routing decision and final-browser diagnostics
 - Configuration path, schema, and recovery status diagnostics
 - Privacy-conscious URL validation and logging
