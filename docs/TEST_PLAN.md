@@ -428,6 +428,7 @@ Record these before each test cycle:
 | T46 | Default Apps tab | Open `Default Apps`, change `.md` to a candidate editor, then refresh | macOS reports the new current default app for `.md`; link routing rules are unchanged |
 | T47 | Rule check order controls | Move a rule with `Earlier` / `Later`, then route a link that matches multiple rules | The moved rule is checked in the new position and the result explanation lists other matching rules checked later |
 | T48 | Standalone app build | Run `scripts/build_release_app.sh`, copy the printed app to `/Applications`, then launch it | LinkRouter runs without Xcode and can be selected as the default browser |
+| T49 | Compact rule details | Open Rules and expand a rule's `Details` disclosure | Main row stays compact, while check position, internal order value, profile, and warnings appear only in Details |
 
 ### 2026-06-25: Earlier/Later Rule Ordering
 
@@ -441,6 +442,15 @@ Record these before each test cycle:
   - Boundary buttons are disabled in the UI and guarded in the editor layer.
   - Internal `priority` values are normalized after a move, preserving schema
     compatibility while avoiding user-facing number editing.
+
+### 2026-06-25: Compact Rule Details
+
+- UI behavior:
+  - Rule rows show name, condition summary, destination, warning icon, and
+    primary actions by default.
+  - Detailed warning text, check position, internal order value, and selected
+    browser profile are inside `Details`.
+  - Healthy rules remain visually quiet.
 
 ## Source Detection Compatibility Matrix
 

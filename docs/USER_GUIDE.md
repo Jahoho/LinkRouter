@@ -183,8 +183,8 @@ macOS 26 接受的可信浏览器候选。回到 Xcode 登录 Apple ID，选择
 - 没有规则匹配，或来源识别为 Unknown 时，使用 fallback browser。
 - 修改 Toggle 或 fallback 后会立即保存。
 - Add/Edit 只有点击 `Save` 后才会保存。
-- 如果规则或 fallback 出现橙色提示，说明目标浏览器不存在、目标误指向
-  LinkRouter，或来源 bundle identifier 格式异常；正常规则不会显示额外提示。
+- 如果规则名称旁边出现橙色警告图标，展开 `详情` 查看原因。通常是目标浏览器不存在、
+  目标误指向 LinkRouter，或来源 bundle identifier 格式异常。
 
 ## 三、现在执行核心验收
 
@@ -446,6 +446,22 @@ Always open in Safari / Chrome / Arc ...
 
 普通用户不需要理解内部数字。规则编辑器里的 `Advanced match order`
 只用于极少数需要精细调试的情况。
+
+### 查看规则详情和警告
+
+每条规则默认只显示最重要的信息：
+
+- 规则名称
+- 匹配条件
+- 目标浏览器
+- 提前 / 稍后 / 编辑 / 删除
+
+需要排查时，展开 `详情`：
+
+- 查看它是第几位被检查。
+- 查看内部顺序值。
+- 查看浏览器 Profile。
+- 查看 warning 详情。
 
 ### 临时停用
 

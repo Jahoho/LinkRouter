@@ -91,82 +91,41 @@ struct RuleManagementView: View {
             ForEach(Array(orderedRules.enumerated()), id: \.element.id) {
                 index,
                 rule in
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Toggle(
-                            isOn: Binding(
-                                get: { rule.enabled },
-                                set: { enabled in
-                                    _ = appState.setRuleEnabled(
-                                        id: rule.id,
-                                        enabled: enabled
-                                    )
-                                }
-                            )
-                        ) {
-                            VStack(alignment: .leading) {
-                                Text(rule.name)
-                                Text(
-                                    "\(ruleConditionSummary(rule)) -> \(browserSummary(rule))"
-                                )
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            }
-                        }
-                        .disabled(!appState.canEditConfiguration)
-
-                        Spacer()
-
-                        Text(
-                            t(
-                                "Checked #\(index + 1)",
-                                "第 \(index + 1) 位检查"
-                            )
-                        )
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-
-                        Button(t("Earlier", "提前")) {
-                            _ = appState.moveRuleEarlier(id: rule.id)
-                        }
-                        .disabled(
-                            !appState.canEditConfiguration
-                                || index == 0
-                        )
-
-                        Button(t("Later", "稍后")) {
-                            _ = appState.moveRuleLater(id: rule.id)
-                        }
-                        .disabled(
-                            !appState.canEditConfiguration
-                                || index == orderedRules.count - 1
-                        )
-
-                        Button(t("Edit", "编辑")) {
-                            editorContext = RuleEditorContext(
-                                mode: .edit,
-                                draft: RoutingRuleDraft(rule: rule)
-                            )
-                        }
-                        .disabled(!appState.canEditConfiguration)
-
-                        Button(t("Delete", "删除"), role: .destructive) {
-                            rulePendingDeletion = rule
-                        }
-                        .disabled(!appState.canEditConfiguration)
-                    }
-
-                    let warnings = RuleHealthChecker.warnings(
+                RuleRowView(
+                    rule: rule,
+                    position: index + 1,
+                    isFirst: index == 0,
+                    isLast: index == orderedRules.count - 1,
+                    canEditConfiguration: appState.canEditConfiguration,
+                    warnings: RuleHealthChecker.warnings(
                         for: rule,
                         availableBrowsers: appState.availableBrowsers,
                         availableBrowserProfiles:
                             appState.availableBrowserProfiles
-                    )
-
-                    ForEach(warnings) { warning in
-                        RuleHealthWarningView(warning: warning)
+                    ),
+                    language: appState.language,
+                    onToggle: { enabled in
+                        _ = appState.setRuleEnabled(
+                            id: rule.id,
+                            enabled: enabled
+                        )
+                    },
+                    onMoveEarlier: {
+                        _ = appState.moveRuleEarlier(id: rule.id)
+                    },
+                    onMoveLater: {
+                        _ = appState.moveRuleLater(id: rule.id)
+                    },
+                    onEdit: {
+                        editorContext = RuleEditorContext(
+                            mode: .edit,
+                            draft: RoutingRuleDraft(rule: rule)
+                        )
+                    },
+                    onDelete: {
+                        rulePendingDeletion = rule
                     }
-                }
+                )
             }
 
             if appState.routingConfiguration.rules.isEmpty {
@@ -349,35 +308,6 @@ struct RuleManagementView: View {
         )
     }
 
-    private func ruleConditionSummary(_ rule: RoutingRule) -> String {
-        var conditions: [String] = []
-
-        if let source = rule.sourceAppName
-            ?? rule.sourceAppBundleIdentifier {
-            conditions.append(source)
-        }
-
-        if let hostPattern = rule.hostPattern {
-            conditions.append(hostPattern)
-        }
-
-        if let urlScheme = rule.urlScheme {
-            conditions.append(urlScheme)
-        }
-
-        return conditions.isEmpty
-            ? t("No conditions", "无条件")
-            : conditions.joined(separator: " + ")
-    }
-
-    private func browserSummary(_ rule: RoutingRule) -> String {
-        if let browserProfileName = rule.browserProfileName {
-            return "\(rule.browserName) (\(browserProfileName))"
-        }
-
-        return rule.browserName
-    }
-
     private func actionTitle(
         for sourceApplication: SourceApplication
     ) -> String {
@@ -430,6 +360,151 @@ private struct RuleHealthWarningView: View {
                     .foregroundStyle(.secondary)
             }
         }
+    }
+}
+
+private struct RuleRowView: View {
+    let rule: RoutingRule
+    let position: Int
+    let isFirst: Bool
+    let isLast: Bool
+    let canEditConfiguration: Bool
+    let warnings: [RuleHealthWarning]
+    let language: AppLanguage
+    let onToggle: (Bool) -> Void
+    let onMoveEarlier: () -> Void
+    let onMoveLater: () -> Void
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Toggle(
+                    isOn: Binding(
+                        get: { rule.enabled },
+                        set: onToggle
+                    )
+                ) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(spacing: 6) {
+                            Text(rule.name)
+
+                            if !warnings.isEmpty {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.caption)
+                                    .foregroundStyle(.orange)
+                            }
+                        }
+
+                        Text("\(conditionSummary) -> \(browserSummary)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .disabled(!canEditConfiguration)
+
+                Spacer()
+
+                Button(t("Earlier", "提前")) {
+                    onMoveEarlier()
+                }
+                .disabled(!canEditConfiguration || isFirst)
+
+                Button(t("Later", "稍后")) {
+                    onMoveLater()
+                }
+                .disabled(!canEditConfiguration || isLast)
+
+                Button(t("Edit", "编辑")) {
+                    onEdit()
+                }
+                .disabled(!canEditConfiguration)
+
+                Button(t("Delete", "删除"), role: .destructive) {
+                    onDelete()
+                }
+                .disabled(!canEditConfiguration)
+            }
+
+            DisclosureGroup(t("Details", "详情")) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(
+                        t(
+                            "Checked #\(position)",
+                            "第 \(position) 位检查"
+                        )
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                    Text(
+                        t(
+                            "Internal order value: \(rule.priority)",
+                            "内部顺序值：\(rule.priority)"
+                        )
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                    if let browserProfileName = rule.browserProfileName {
+                        Text(
+                            t(
+                                "Browser profile: \(browserProfileName)",
+                                "浏览器 Profile：\(browserProfileName)"
+                            )
+                        )
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    }
+
+                    if warnings.isEmpty {
+                        Text(t("No warnings.", "没有警告。"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        ForEach(warnings) { warning in
+                            RuleHealthWarningView(warning: warning)
+                        }
+                    }
+                }
+                .padding(.top, 2)
+            }
+            .font(.caption)
+        }
+    }
+
+    private var conditionSummary: String {
+        var conditions: [String] = []
+
+        if let source = rule.sourceAppName
+            ?? rule.sourceAppBundleIdentifier {
+            conditions.append(source)
+        }
+
+        if let hostPattern = rule.hostPattern {
+            conditions.append(hostPattern)
+        }
+
+        if let urlScheme = rule.urlScheme {
+            conditions.append(urlScheme)
+        }
+
+        return conditions.isEmpty
+            ? t("No conditions", "无条件")
+            : conditions.joined(separator: " + ")
+    }
+
+    private var browserSummary: String {
+        if let browserProfileName = rule.browserProfileName {
+            return "\(rule.browserName) (\(browserProfileName))"
+        }
+
+        return rule.browserName
+    }
+
+    private func t(_ english: String, _ chinese: String) -> String {
+        language.text(english, chinese)
     }
 }
 
