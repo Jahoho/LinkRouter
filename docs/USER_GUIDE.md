@@ -181,6 +181,8 @@ macOS 26 接受的可信浏览器候选。回到 Xcode 登录 Apple ID，选择
 - 多个条件会同时生效，例如 `Mail + *.github.com` 只匹配 Mail 里打开的
   GitHub 链接。
 - 没有规则匹配，或来源识别为 Unknown 时，使用 fallback browser。
+- 从 Finder 双击本地 `.html` / `.htm` / `.xhtml` 文件时，LinkRouter 会把它转发给
+  fallback browser 打开，用于正常预览本地 HTML。
 - 修改 Toggle 或 fallback 后会立即保存。
 - Add/Edit 只有点击 `Save` 后才会保存。
 - 如果规则名称旁边出现橙色警告图标，展开 `详情` 查看原因。通常是目标浏览器不存在、
@@ -277,6 +279,17 @@ App Store 链接或系统设置深链。
 - Confidence
 - Matched rule
 - Final browser
+
+### 测试 F：Finder 本地 HTML 文件
+
+如果 LinkRouter 是系统默认浏览器，Finder 双击本地 HTML 文件时，macOS 也可能把
+这个文件交给 LinkRouter。新版行为是：
+
+1. LinkRouter 接收本地 `.html`、`.htm` 或 `.xhtml` 文档。
+2. 不进入来源 App 路由规则。
+3. 直接用当前 fallback browser 打开。
+
+这样你仍然可以把 LinkRouter 设为默认浏览器，同时正常预览本地 HTML 文件。
 
 ## 四、添加一条规则
 

@@ -70,6 +70,7 @@ Status values:
 | Release checklist | Done | Distribution | Personal install, local zip, and external tester gates are documented |
 | Release notes | Done | Distribution | Personal release candidate highlights, limits, and gates are documented |
 | Application icon | Done | Product polish | Generated native macOS-style AppIcon asset replaces the default blank icon |
+| Finder local HTML forwarding | Done | Compatibility | Local HTML documents opened from Finder are forwarded to the fallback browser |
 
 ## Technical Research
 
@@ -142,6 +143,7 @@ Status values:
 | 2026-06-25 | Add Applications install script and release checklist | Done | Personal builds can be installed with one script; external tester builds remain gated on Developer ID notarization |
 | 2026-06-25 | Add native application icon | Done | Generated a macOS-style LinkRouter icon and wired it into the app asset catalog |
 | 2026-06-25 | Add release notes and current product review | Done | Personal release is cleared; external tester release remains gated by Developer ID notarization |
+| 2026-06-26 | Forward Finder local HTML documents | Done | `.html`, `.htm`, and `.xhtml` documents opened through LinkRouter are sent to the fallback browser instead of stalling |
 
 ## Product Strategy Notes
 

@@ -67,6 +67,33 @@ final class RoutingLogger {
         )
     }
 
+    func logLocalDocumentOpenSucceeded(
+        browser: Browser,
+        fileURLs: [URL]
+    ) {
+        logger.notice(
+            """
+            Opened local document(s) in \(browser.bundleIdentifier, privacy: .public); \
+            files: \(self.localDocumentSummary(fileURLs), privacy: .public)
+            """
+        )
+    }
+
+    func logLocalDocumentOpenFailed(
+        browser: Browser?,
+        fileURLs: [URL],
+        error: BrowserLaunchError
+    ) {
+        let browserIdentifier = browser?.bundleIdentifier ?? "None"
+        logger.error(
+            """
+            Failed to open local document(s) in \(browserIdentifier, privacy: .public); \
+            files: \(self.localDocumentSummary(fileURLs), privacy: .public); \
+            error: \(error.localizedDescription, privacy: .public)
+            """
+        )
+    }
+
     func logRoutingDecision(
         request: IncomingURLRequest,
         decision: RoutingDecision
@@ -116,5 +143,12 @@ final class RoutingLogger {
         logger.notice(
             "Configuration changed: \(action, privacy: .public)"
         )
+    }
+
+    private func localDocumentSummary(_ fileURLs: [URL]) -> String {
+        fileURLs
+            .map(\.lastPathComponent)
+            .filter { !$0.isEmpty }
+            .joined(separator: ", ")
     }
 }

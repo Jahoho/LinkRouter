@@ -33,6 +33,8 @@ handler, evaluates a local rule, and forwards each URL to the selected browser.
   credible app signal or the fallback browser.
 - A configured browser is not installed, so LinkRouter reports the problem and
   opens the fallback browser when possible.
+- A local HTML file opened from Finder is forwarded to the configured fallback
+  browser so LinkRouter does not block normal HTML preview workflows.
 
 ## 5. Core Features
 
@@ -43,6 +45,8 @@ handler, evaluates a local rule, and forwards each URL to the selected browser.
 - Match enabled source-app rules in a deterministic order.
 - Launch a specific installed browser by bundle identifier.
 - Configure a fallback browser.
+- Forward local HTML documents to the fallback browser when macOS opens them
+  through LinkRouter as the default browser.
 - Provide a menu bar item and settings window.
 - Produce privacy-conscious local diagnostic logs.
 
@@ -143,6 +147,10 @@ action, and background-opening behavior without replacing the stored model.
   mapping is explicit; otherwise lower confidence and fall back.
 - **Invalid URL:** refuse to launch and record a sanitized error.
 - **Unsupported scheme:** MVP accepts only `http` and `https`.
+- **Local HTML document:** Finder may deliver `.html`, `.htm`, or `.xhtml`
+  files to LinkRouter because it is registered as a browser candidate.
+  LinkRouter forwards those files to the fallback browser instead of sending
+  them through source-app rules.
 - **Browser missing:** try fallback and show a settings warning.
 - **Fallback missing:** show an error with a link to settings.
 - **Routing loop:** reject LinkRouter as a destination browser.

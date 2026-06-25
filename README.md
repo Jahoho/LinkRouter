@@ -24,6 +24,7 @@ The core routing pipeline is now executable:
 - Explicit destination-browser launch with loop prevention
 - Deterministic source-app rule matching with clear match order
 - Automatic Safari fallback when no rule matches
+- Local HTML documents from Finder are forwarded to the fallback browser
 - One-time recovery fallback when a rule browser cannot be opened
 - Versioned JSON configuration in Application Support
 - Atomic configuration writes and non-destructive corruption recovery

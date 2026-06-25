@@ -1180,6 +1180,87 @@ final class AppState: ObservableObject {
         }
     }
 
+    func openLocalDocuments(_ urls: [URL]) {
+        guard !isLaunchingBrowser else {
+            return
+        }
+
+        guard
+            !urls.isEmpty,
+            urls.allSatisfy(BrowserLauncher.isSupportedLocalDocumentURL)
+        else {
+            browserLaunchStatus =
+                text(
+                    "Only local HTML documents can be opened through LinkRouter.",
+                    "LinkRouter 只会转发本地 HTML 文档。"
+                )
+            RoutingLogger.shared.logLocalDocumentOpenFailed(
+                browser: nil,
+                fileURLs: urls,
+                error: .invalidLocalDocument
+            )
+            return
+        }
+
+        if availableBrowsers.isEmpty {
+            refreshBrowsers()
+        }
+
+        guard let browser = fallbackBrowserForLocalDocuments() else {
+            browserLaunchStatus =
+                text(
+                    "Fallback browser is unavailable for local HTML documents.",
+                    "本地 HTML 文档的兜底浏览器不可用。"
+                )
+            RoutingLogger.shared.logLocalDocumentOpenFailed(
+                browser: nil,
+                fileURLs: urls,
+                error: .browserNotInstalled(
+                    routingConfiguration.defaultBrowserName
+                )
+            )
+            return
+        }
+
+        isLaunchingBrowser = true
+        browserLaunchStatus =
+            text(
+                "Opening local HTML in \(browser.name)...",
+                "正在用 \(browser.name) 打开本地 HTML..."
+            )
+
+        BrowserLauncher.shared.openLocalDocuments(
+            urls,
+            in: browser
+        ) { [weak self] result in
+            guard let self else {
+                return
+            }
+
+            self.isLaunchingBrowser = false
+
+            switch result {
+            case .success:
+                self.browserLaunchStatus =
+                    self.text(
+                        "Opened local HTML in \(browser.name).",
+                        "已用 \(browser.name) 打开本地 HTML。"
+                    )
+                RoutingLogger.shared.logLocalDocumentOpenSucceeded(
+                    browser: browser,
+                    fileURLs: urls
+                )
+            case let .failure(error):
+                self.browserLaunchStatus = error.localizedDescription
+                RoutingLogger.shared.logLocalDocumentOpenFailed(
+                    browser: browser,
+                    fileURLs: urls,
+                    error: error
+                )
+            }
+        }
+    }
+
     func addRule(
         _ rule: RoutingRule
     ) -> Result<Void, ConfigurationEditingError> {
@@ -1462,6 +1543,14 @@ final class AppState: ObservableObject {
             customFileDefaultExtensions(),
             forKey: Self.customFileDefaultExtensionsKey
         )
+    }
+
+    private func fallbackBrowserForLocalDocuments() -> Browser? {
+        availableBrowsers.first {
+            $0.bundleIdentifier.caseInsensitiveCompare(
+                routingConfiguration.defaultBrowserBundleIdentifier
+            ) == .orderedSame
+        }
     }
 
     private func orderedDetectionMethods(

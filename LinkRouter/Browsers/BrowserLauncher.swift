@@ -10,6 +10,19 @@ final class BrowserLauncher {
         self.workspace = workspace
     }
 
+    nonisolated static func isSupportedLocalDocumentURL(_ url: URL) -> Bool {
+        guard url.isFileURL else {
+            return false
+        }
+
+        switch url.pathExtension.lowercased() {
+        case "html", "htm", "xhtml":
+            return true
+        default:
+            return false
+        }
+    }
+
     func open(
         _ url: URL,
         in browser: Browser,
@@ -87,10 +100,66 @@ final class BrowserLauncher {
             }
         }
     }
+
+    func openLocalDocuments(
+        _ urls: [URL],
+        in browser: Browser,
+        activate: Bool = true,
+        completion: @escaping (Result<NSRunningApplication, BrowserLaunchError>) -> Void
+    ) {
+        guard
+            !urls.isEmpty,
+            urls.allSatisfy(Self.isSupportedLocalDocumentURL)
+        else {
+            completion(.failure(.invalidLocalDocument))
+            return
+        }
+
+        guard BrowserDiscovery.isAllowedDestination(
+            bundleIdentifier: browser.bundleIdentifier
+        ) else {
+            completion(.failure(.routingLoopPrevented))
+            return
+        }
+
+        guard let applicationURL = workspace.urlForApplication(
+            withBundleIdentifier: browser.bundleIdentifier
+        ) else {
+            completion(.failure(.browserNotInstalled(browser.name)))
+            return
+        }
+
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = activate
+        configuration.addsToRecentItems = true
+        configuration.allowsRunningApplicationSubstitution = false
+        configuration.promptsUserIfNeeded = true
+
+        workspace.open(
+            urls,
+            withApplicationAt: applicationURL,
+            configuration: configuration
+        ) { runningApplication, error in
+            Task { @MainActor in
+                if let error {
+                    completion(
+                        .failure(
+                            .workspaceFailure(error.localizedDescription)
+                        )
+                    )
+                } else if let runningApplication {
+                    completion(.success(runningApplication))
+                } else {
+                    completion(.failure(.missingLaunchResult))
+                }
+            }
+        }
+    }
 }
 
 enum BrowserLaunchError: LocalizedError, Equatable {
     case invalidWebURL
+    case invalidLocalDocument
     case routingLoopPrevented
     case browserNotInstalled(String)
     case profileUnsupported(String)
@@ -102,6 +171,8 @@ enum BrowserLaunchError: LocalizedError, Equatable {
         switch self {
         case .invalidWebURL:
             return "Only valid HTTP and HTTPS URLs can be opened."
+        case .invalidLocalDocument:
+            return "Only local HTML documents can be opened this way."
         case .routingLoopPrevented:
             return "LinkRouter cannot open a link in itself."
         case let .browserNotInstalled(browserName):

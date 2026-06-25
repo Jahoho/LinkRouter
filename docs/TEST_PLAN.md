@@ -435,6 +435,7 @@ Record these before each test cycle:
 | T49 | Compact rule details | Open Rules and expand a rule's `Details` disclosure | Main row stays compact, while check position, internal order value, profile, and warnings appear only in Details |
 | T50 | Drag rule ordering | Drag one rule onto another rule in the Rules tab | The dragged rule is checked immediately before the target rule |
 | T51 | Custom Default Apps extension | Add `plist` in `Default Apps`, choose a default app if candidates exist, then remove it | `.plist` appears under Custom, persists across refresh, and `Remove` only removes it from LinkRouter's tracked list |
+| T52 | Finder local HTML document | Set LinkRouter as default browser, then double-click a local `.html` file in Finder | LinkRouter forwards the file to the configured fallback browser; source-app routing rules are not applied |
 
 ### 2026-06-25: Rule Ordering
 
@@ -459,6 +460,17 @@ Record these before each test cycle:
   - Healthy rules remain visually quiet.
 
 ## Source Detection Compatibility Matrix
+
+### 2026-06-26: Finder Local HTML Documents
+
+- Product behavior:
+  - Local `.html`, `.htm`, and `.xhtml` files opened through Finder are
+    forwarded to the fallback browser.
+  - Local documents do not enter source-app rule matching.
+  - Non-HTML local files are rejected by this path.
+- Automated result:
+  - Full test run passed with 75 passing tests and 1 opt-in browser launch
+    test skipped.
 
 Fill this with observed data during MVP testing:
 

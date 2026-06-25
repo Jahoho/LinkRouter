@@ -26,10 +26,41 @@ final class BrowserTests: XCTestCase {
     func testBrowserLaunchErrorsHaveReadableDescriptions() {
         XCTAssertNotNil(BrowserLaunchError.invalidWebURL.errorDescription)
         XCTAssertNotNil(
+            BrowserLaunchError.invalidLocalDocument.errorDescription
+        )
+        XCTAssertNotNil(
             BrowserLaunchError.routingLoopPrevented.errorDescription
         )
         XCTAssertNotNil(
             BrowserLaunchError.browserNotInstalled("Arc").errorDescription
+        )
+    }
+
+    func testBrowserLauncherAcceptsOnlyLocalHTMLDocuments() {
+        XCTAssertTrue(
+            BrowserLauncher.isSupportedLocalDocumentURL(
+                URL(fileURLWithPath: "/tmp/index.html")
+            )
+        )
+        XCTAssertTrue(
+            BrowserLauncher.isSupportedLocalDocumentURL(
+                URL(fileURLWithPath: "/tmp/index.htm")
+            )
+        )
+        XCTAssertTrue(
+            BrowserLauncher.isSupportedLocalDocumentURL(
+                URL(fileURLWithPath: "/tmp/index.xhtml")
+            )
+        )
+        XCTAssertFalse(
+            BrowserLauncher.isSupportedLocalDocumentURL(
+                URL(fileURLWithPath: "/tmp/report.pdf")
+            )
+        )
+        XCTAssertFalse(
+            BrowserLauncher.isSupportedLocalDocumentURL(
+                URL(string: "https://example.com/index.html")!
+            )
         )
     }
 

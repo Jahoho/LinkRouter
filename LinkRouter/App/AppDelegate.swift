@@ -25,4 +25,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         URLRequestReceiver.shared.stop()
         AppSourceDetector.shared.stop()
     }
+
+    func application(
+        _ sender: NSApplication,
+        openFiles filenames: [String]
+    ) {
+        let fileURLs = filenames.map {
+            URL(fileURLWithPath: $0)
+        }
+
+        AppState.shared.openLocalDocuments(fileURLs)
+        sender.reply(toOpenOrPrint: .success)
+    }
+
+    func application(
+        _ application: NSApplication,
+        open urls: [URL]
+    ) {
+        AppState.shared.openLocalDocuments(urls)
+    }
 }
