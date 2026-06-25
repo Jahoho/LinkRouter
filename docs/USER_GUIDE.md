@@ -424,7 +424,7 @@ Always open in Safari / Chrome / Arc ...
 - 表格：`.csv`、`.tsv`、`.xls`、`.xlsx`、`.numbers`
 - 演示文稿：`.ppt`、`.pptx`、`.key`
 - 图片：`.png`、`.jpg`、`.jpeg`、`.heic`、`.gif`、`.webp`、`.svg`
-- 网页文件：`.html`、`.css`、`.js`
+- 网页文件：`.html`、`.htm`、`.xhtml`、`.css`、`.js`
 - 自定义：你可以在顶部输入扩展名，例如 `plist` 或 `log`，把它加入管理列表。
 
 测试 `.md` 的建议流程：
@@ -449,6 +449,8 @@ Always open in Safari / Chrome / Arc ...
 
 - 这里修改的是 macOS 全局默认打开方式，不是 LinkRouter 自己内部的规则。
 - 这个模块和网页链接路由互不影响。
+- LinkRouter 不会把自己列为可选择的文件默认打开 App，避免文件打开请求又绕回
+  LinkRouter。
 - 如果某个扩展名没有候选 App，说明 macOS 没有报告可打开该类型的应用。
 - 如果不确定，先只测试 `.md`，不要一次性改多个文件类型。
 

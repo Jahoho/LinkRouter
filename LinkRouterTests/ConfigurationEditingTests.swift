@@ -184,6 +184,16 @@ final class ConfigurationEditingTests: XCTestCase {
                 $0.fileExtension == "html" && !$0.isCustom
             }
         )
+        XCTAssertTrue(
+            definitions.contains {
+                $0.fileExtension == "htm" && !$0.isCustom
+            }
+        )
+        XCTAssertTrue(
+            definitions.contains {
+                $0.fileExtension == "xhtml" && !$0.isCustom
+            }
+        )
         XCTAssertEqual(
             definitions.filter { $0.fileExtension == "plist" }.count,
             1
@@ -193,6 +203,32 @@ final class ConfigurationEditingTests: XCTestCase {
                 $0.fileExtension == "plist" && $0.isCustom
             }
         )
+    }
+
+    func testFileDefaultAppManagerRejectsLinkRouterAsDefaultApp() {
+        XCTAssertFalse(
+            FileDefaultAppManager.isAllowedDefaultApplication(
+                bundleIdentifier: "com.james.LinkRouter"
+            )
+        )
+        XCTAssertFalse(
+            FileDefaultAppManager.isAllowedDefaultApplication(
+                bundleIdentifier: "COM.JAMES.LINKROUTER"
+            )
+        )
+
+        let result = FileDefaultAppManager.setDefaultApplication(
+            bundleIdentifier: "com.james.LinkRouter",
+            for: "html"
+        )
+
+        guard
+            case let .failure(error) = result,
+            error == .applicationNotSupported("com.james.LinkRouter")
+        else {
+            XCTFail("Expected LinkRouter to be rejected as a file default app.")
+            return
+        }
     }
 
     func testDraftRejectsMissingConditions() throws {

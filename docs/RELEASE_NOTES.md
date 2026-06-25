@@ -14,6 +14,7 @@ running LinkRouter from `/Applications` on the developer's Mac.
   is uncertain.
 - Forwards local HTML files opened from Finder to the fallback browser, so
   LinkRouter can remain the default browser without blocking HTML preview.
+- Prevents Default Apps from pointing file types back to LinkRouter.
 - Provides a native menu bar app and compact Settings window.
 - Creates rules from recent detected apps and installed app picker results.
 - Supports browser profile routing for detected Chromium profiles.
@@ -29,7 +30,7 @@ running LinkRouter from `/Applications` on the developer's Mac.
 Current local release artifact:
 
 ```text
-releases/LinkRouter-0.1.0-1-20260626-011409.zip
+releases/LinkRouter-0.1.0-1-20260626-013322.zip
 ```
 
 Current measured sizes:
@@ -40,7 +41,7 @@ Current measured sizes:
 SHA-256:
 
 ```text
-a3450783a113dda8a9968a9638b17110bd79f7d817ff53fa40355fc06d1d745e
+5bf3bec5d4b8c227a609000f6431ca1329b35eebadff1953ec41863eaf202c95
 ```
 
 ## Known Limits

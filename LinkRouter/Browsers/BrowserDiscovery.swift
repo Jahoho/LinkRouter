@@ -122,8 +122,9 @@ final class BrowserDiscovery {
     nonisolated static func isAllowedDestination(
         bundleIdentifier: String
     ) -> Bool {
-        bundleIdentifier
-            != BrowserDiscoveryConstants.linkRouterBundleIdentifier
+        bundleIdentifier.caseInsensitiveCompare(
+            BrowserDiscoveryConstants.linkRouterBundleIdentifier
+        ) != .orderedSame
     }
 
     nonisolated private static func sortBrowsers(

@@ -8,6 +8,11 @@ final class BrowserTests: XCTestCase {
                 bundleIdentifier: "com.james.LinkRouter"
             )
         )
+        XCTAssertFalse(
+            BrowserDiscovery.isAllowedDestination(
+                bundleIdentifier: "COM.JAMES.LINKROUTER"
+            )
+        )
     }
 
     func testAllowsSafariAndChromeAsBrowserDestinations() {

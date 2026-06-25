@@ -71,6 +71,7 @@ Status values:
 | Release notes | Done | Distribution | Personal release candidate highlights, limits, and gates are documented |
 | Application icon | Done | Product polish | Generated native macOS-style AppIcon asset replaces the default blank icon |
 | Finder local HTML forwarding | Done | Compatibility | Local HTML documents opened from Finder are forwarded to the fallback browser |
+| Default Apps self-loop prevention | Done | Compatibility | File default-app candidates exclude LinkRouter, and programmatic attempts to point file types back to LinkRouter are rejected |
 
 ## Technical Research
 
@@ -144,6 +145,7 @@ Status values:
 | 2026-06-25 | Add native application icon | Done | Generated a macOS-style LinkRouter icon and wired it into the app asset catalog |
 | 2026-06-25 | Add release notes and current product review | Done | Personal release is cleared; external tester release remains gated by Developer ID notarization |
 | 2026-06-26 | Forward Finder local HTML documents | Done | `.html`, `.htm`, and `.xhtml` documents opened through LinkRouter are sent to the fallback browser instead of stalling |
+| 2026-06-26 | Harden Default Apps boundaries | Done | Default Apps excludes LinkRouter as a selectable file default app, adds `.htm` / `.xhtml`, and rejects self-loop bundle identifiers case-insensitively |
 
 ## Product Strategy Notes
 

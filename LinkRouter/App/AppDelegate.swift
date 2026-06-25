@@ -34,6 +34,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             URL(fileURLWithPath: $0)
         }
 
+        guard
+            !fileURLs.isEmpty,
+            fileURLs.allSatisfy(
+                BrowserLauncher.isSupportedLocalDocumentURL
+            )
+        else {
+            AppState.shared.openLocalDocuments(fileURLs)
+            sender.reply(toOpenOrPrint: .failure)
+            return
+        }
+
         AppState.shared.openLocalDocuments(fileURLs)
         sender.reply(toOpenOrPrint: .success)
     }

@@ -436,6 +436,8 @@ Record these before each test cycle:
 | T50 | Drag rule ordering | Drag one rule onto another rule in the Rules tab | The dragged rule is checked immediately before the target rule |
 | T51 | Custom Default Apps extension | Add `plist` in `Default Apps`, choose a default app if candidates exist, then remove it | `.plist` appears under Custom, persists across refresh, and `Remove` only removes it from LinkRouter's tracked list |
 | T52 | Finder local HTML document | Set LinkRouter as default browser, then double-click a local `.html` file in Finder | LinkRouter forwards the file to the configured fallback browser; source-app routing rules are not applied |
+| T53 | Default Apps self-loop prevention | Open `Default Apps` for web file types and inspect candidates | LinkRouter is not offered as a selectable file default app, and attempts to set it programmatically are rejected |
+| T54 | Finder non-HTML document sent to LinkRouter | Force-open a non-HTML local document with LinkRouter | LinkRouter rejects the request and reports failure instead of pretending the file opened |
 
 ### 2026-06-25: Rule Ordering
 
@@ -471,6 +473,19 @@ Record these before each test cycle:
 - Automated result:
   - Full test run passed with 75 passing tests and 1 opt-in browser launch
     test skipped.
+
+### 2026-06-26: Default Apps Boundary Sweep
+
+- Product behavior:
+  - Default Apps candidates exclude LinkRouter so file types cannot be pointed
+    back at the routing app from inside LinkRouter.
+  - Programmatic attempts to set LinkRouter as a file default app are rejected.
+  - `.htm` and `.xhtml` are listed with `.html` in the Web files group.
+  - Self-loop checks are case-insensitive, so bundle identifier case variants
+    cannot bypass the guard.
+- Automated result:
+  - Full `xcodebuild test` passed; the opt-in external browser launch test
+    remained skipped during the normal run.
 
 Fill this with observed data during MVP testing:
 

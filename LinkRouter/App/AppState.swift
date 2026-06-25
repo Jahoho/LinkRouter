@@ -263,6 +263,7 @@ struct FileDefaultAppRecord: Identifiable, Equatable {
 
 enum FileDefaultAppError: LocalizedError, Equatable {
     case unsupportedExtension(String)
+    case applicationNotSupported(String)
     case applicationUnavailable(String)
     case launchServicesFailed(OSStatus)
 
@@ -270,6 +271,8 @@ enum FileDefaultAppError: LocalizedError, Equatable {
         switch self {
         case let .unsupportedExtension(fileExtension):
             return ".\(fileExtension) does not resolve to a known macOS content type."
+        case let .applicationNotSupported(bundleIdentifier):
+            return "\(bundleIdentifier) cannot be used as a default file app."
         case let .applicationUnavailable(bundleIdentifier):
             return "\(bundleIdentifier) is not installed or cannot be located."
         case let .launchServicesFailed(status):
@@ -416,6 +419,16 @@ struct FileDefaultAppManager {
             isCustom: false
         ),
         FileDefaultAppDefinition(
+            fileExtension: "htm",
+            category: .web,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "xhtml",
+            category: .web,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
             fileExtension: "css",
             category: .web,
             isCustom: false
@@ -513,6 +526,12 @@ struct FileDefaultAppManager {
             return .failure(.unsupportedExtension(normalizedExtension))
         }
 
+        guard isAllowedDefaultApplication(
+            bundleIdentifier: bundleIdentifier
+        ) else {
+            return .failure(.applicationNotSupported(bundleIdentifier))
+        }
+
         guard
             NSWorkspace.shared.urlForApplication(
                 withBundleIdentifier: bundleIdentifier
@@ -532,6 +551,14 @@ struct FileDefaultAppManager {
         }
 
         return .success(())
+    }
+
+    static func isAllowedDefaultApplication(
+        bundleIdentifier: String
+    ) -> Bool {
+        BrowserDiscovery.isAllowedDestination(
+            bundleIdentifier: bundleIdentifier
+        )
     }
 
     static func contentTypeIdentifier(
@@ -588,7 +615,10 @@ struct FileDefaultAppManager {
         for applicationURL in applications {
             guard
                 let bundle = Bundle(url: applicationURL),
-                let bundleIdentifier = bundle.bundleIdentifier
+                let bundleIdentifier = bundle.bundleIdentifier,
+                isAllowedDefaultApplication(
+                    bundleIdentifier: bundleIdentifier
+                )
             else {
                 continue
             }
