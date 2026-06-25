@@ -34,6 +34,7 @@
 		B00000000000000000000019 /* RoutingConfigurationEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001C /* RoutingConfigurationEditor.swift */; };
 		B0000000000000000000001A /* RuleManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001D /* RuleManagementView.swift */; };
 		B0000000000000000000001B /* ConfigurationEditingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001E /* ConfigurationEditingTests.swift */; };
+		B0000000000000000000001C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001F /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +78,7 @@
 		A0000000000000000000001C /* RoutingConfigurationEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingConfigurationEditor.swift; sourceTree = "<group>"; };
 		A0000000000000000000001D /* RuleManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleManagementView.swift; sourceTree = "<group>"; };
 		A0000000000000000000001E /* ConfigurationEditingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationEditingTests.swift; sourceTree = "<group>"; };
+		A0000000000000000000001F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -163,6 +165,7 @@
 		G00000000000000000000007 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A0000000000000000000001F /* Assets.xcassets */,
 				A00000000000000000000009 /* Info.plist */,
 			);
 			path = Resources;
@@ -318,6 +321,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B0000000000000000000001C /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -420,6 +424,7 @@
 		L00000000000000000000003 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_APP_SANDBOX = NO;
@@ -441,6 +446,7 @@
 		L00000000000000000000004 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_APP_SANDBOX = NO;

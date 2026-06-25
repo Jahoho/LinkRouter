@@ -68,6 +68,7 @@ Status values:
 | Repository structure guide | Done | Maintenance | Public, local-only, generated, and signing-related files are documented |
 | Standalone personal release flow | Done | Distribution | Script and docs describe building, installing, and registering a Release `.app` for `/Applications` use |
 | Release checklist | Done | Distribution | Personal install, local zip, and external tester gates are documented |
+| Application icon | Done | Product polish | Generated native macOS-style AppIcon asset replaces the default blank icon |
 
 ## Technical Research
 
@@ -138,6 +139,7 @@ Status values:
 | 2026-06-25 | Add selected and drag rule ordering | Done | Replaced per-row earlier/later controls with shared Move Up/Down controls plus drag-before-target ordering |
 | 2026-06-25 | Expand Default Apps management | Done | Added grouped common file types, custom tracked extensions, per-row refresh, and custom-only removal |
 | 2026-06-25 | Add Applications install script and release checklist | Done | Personal builds can be installed with one script; external tester builds remain gated on Developer ID notarization |
+| 2026-06-25 | Add native application icon | Done | Generated a macOS-style LinkRouter icon and wired it into the app asset catalog |
 
 ## Product Strategy Notes
 
