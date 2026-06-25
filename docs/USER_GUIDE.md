@@ -174,7 +174,7 @@ macOS 26 接受的可信浏览器候选。回到 Xcode 登录 Apple ID，选择
 
 - Toggle 打开：规则启用。
 - Toggle 关闭：规则保留，但暂时不参与匹配。
-- 规则列表里的 `提前` / `稍后` 用来调整检查顺序。只有多条规则都可能命中时，检查顺序才重要。
+- 规则列表可以先选中一条规则，再用 `上移` / `下移` 调整检查顺序；也可以把规则拖到另一条规则上方。只有多条规则都可能命中时，检查顺序才重要。
 - 规则可以只按 App、只按 Domain，或按 App + Domain 组合匹配。
 - 如果目标浏览器有检测到的 Chromium Profile，可以在规则编辑器中选择
   `Browser profile`，用于区分 Work / Personal 等浏览器上下文。
@@ -406,11 +406,13 @@ Always open in Safari / Chrome / Arc ...
 
 当前支持：
 
-- `.md`
-- `.pdf`
-- `.csv`
-- `.json`
-- `.txt`
+- 文本与代码：`.md`、`.txt`、`.rtf`、`.json`、`.yaml`、`.xml`、`.swift`
+- 文档：`.pdf`、`.doc`、`.docx`、`.pages`
+- 表格：`.csv`、`.tsv`、`.xls`、`.xlsx`、`.numbers`
+- 演示文稿：`.ppt`、`.pptx`、`.key`
+- 图片：`.png`、`.jpg`、`.jpeg`、`.heic`、`.gif`、`.webp`、`.svg`
+- 网页文件：`.html`、`.css`、`.js`
+- 自定义：你可以在顶部输入扩展名，例如 `plist` 或 `log`，把它加入管理列表。
 
 测试 `.md` 的建议流程：
 
@@ -418,8 +420,17 @@ Always open in Safari / Chrome / Arc ...
 2. 找到 `.md`。
 3. 查看当前默认 App。
 4. 从右侧下拉选择一个候选 App，例如 Obsidian、VS Code 或 TextEdit。
-5. 点击 `Refresh Default Apps`。
+5. 点击 `Refresh` 或 `Refresh All`。
 6. 在 Finder 中双击一个 `.md` 文件验证。
+
+添加自定义扩展名：
+
+1. 在顶部输入框输入扩展名，例如 `plist`，不用加点也可以。
+2. 点击 `Add`。
+3. 展开 `Custom` / `自定义` 分组。
+4. 从该扩展名右侧下拉选择默认 App。
+5. 如果不想继续管理这个自定义类型，点击 `Remove`。这只会从 LinkRouter
+   的管理列表移除，不会主动改回 macOS 的默认打开方式。
 
 注意：
 
@@ -439,10 +450,11 @@ Always open in Safari / Chrome / Arc ...
 
 ### 调整检查顺序
 
-1. 在规则列表中找到要调整的规则。
-2. 点击 `提前`，让它更早被检查。
-3. 点击 `稍后`，让它更晚被检查。
-4. 再从对应 App 打开链接验证。
+1. 在规则列表中点击要调整的规则，让它进入选中状态。
+2. 点击 `上移`，让它更早被检查。
+3. 点击 `下移`，让它更晚被检查。
+4. 也可以直接拖动一条规则到另一条规则上方。
+5. 再从对应 App 打开链接验证。
 
 普通用户不需要理解内部数字。规则编辑器里的 `Advanced match order`
 只用于极少数需要精细调试的情况。
@@ -454,7 +466,7 @@ Always open in Safari / Chrome / Arc ...
 - 规则名称
 - 匹配条件
 - 目标浏览器
-- 提前 / 稍后 / 编辑 / 删除
+- 编辑 / 删除
 
 需要排查时，展开 `详情`：
 

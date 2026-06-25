@@ -131,6 +131,45 @@ struct RoutingConfigurationEditor {
         )
     }
 
+    func movingRule(
+        ruleID: String,
+        before targetRuleID: String,
+        in configuration: RoutingConfiguration
+    ) throws -> RoutingConfiguration {
+        guard ruleID != targetRuleID else {
+            return configuration
+        }
+
+        var orderedRules = Self.effectiveRuleOrder(
+            configuration.rules
+        )
+
+        guard
+            let currentIndex = orderedRules.firstIndex(where: {
+                $0.id == ruleID
+            })
+        else {
+            throw ConfigurationEditingError.ruleNotFound
+        }
+
+        let movedRule = orderedRules.remove(at: currentIndex)
+
+        guard
+            let targetIndex = orderedRules.firstIndex(where: {
+                $0.id == targetRuleID
+            })
+        else {
+            throw ConfigurationEditingError.ruleNotFound
+        }
+
+        orderedRules.insert(movedRule, at: targetIndex)
+
+        return replacingRules(
+            Self.normalizedRules(fromOrderedRules: orderedRules),
+            in: configuration
+        )
+    }
+
     func settingFallback(
         _ browser: Browser,
         in configuration: RoutingConfiguration

@@ -28,6 +28,8 @@ struct RuleManagementView: View {
     @State private var editorContext: RuleEditorContext?
     @State private var rulePendingDeletion: RoutingRule?
     @State private var showsRoutingHistory = false
+    @State private var selectedRuleID: String?
+    @State private var draggedRuleID: String?
 
     var body: some View {
         Group {
@@ -88,14 +90,17 @@ struct RuleManagementView: View {
                 Divider()
             }
 
+            if !orderedRules.isEmpty {
+                ruleOrderingControls
+            }
+
             ForEach(Array(orderedRules.enumerated()), id: \.element.id) {
                 index,
                 rule in
                 RuleRowView(
                     rule: rule,
                     position: index + 1,
-                    isFirst: index == 0,
-                    isLast: index == orderedRules.count - 1,
+                    isSelected: selectedRuleID == rule.id,
                     canEditConfiguration: appState.canEditConfiguration,
                     warnings: RuleHealthChecker.warnings(
                         for: rule,
@@ -110,11 +115,8 @@ struct RuleManagementView: View {
                             enabled: enabled
                         )
                     },
-                    onMoveEarlier: {
-                        _ = appState.moveRuleEarlier(id: rule.id)
-                    },
-                    onMoveLater: {
-                        _ = appState.moveRuleLater(id: rule.id)
+                    onSelect: {
+                        selectedRuleID = rule.id
                     },
                     onEdit: {
                         editorContext = RuleEditorContext(
@@ -124,6 +126,24 @@ struct RuleManagementView: View {
                     },
                     onDelete: {
                         rulePendingDeletion = rule
+                    }
+                )
+                .onDrag {
+                    selectedRuleID = rule.id
+                    draggedRuleID = rule.id
+                    return NSItemProvider(object: rule.id as NSString)
+                }
+                .onDrop(
+                    of: [UTType.plainText.identifier],
+                    delegate: RuleDropDelegate(
+                        targetRuleID: rule.id,
+                        draggedRuleID: $draggedRuleID
+                    ) { draggedRuleID, targetRuleID in
+                        _ = appState.moveRule(
+                            id: draggedRuleID,
+                            before: targetRuleID
+                        )
+                        selectedRuleID = draggedRuleID
                     }
                 )
             }
@@ -256,6 +276,9 @@ struct RuleManagementView: View {
         ) { rule in
             Button(t("Delete \(rule.name)", "删除 \(rule.name)"), role: .destructive) {
                 _ = appState.deleteRule(id: rule.id)
+                if selectedRuleID == rule.id {
+                    selectedRuleID = nil
+                }
                 rulePendingDeletion = nil
             }
         } message: { rule in
@@ -306,6 +329,88 @@ struct RuleManagementView: View {
         RoutingConfigurationEditor.effectiveRuleOrder(
             appState.routingConfiguration.rules
         )
+    }
+
+    private var selectedRuleIndex: Int? {
+        guard let selectedRuleID else {
+            return nil
+        }
+
+        return orderedRules.firstIndex { $0.id == selectedRuleID }
+    }
+
+    private var canMoveSelectedEarlier: Bool {
+        guard let selectedRuleIndex else {
+            return false
+        }
+
+        return appState.canEditConfiguration && selectedRuleIndex > 0
+    }
+
+    private var canMoveSelectedLater: Bool {
+        guard let selectedRuleIndex else {
+            return false
+        }
+
+        return appState.canEditConfiguration
+            && selectedRuleIndex < orderedRules.count - 1
+    }
+
+    private var selectedRuleName: String {
+        guard
+            let selectedRuleID,
+            let selectedRule = orderedRules.first(where: {
+                $0.id == selectedRuleID
+            })
+        else {
+            return t("No rule selected", "未选择规则")
+        }
+
+        return selectedRule.name
+    }
+
+    private var ruleOrderingControls: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(t("Match order", "匹配顺序"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(
+                        t(
+                            "Select a rule, use the buttons, or drag a rule onto another rule to check it earlier.",
+                            "选择一条规则后可用按钮移动，也可以把规则拖到另一条规则上方来提前检查。"
+                        )
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Text(selectedRuleName)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Button(t("Move Up", "上移")) {
+                    guard let selectedRuleID else {
+                        return
+                    }
+
+                    _ = appState.moveRuleEarlier(id: selectedRuleID)
+                }
+                .disabled(!canMoveSelectedEarlier)
+
+                Button(t("Move Down", "下移")) {
+                    guard let selectedRuleID else {
+                        return
+                    }
+
+                    _ = appState.moveRuleLater(id: selectedRuleID)
+                }
+                .disabled(!canMoveSelectedLater)
+            }
+        }
     }
 
     private func actionTitle(
@@ -363,17 +468,37 @@ private struct RuleHealthWarningView: View {
     }
 }
 
+private struct RuleDropDelegate: DropDelegate {
+    let targetRuleID: String
+    @Binding var draggedRuleID: String?
+    let onDropRule: (String, String) -> Void
+
+    func performDrop(info: DropInfo) -> Bool {
+        defer {
+            draggedRuleID = nil
+        }
+
+        guard
+            let draggedRuleID,
+            draggedRuleID != targetRuleID
+        else {
+            return false
+        }
+
+        onDropRule(draggedRuleID, targetRuleID)
+        return true
+    }
+}
+
 private struct RuleRowView: View {
     let rule: RoutingRule
     let position: Int
-    let isFirst: Bool
-    let isLast: Bool
+    let isSelected: Bool
     let canEditConfiguration: Bool
     let warnings: [RuleHealthWarning]
     let language: AppLanguage
     let onToggle: (Bool) -> Void
-    let onMoveEarlier: () -> Void
-    let onMoveLater: () -> Void
+    let onSelect: () -> Void
     let onEdit: () -> Void
     let onDelete: () -> Void
 
@@ -405,16 +530,6 @@ private struct RuleRowView: View {
                 .disabled(!canEditConfiguration)
 
                 Spacer()
-
-                Button(t("Earlier", "提前")) {
-                    onMoveEarlier()
-                }
-                .disabled(!canEditConfiguration || isFirst)
-
-                Button(t("Later", "稍后")) {
-                    onMoveLater()
-                }
-                .disabled(!canEditConfiguration || isLast)
 
                 Button(t("Edit", "编辑")) {
                     onEdit()
@@ -471,6 +586,28 @@ private struct RuleRowView: View {
                 .padding(.top, 2)
             }
             .font(.caption)
+        }
+        .padding(6)
+        .contentShape(Rectangle())
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(
+                    isSelected
+                        ? Color.accentColor.opacity(0.12)
+                        : Color.clear
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(
+                    isSelected
+                        ? Color.accentColor.opacity(0.45)
+                        : Color.clear,
+                    lineWidth: 1
+                )
+        )
+        .onTapGesture {
+            onSelect()
         }
     }
 
@@ -783,8 +920,8 @@ private struct RuleEditorView: View {
                     )
                     Text(
                         t(
-                            "Most users should use Earlier and Later in the rules list. Higher numbers are checked first when multiple rules match.",
-                            "大多数情况下，请在规则列表里使用“提前”和“稍后”。当多条规则都匹配时，数字越大越先检查。"
+                            "Most users should select a rule, use Move Up / Move Down, or drag rules in the list. Higher numbers are checked first when multiple rules match.",
+                            "大多数情况下，请选择规则后使用“上移 / 下移”，或在列表中拖动规则。当多条规则都匹配时，数字越大越先检查。"
                         )
                     )
                     .font(.caption)

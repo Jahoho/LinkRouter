@@ -7,6 +7,7 @@ struct SettingsView: View {
     @State private var showsSetupHealth = false
     @State private var showsResetConfirmation = false
     @State private var showsOnboarding = false
+    @State private var newFileDefaultExtension = ""
 
     var body: some View {
         TabView {
@@ -303,44 +304,47 @@ struct SettingsView: View {
             Section(t("File default apps", "文件默认打开方式")) {
                 Text(
                     t(
-                        "Manage a small set of common file types without needing to know UTI identifiers. These are global macOS defaults, separate from link routing rules.",
-                        "管理一小组常见文件类型的默认打开 App，无需了解 UTI。这里修改的是 macOS 全局默认值，独立于链接路由规则。"
+                        "Manage common file types without needing to know UTI identifiers. These are global macOS defaults, separate from link routing rules.",
+                        "管理常见文件类型的默认打开 App，无需了解 UTI。这里修改的是 macOS 全局默认值，独立于链接路由规则。"
                     )
                 )
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
+                HStack {
+                    TextField(
+                        t("Add extension, e.g. log", "添加扩展名，例如 log"),
+                        text: $newFileDefaultExtension
+                    )
+                    .textFieldStyle(.roundedBorder)
+                    .onSubmit(addFileDefaultExtension)
+
+                    Button(t("Add", "添加")) {
+                        addFileDefaultExtension()
+                    }
+
+                    Button(t("Refresh All", "全部刷新")) {
+                        appState.refreshFileDefaultApps()
+                    }
+                }
+
                 if appState.fileDefaultAppRecords.isEmpty {
                     Text(t("No file type data loaded yet.", "还没有加载文件类型数据。"))
                         .foregroundStyle(.secondary)
                 } else {
-                    ForEach(appState.fileDefaultAppRecords) { record in
-                        FileDefaultAppRow(
-                            record: record,
-                            language: appState.language
-                        ) { bundleIdentifier in
-                            _ = appState.setDefaultApplication(
-                                bundleIdentifier: bundleIdentifier,
-                                forFileExtension: record.fileExtension
-                            )
-                        }
+                    ForEach(FileDefaultAppCategory.allCases) { category in
+                        fileDefaultCategorySection(category)
                     }
                 }
 
-                HStack {
-                    Button(t("Refresh Default Apps", "刷新默认 App")) {
-                        appState.refreshFileDefaultApps()
-                    }
-
-                    if let message = appState.fileDefaultAppMessage {
-                        Text(message)
-                            .font(.caption)
-                            .foregroundStyle(
-                                appState.fileDefaultAppFailed
-                                    ? Color.red
-                                    : Color.secondary
-                            )
-                    }
+                if let message = appState.fileDefaultAppMessage {
+                    Text(message)
+                        .font(.caption)
+                        .foregroundStyle(
+                            appState.fileDefaultAppFailed
+                                ? Color.red
+                                : Color.secondary
+                        )
                 }
             }
         }
@@ -562,6 +566,63 @@ struct SettingsView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             }
+        }
+    }
+
+    @ViewBuilder
+    private func fileDefaultCategorySection(
+        _ category: FileDefaultAppCategory
+    ) -> some View {
+        let records = appState.fileDefaultAppRecords.filter {
+            $0.category == category
+        }
+
+        if !records.isEmpty {
+            DisclosureGroup(category.title(language: appState.language)) {
+                VStack(alignment: .leading, spacing: 10) {
+                    ForEach(records) { record in
+                        FileDefaultAppRow(
+                            record: record,
+                            language: appState.language,
+                            onSelect: { bundleIdentifier in
+                                _ = appState.setDefaultApplication(
+                                    bundleIdentifier: bundleIdentifier,
+                                    forFileExtension: record.fileExtension
+                                )
+                            },
+                            onRefresh: {
+                                appState.refreshFileDefaultApps()
+                            },
+                            onRemove: removeFileDefaultAction(for: record)
+                        )
+                    }
+                }
+                .padding(.top, 4)
+            }
+        }
+    }
+
+    private func removeFileDefaultAction(
+        for record: FileDefaultAppRecord
+    ) -> (() -> Void)? {
+        guard record.isCustom else {
+            return nil
+        }
+
+        return {
+            appState.stopTrackingFileDefaultExtension(
+                record.fileExtension
+            )
+        }
+    }
+
+    private func addFileDefaultExtension() {
+        let result = appState.trackFileDefaultExtension(
+            newFileDefaultExtension
+        )
+
+        if case .success = result {
+            newFileDefaultExtension = ""
         }
     }
 
@@ -906,6 +967,8 @@ private struct FileDefaultAppRow: View {
     let record: FileDefaultAppRecord
     let language: AppLanguage
     let onSelect: (String) -> Void
+    let onRefresh: () -> Void
+    let onRemove: (() -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -951,6 +1014,16 @@ private struct FileDefaultAppRow: View {
                         }
                     }
                     .frame(width: 240)
+                }
+
+                Button(t("Refresh", "刷新")) {
+                    onRefresh()
+                }
+
+                if let onRemove {
+                    Button(t("Remove", "移除"), role: .destructive) {
+                        onRemove()
+                    }
                 }
             }
 

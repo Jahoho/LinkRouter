@@ -168,6 +168,33 @@ final class ConfigurationEditingTests: XCTestCase {
         )
     }
 
+    func testFileDefaultAppManagerBuildsExpandedDefinitions() throws {
+        let definitions = FileDefaultAppManager.definitions(
+            customExtensions: ["plist", ".plist", "md"]
+        )
+
+        XCTAssertGreaterThan(definitions.count, 20)
+        XCTAssertTrue(
+            definitions.contains {
+                $0.fileExtension == "png" && !$0.isCustom
+            }
+        )
+        XCTAssertTrue(
+            definitions.contains {
+                $0.fileExtension == "html" && !$0.isCustom
+            }
+        )
+        XCTAssertEqual(
+            definitions.filter { $0.fileExtension == "plist" }.count,
+            1
+        )
+        XCTAssertTrue(
+            definitions.contains {
+                $0.fileExtension == "plist" && $0.isCustom
+            }
+        )
+    }
+
     func testDraftRejectsMissingConditions() throws {
         let draft = RoutingRuleDraft(
             name: "No Conditions",
@@ -315,6 +342,47 @@ final class ConfigurationEditingTests: XCTestCase {
                 updated.rules
             ).map(\.id),
             ["first", "third", "second"]
+        )
+        XCTAssertEqual(updated.rules.map(\.priority), [30, 20, 10])
+    }
+
+    func testMovesRuleBeforeTargetAndNormalizesMatchOrder() throws {
+        let first = routingRule(
+            id: "first",
+            browserBundleIdentifier: "browser.first",
+            browserName: "First",
+            priority: 30
+        )
+        let second = routingRule(
+            id: "second",
+            browserBundleIdentifier: "browser.second",
+            browserName: "Second",
+            priority: 20
+        )
+        let third = routingRule(
+            id: "third",
+            browserBundleIdentifier: "browser.third",
+            browserName: "Third",
+            priority: 10
+        )
+        let configuration = RoutingConfiguration(
+            schemaVersion: 1,
+            defaultBrowserBundleIdentifier: "com.apple.Safari",
+            defaultBrowserName: "Safari",
+            rules: [first, second, third]
+        )
+
+        let updated = try editor.movingRule(
+            ruleID: "third",
+            before: "first",
+            in: configuration
+        )
+
+        XCTAssertEqual(
+            RoutingConfigurationEditor.effectiveRuleOrder(
+                updated.rules
+            ).map(\.id),
+            ["third", "first", "second"]
         )
         XCTAssertEqual(updated.rules.map(\.priority), [30, 20, 10])
     }
@@ -941,6 +1009,45 @@ final class ConfigurationEditingTests: XCTestCase {
         )
 
         XCTAssertEqual(restoredState.language, .chinese)
+    }
+
+    @MainActor
+    func testAppStatePersistsCustomFileDefaultExtension() throws {
+        let suiteName =
+            "LinkRouterFileDefaultExtensionTests-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer {
+            defaults.removePersistentDomain(forName: suiteName)
+        }
+
+        let appState = AppState(
+            configurationStore: ConfigurationStore(
+                directoryURL: temporaryDirectoryURL
+            ),
+            userDefaults: defaults
+        )
+
+        let result = appState.trackFileDefaultExtension("plist")
+
+        XCTAssertNoThrow(try result.get())
+        XCTAssertTrue(
+            appState.trackedFileDefaultDefinitions.contains {
+                $0.fileExtension == "plist" && $0.isCustom
+            }
+        )
+
+        let restoredState = AppState(
+            configurationStore: ConfigurationStore(
+                directoryURL: temporaryDirectoryURL
+            ),
+            userDefaults: defaults
+        )
+
+        XCTAssertTrue(
+            restoredState.trackedFileDefaultDefinitions.contains {
+                $0.fileExtension == "plist" && $0.isCustom
+            }
+        )
     }
 
     private func makeRule(

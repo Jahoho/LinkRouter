@@ -201,8 +201,53 @@ struct FileDefaultApplication: Identifiable, Equatable {
     }
 }
 
+enum FileDefaultAppCategory: String, CaseIterable, Identifiable {
+    case textAndCode
+    case documents
+    case spreadsheets
+    case presentations
+    case images
+    case web
+    case custom
+
+    var id: String {
+        rawValue
+    }
+
+    func title(language: AppLanguage) -> String {
+        switch self {
+        case .textAndCode:
+            return language.text("Text and code", "文本与代码")
+        case .documents:
+            return language.text("Documents", "文档")
+        case .spreadsheets:
+            return language.text("Spreadsheets", "表格")
+        case .presentations:
+            return language.text("Presentations", "演示文稿")
+        case .images:
+            return language.text("Images", "图片")
+        case .web:
+            return language.text("Web files", "网页文件")
+        case .custom:
+            return language.text("Custom", "自定义")
+        }
+    }
+}
+
+struct FileDefaultAppDefinition: Identifiable, Equatable {
+    let fileExtension: String
+    let category: FileDefaultAppCategory
+    let isCustom: Bool
+
+    var id: String {
+        fileExtension
+    }
+}
+
 struct FileDefaultAppRecord: Identifiable, Equatable {
     let fileExtension: String
+    let category: FileDefaultAppCategory
+    let isCustom: Bool
     let contentTypeIdentifier: String?
     let currentApplication: FileDefaultApplication?
     let candidates: [FileDefaultApplication]
@@ -234,14 +279,194 @@ enum FileDefaultAppError: LocalizedError, Equatable {
 }
 
 struct FileDefaultAppManager {
-    static let supportedExtensions = ["md", "pdf", "csv", "json", "txt"]
+    static let defaultDefinitions: [FileDefaultAppDefinition] = [
+        FileDefaultAppDefinition(
+            fileExtension: "md",
+            category: .textAndCode,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "txt",
+            category: .textAndCode,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "rtf",
+            category: .textAndCode,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "json",
+            category: .textAndCode,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "yaml",
+            category: .textAndCode,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "xml",
+            category: .textAndCode,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "swift",
+            category: .textAndCode,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "pdf",
+            category: .documents,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "doc",
+            category: .documents,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "docx",
+            category: .documents,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "pages",
+            category: .documents,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "csv",
+            category: .spreadsheets,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "tsv",
+            category: .spreadsheets,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "xls",
+            category: .spreadsheets,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "xlsx",
+            category: .spreadsheets,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "numbers",
+            category: .spreadsheets,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "ppt",
+            category: .presentations,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "pptx",
+            category: .presentations,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "key",
+            category: .presentations,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "png",
+            category: .images,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "jpg",
+            category: .images,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "jpeg",
+            category: .images,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "heic",
+            category: .images,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "gif",
+            category: .images,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "webp",
+            category: .images,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "svg",
+            category: .images,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "html",
+            category: .web,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "css",
+            category: .web,
+            isCustom: false
+        ),
+        FileDefaultAppDefinition(
+            fileExtension: "js",
+            category: .web,
+            isCustom: false
+        )
+    ]
 
-    static func records() -> [FileDefaultAppRecord] {
-        supportedExtensions.map(record)
+    static func definitions(
+        customExtensions: [String]
+    ) -> [FileDefaultAppDefinition] {
+        let defaultExtensions = Set(defaultDefinitions.map(\.fileExtension))
+        var uniqueCustomExtensions: Set<String> = []
+
+        for customExtension in customExtensions {
+            let normalizedExtension = normalizeExtension(customExtension)
+
+            guard
+                !normalizedExtension.isEmpty,
+                !defaultExtensions.contains(normalizedExtension)
+            else {
+                continue
+            }
+
+            uniqueCustomExtensions.insert(normalizedExtension)
+        }
+
+        let customDefinitions = uniqueCustomExtensions.sorted().map {
+            FileDefaultAppDefinition(
+                fileExtension: $0,
+                category: .custom,
+                isCustom: true
+            )
+        }
+
+        return defaultDefinitions + customDefinitions
     }
 
-    static func record(for fileExtension: String) -> FileDefaultAppRecord {
-        let normalizedExtension = normalizeExtension(fileExtension)
+    static func records(
+        for definitions: [FileDefaultAppDefinition]
+    ) -> [FileDefaultAppRecord] {
+        definitions.map(record)
+    }
+
+    static func record(
+        for definition: FileDefaultAppDefinition
+    ) -> FileDefaultAppRecord {
+        let normalizedExtension = normalizeExtension(definition.fileExtension)
         let contentTypeIdentifier = contentTypeIdentifier(
             for: normalizedExtension
         )
@@ -249,6 +474,8 @@ struct FileDefaultAppManager {
         guard let contentTypeIdentifier else {
             return FileDefaultAppRecord(
                 fileExtension: normalizedExtension,
+                category: definition.category,
+                isCustom: definition.isCustom,
                 contentTypeIdentifier: nil,
                 currentApplication: nil,
                 candidates: []
@@ -264,6 +491,8 @@ struct FileDefaultAppManager {
 
         return FileDefaultAppRecord(
             fileExtension: normalizedExtension,
+            category: definition.category,
+            isCustom: definition.isCustom,
             contentTypeIdentifier: contentTypeIdentifier,
             currentApplication: currentApplication,
             candidates: candidates
@@ -312,7 +541,7 @@ struct FileDefaultAppManager {
             .identifier
     }
 
-    private static func normalizeExtension(_ fileExtension: String) -> String {
+    static func normalizeExtension(_ fileExtension: String) -> String {
         fileExtension
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .trimmingCharacters(in: CharacterSet(charactersIn: "."))
@@ -398,6 +627,8 @@ final class AppState: ObservableObject {
     private static let onboardingCompletedKey =
         "LinkRouterOnboardingCompleted"
     private static let languageKey = "LinkRouterLanguage"
+    private static let customFileDefaultExtensionsKey =
+        "LinkRouterCustomFileDefaultExtensions"
 
     @Published private(set) var lastRequest: IncomingURLRequest?
     @Published private(set) var receivedRequestCount = 0
@@ -410,6 +641,8 @@ final class AppState: ObservableObject {
         [BrowserProfile] = []
     @Published private(set) var fileDefaultAppRecords:
         [FileDefaultAppRecord] = []
+    @Published private(set) var trackedFileDefaultDefinitions:
+        [FileDefaultAppDefinition]
     @Published private(set) var fileDefaultAppMessage: String?
     @Published private(set) var fileDefaultAppFailed = false
     @Published private(set) var defaultBrowserStatus: DefaultBrowserStatus =
@@ -449,6 +682,11 @@ final class AppState: ObservableObject {
         language = AppLanguage(
             rawValue: userDefaults.string(forKey: Self.languageKey) ?? ""
         ) ?? .english
+        trackedFileDefaultDefinitions = FileDefaultAppManager.definitions(
+            customExtensions: userDefaults.stringArray(
+                forKey: Self.customFileDefaultExtensionsKey
+            ) ?? []
+        )
         routingConfiguration = loadResult.configuration
         configurationStatus = loadResult.status
         configurationFileURL = configurationStore.configurationURL
@@ -781,7 +1019,9 @@ final class AppState: ObservableObject {
     }
 
     func refreshFileDefaultApps() {
-        fileDefaultAppRecords = FileDefaultAppManager.records()
+        fileDefaultAppRecords = FileDefaultAppManager.records(
+            for: trackedFileDefaultDefinitions
+        )
     }
 
     func refreshDefaultBrowserStatus() {
@@ -1008,6 +1248,19 @@ final class AppState: ObservableObject {
         }
     }
 
+    func moveRule(
+        id: String,
+        before targetRuleID: String
+    ) -> Result<Void, ConfigurationEditingError> {
+        applyConfigurationChange(action: "Reordered rule") {
+            try configurationEditor.movingRule(
+                ruleID: id,
+                before: targetRuleID,
+                in: routingConfiguration
+            )
+        }
+    }
+
     func setFallbackBrowser(
         bundleIdentifier: String
     ) -> Result<Void, ConfigurationEditingError> {
@@ -1053,6 +1306,82 @@ final class AppState: ObservableObject {
         }
 
         return result
+    }
+
+    func trackFileDefaultExtension(
+        _ fileExtension: String
+    ) -> Result<Void, FileDefaultAppError> {
+        let normalizedExtension = FileDefaultAppManager
+            .normalizeExtension(fileExtension)
+
+        guard !normalizedExtension.isEmpty else {
+            fileDefaultAppMessage =
+                text(
+                    "Enter a file extension first.",
+                    "请先输入一个文件扩展名。"
+                )
+            fileDefaultAppFailed = true
+            return .failure(.unsupportedExtension(normalizedExtension))
+        }
+
+        guard
+            FileDefaultAppManager.contentTypeIdentifier(
+                for: normalizedExtension
+            ) != nil
+        else {
+            fileDefaultAppMessage =
+                text(
+                    ".\(normalizedExtension) is not recognized by macOS.",
+                    "macOS 不能识别 .\(normalizedExtension)。"
+                )
+            fileDefaultAppFailed = true
+            return .failure(.unsupportedExtension(normalizedExtension))
+        }
+
+        if trackedFileDefaultDefinitions.contains(where: {
+            $0.fileExtension == normalizedExtension
+        }) {
+            fileDefaultAppMessage =
+                text(
+                    ".\(normalizedExtension) is already being tracked.",
+                    ".\(normalizedExtension) 已经在列表中。"
+                )
+            fileDefaultAppFailed = false
+            refreshFileDefaultApps()
+            return .success(())
+        }
+
+        trackedFileDefaultDefinitions =
+            FileDefaultAppManager.definitions(
+                customExtensions: customFileDefaultExtensions()
+                    + [normalizedExtension]
+            )
+        saveCustomFileDefaultExtensions()
+        refreshFileDefaultApps()
+        fileDefaultAppMessage =
+            text(
+                "Added .\(normalizedExtension) to Default Apps.",
+                "已将 .\(normalizedExtension) 加入默认 App 管理。"
+            )
+        fileDefaultAppFailed = false
+        return .success(())
+    }
+
+    func stopTrackingFileDefaultExtension(_ fileExtension: String) {
+        let normalizedExtension = FileDefaultAppManager
+            .normalizeExtension(fileExtension)
+
+        trackedFileDefaultDefinitions.removeAll {
+            $0.isCustom && $0.fileExtension == normalizedExtension
+        }
+        saveCustomFileDefaultExtensions()
+        refreshFileDefaultApps()
+        fileDefaultAppMessage =
+            text(
+                "Removed .\(normalizedExtension) from Default Apps.",
+                "已从默认 App 管理中移除 .\(normalizedExtension)。"
+            )
+        fileDefaultAppFailed = false
     }
 
     func exportConfiguration(
@@ -1120,6 +1449,19 @@ final class AppState: ObservableObject {
         configurationEditMessage = error.localizedDescription
         configurationEditFailed = true
         return .failure(error)
+    }
+
+    private func customFileDefaultExtensions() -> [String] {
+        trackedFileDefaultDefinitions
+            .filter(\.isCustom)
+            .map(\.fileExtension)
+    }
+
+    private func saveCustomFileDefaultExtensions() {
+        userDefaults.set(
+            customFileDefaultExtensions(),
+            forKey: Self.customFileDefaultExtensionsKey
+        )
     }
 
     private func orderedDetectionMethods(

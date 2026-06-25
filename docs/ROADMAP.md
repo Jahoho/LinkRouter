@@ -42,6 +42,7 @@ Status values:
 | Drag `.app` into rule editor | Done | Post-MVP | Dropped app bundles fill source name and bundle identifier |
 | Rule quick templates | Done | Post-MVP | Rule editor can quickly switch destination browser and rename the rule |
 | Rule match-order controls | Done | Post-MVP | Rules can be moved earlier or later without editing internal numbers |
+| Drag rule reordering | Done | Product polish | Rules can be selected and moved with shared controls, or dragged before another rule |
 | Compact rule detail drawer | Done | Product polish | Rule rows stay compact; diagnostics and warnings live behind Details |
 | Menu bar pause/quick controls | Done | Post-MVP | Pause for ten minutes and route only the next link to a selected browser |
 | Temporary browser chooser | Deferred | Later | Next-link override covers the lightweight case; modal queue is postponed |
@@ -62,7 +63,7 @@ Status values:
 | Developer ID signing and notarization | Research | External beta | Distribution notes document the direct notarization flow; real Developer ID validation remains |
 | App Store feasibility review | Research | Later | Reassess sandbox and review constraints |
 | Browser profile support | Done | Differentiation | Rules can target detected Chromium profiles for work/personal browser contexts |
-| Default file-app manager | Done | Adjacent | Default Apps tab manages `.md`, `.pdf`, `.csv`, `.json`, and `.txt` as a compact separate module |
+| Default file-app manager | Done | Adjacent | Default Apps tab manages grouped common file types and user-tracked custom extensions |
 | User-friendly match order wording | Done | Product polish | UI says Match order / 匹配顺序 while preserving the stored `priority` field |
 | Repository structure guide | Done | Maintenance | Public, local-only, generated, and signing-related files are documented |
 | Standalone personal release flow | Done | Distribution | Script and docs describe building a Release `.app` for `/Applications` use |
@@ -133,6 +134,8 @@ Status values:
 | 2026-06-25 | Add standalone release build helper | Done | `scripts/build_release_app.sh` builds a Release `.app` that can be copied to `/Applications` |
 | 2026-06-25 | Add earlier/later rule ordering controls | Done | Users can reorder rule checks without touching internal match-order numbers |
 | 2026-06-25 | Compact rule row details | Done | Rule rows keep only core information visible by default |
+| 2026-06-25 | Add selected and drag rule ordering | Done | Replaced per-row earlier/later controls with shared Move Up/Down controls plus drag-before-target ordering |
+| 2026-06-25 | Expand Default Apps management | Done | Added grouped common file types, custom tracked extensions, per-row refresh, and custom-only removal |
 
 ## Product Strategy Notes
 
