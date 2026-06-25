@@ -40,7 +40,8 @@ The core routing pipeline is now executable:
 - First-run setup guide with default-browser, rule creation, privacy, and backup guidance
 - English / Chinese interface switch in Settings
 - Compact native settings layout with Overview, Rules, Diagnostics, Default Apps, and Advanced tabs
-- Lightweight manual release zip script
+- Native macOS-style application icon
+- Lightweight personal install and manual release zip scripts
 - Settings controls for refreshing browsers and opening a test page
 - Default-browser status display in Settings and the menu bar
 - One-click rule creation or editing from the last detected source app
@@ -115,6 +116,8 @@ fallback strategy.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md): future features and improvement tracker
 - [`docs/REPOSITORY_STRUCTURE.md`](docs/REPOSITORY_STRUCTURE.md): public/private file boundaries
 - [`docs/DISTRIBUTION.md`](docs/DISTRIBUTION.md): direct distribution and notarization notes
+- [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md): release gate checklist
+- [`docs/RELEASE_NOTES.md`](docs/RELEASE_NOTES.md): current release notes
 - [`docs/PRODUCT_REVIEW.md`](docs/PRODUCT_REVIEW.md): product and engineering review after P4
 
 ## Development Environment

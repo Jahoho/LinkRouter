@@ -1,15 +1,17 @@
 # LinkRouter Product Review
 
-Date: 2026-06-24
+Date: 2026-06-25
 
 ## Verdict
 
-LinkRouter is now past MVP and is suitable for continued personal daily use
-and limited tester trials after proper signing/notarization. The product still
-depends on best-effort macOS source detection, but the current UX explains that
-uncertainty instead of hiding it.
+LinkRouter is suitable for personal daily use as a lightweight local macOS
+utility. The product should move into the personal release flow rather than
+adding more features immediately.
 
-No current P0 product blocker is visible in the codebase after the P4 pass.
+No current P0 or P1 product blocker is visible for personal release.
+
+External tester distribution is not ready until Developer ID signing and
+notarization are completed.
 
 ## What Works Well
 
@@ -21,13 +23,21 @@ No current P0 product blocker is visible in the codebase after the P4 pass.
   adding a parallel system.
 - Setup health, onboarding, and routing explanations reduce the support burden.
 - Privacy defaults are appropriate: diagnostics use sanitized URLs by default.
-- The app remains small: the verified release zip is about `424K`.
+- The app remains small enough for manual direct distribution:
+  - installed app: about `5.3M`
+  - release zip: about `3.3M`
 - Configuration import/export is local, readable, and testable.
+- The app now has a recognizable native AppIcon instead of the blank default
+  icon.
+- The release flow now has a one-command personal install script and a release
+  checklist.
 
 ## Hardening Completed In This Review
 
 - First-run setup guide added and persisted through `UserDefaults`.
 - Manual release zip flow added and verified.
+- Personal `/Applications` install flow added and verified.
+- Native AppIcon added and verified in the built app bundle.
 - Configuration validation tightened:
   - Rejects LinkRouter as fallback.
   - Rejects malformed rule source identifiers.
@@ -41,7 +51,7 @@ No current P0 product blocker is visible in the codebase after the P4 pass.
 |---|---:|---|
 | Source app detection is best-effort | High | macOS does not guarantee original source app identity. Continue filling the compatibility matrix with real clicks. |
 | External distribution not notarized yet | Medium | Personal Team signing works locally; Developer ID notarization still needs a real account/test cycle. |
-| Rule editor is becoming dense | Medium | It is still acceptable, but future features should avoid adding more inline controls. |
+| Rule editor density | Low | Recent compaction and selected/drag ordering reduced visible controls. Future features should stay folded or contextual. |
 | Installed app scan is shallow | Low | It covers the common app folders but does not recursively scan every nested app bundle. |
 | No automatic updates | Low | Manual zip is appropriate until multiple external testers exist. |
 
@@ -73,10 +83,11 @@ No current P0 product blocker is visible in the codebase after the P4 pass.
 
 ## Product Manager Recommendation
 
-Do not add more routing power immediately. The next best move is a real-world
-compatibility and distribution pass:
+Do not add more product features before the personal release. The next best
+move is release validation:
 
-1. Run the manual checklist from `docs/TEST_PLAN.md`.
-2. Fill the source detection matrix.
-3. Produce a Developer ID notarized build when external testing becomes real.
-4. Then polish rule ordering and rule editor density.
+1. Run the personal release checklist in `docs/RELEASE_CHECKLIST.md`.
+2. Use the generated zip as the local personal release artifact.
+3. Fill the source detection matrix through real daily use.
+4. Produce a Developer ID notarized build only when external testing becomes
+   real.

@@ -52,7 +52,7 @@ Status values:
 | Recent link history | Done | MVP | In-memory last 20 routing results with sanitized URLs and rule actions |
 | iCloud rule sync | Deferred | Later | Requires migration and conflict strategy |
 | Import/export configuration | Done | Post-MVP | Versioned JSON import, export, and reset controls in Settings |
-| Lightweight release size check | Done | Post-MVP | Release app bundle is approximately 1.7M with no extra asset packs or third-party frameworks |
+| Lightweight release size check | Done | Post-MVP | Current icon build remains small: app about 5.3M, release zip about 3.3M |
 | Onboarding | Done | Productization | First-run setup guide plus menu bar entry for re-opening it |
 | English / Chinese interface switch | Done | Productization | Settings stores a lightweight in-app language preference |
 | Compact Settings tabs | Done | Productization | Overview, Rules, Diagnostics, and Advanced tabs reduce the long settings page |
@@ -68,6 +68,7 @@ Status values:
 | Repository structure guide | Done | Maintenance | Public, local-only, generated, and signing-related files are documented |
 | Standalone personal release flow | Done | Distribution | Script and docs describe building, installing, and registering a Release `.app` for `/Applications` use |
 | Release checklist | Done | Distribution | Personal install, local zip, and external tester gates are documented |
+| Release notes | Done | Distribution | Personal release candidate highlights, limits, and gates are documented |
 | Application icon | Done | Product polish | Generated native macOS-style AppIcon asset replaces the default blank icon |
 
 ## Technical Research
@@ -140,6 +141,7 @@ Status values:
 | 2026-06-25 | Expand Default Apps management | Done | Added grouped common file types, custom tracked extensions, per-row refresh, and custom-only removal |
 | 2026-06-25 | Add Applications install script and release checklist | Done | Personal builds can be installed with one script; external tester builds remain gated on Developer ID notarization |
 | 2026-06-25 | Add native application icon | Done | Generated a macOS-style LinkRouter icon and wired it into the app asset catalog |
+| 2026-06-25 | Add release notes and current product review | Done | Personal release is cleared; external tester release remains gated by Developer ID notarization |
 
 ## Product Strategy Notes
 
