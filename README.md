@@ -181,5 +181,9 @@ For a direct URL receipt check after running the app:
 open -a LinkRouter 'https://example.com/private?token=secret'
 ```
 
+## License
+
+LinkRouter is released under the MIT License. See [`LICENSE`](LICENSE).
+
 The menu bar and settings window should display `https://example.com`. The
 path and query are intentionally removed from default diagnostics.
