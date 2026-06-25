@@ -17,6 +17,9 @@ Do not add Sparkle or an installer package until there are real external
 testers who need automatic updates. The app is currently small enough for
 manual zip delivery.
 
+Use `docs/RELEASE_CHECKLIST.md` before treating any build as a release
+candidate.
+
 ## Personal Standalone App
 
 This is the path for running LinkRouter without pressing Run in Xcode.
@@ -26,25 +29,25 @@ Requirements:
 - Xcode command line tools are still needed to build the app.
 - An Apple Development signing identity should be selected in the project or
   available through local build settings.
-- The generated `.app` can run on its own after it is built and copied to
+- The generated `.app` can run on its own after it is built and installed to
   `/Applications`.
 
-Build a standalone Release app:
+Build and install a standalone Release app:
 
 ```sh
-scripts/build_release_app.sh
+scripts/install_release_app.sh
 ```
 
-The script prints the generated app path, usually:
+The script:
 
-```text
-/private/tmp/LinkRouterReleaseBuild/Build/Products/Release/LinkRouter.app
-```
+- builds a Release `LinkRouter.app`
+- installs it to `/Applications/LinkRouter.app`
+- registers it with Launch Services
 
 Install for personal use:
 
-1. Quit LinkRouter if it is currently running from Xcode.
-2. Copy the generated `LinkRouter.app` to `/Applications`.
+1. Quit LinkRouter if it is currently running.
+2. Run `scripts/install_release_app.sh`.
 3. Open `/Applications/LinkRouter.app`.
 4. In macOS System Settings, set the default web browser to this installed
    LinkRouter app.

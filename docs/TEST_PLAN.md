@@ -362,6 +362,10 @@ Record these before each test cycle:
   - `releases/` is ignored because release zips are generated artifacts.
 - Distribution behavior:
   - `scripts/build_release_app.sh` builds a standalone Release `.app`.
+  - `scripts/install_release_app.sh` builds, installs, and registers
+    `/Applications/LinkRouter.app`.
+  - `docs/RELEASE_CHECKLIST.md` tracks personal install, local zip, and
+    external tester release gates.
   - `docs/DISTRIBUTION.md` distinguishes personal `/Applications` installs
     from Developer ID notarized external tester builds.
 - Automated verification:
@@ -427,7 +431,7 @@ Record these before each test cycle:
 | T45 | Browser profile rule | Open a rule whose destination browser has detected profiles, choose a profile, save, then route a matching link | The destination browser opens with the selected profile and diagnostics show the profile name |
 | T46 | Default Apps tab | Open `Default Apps`, change `.md` to a candidate editor, then refresh | macOS reports the new current default app for `.md`; link routing rules are unchanged |
 | T47 | Rule check order controls | Select a rule, move it with `Move Up` / `Move Down`, then route a link that matches multiple rules | The moved rule is checked in the new position and the result explanation lists other matching rules checked later |
-| T48 | Standalone app build | Run `scripts/build_release_app.sh`, copy the printed app to `/Applications`, then launch it | LinkRouter runs without Xcode and can be selected as the default browser |
+| T48 | Standalone app install | Quit LinkRouter, run `scripts/install_release_app.sh`, then launch `/Applications/LinkRouter.app` | LinkRouter runs without Xcode and can be selected as the default browser |
 | T49 | Compact rule details | Open Rules and expand a rule's `Details` disclosure | Main row stays compact, while check position, internal order value, profile, and warnings appear only in Details |
 | T50 | Drag rule ordering | Drag one rule onto another rule in the Rules tab | The dragged rule is checked immediately before the target rule |
 | T51 | Custom Default Apps extension | Add `plist` in `Default Apps`, choose a default app if candidates exist, then remove it | `.plist` appears under Custom, persists across refresh, and `Remove` only removes it from LinkRouter's tracked list |

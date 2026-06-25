@@ -66,7 +66,8 @@ Status values:
 | Default file-app manager | Done | Adjacent | Default Apps tab manages grouped common file types and user-tracked custom extensions |
 | User-friendly match order wording | Done | Product polish | UI says Match order / 匹配顺序 while preserving the stored `priority` field |
 | Repository structure guide | Done | Maintenance | Public, local-only, generated, and signing-related files are documented |
-| Standalone personal release flow | Done | Distribution | Script and docs describe building a Release `.app` for `/Applications` use |
+| Standalone personal release flow | Done | Distribution | Script and docs describe building, installing, and registering a Release `.app` for `/Applications` use |
+| Release checklist | Done | Distribution | Personal install, local zip, and external tester gates are documented |
 
 ## Technical Research
 
@@ -136,6 +137,7 @@ Status values:
 | 2026-06-25 | Compact rule row details | Done | Rule rows keep only core information visible by default |
 | 2026-06-25 | Add selected and drag rule ordering | Done | Replaced per-row earlier/later controls with shared Move Up/Down controls plus drag-before-target ordering |
 | 2026-06-25 | Expand Default Apps management | Done | Added grouped common file types, custom tracked extensions, per-row refresh, and custom-only removal |
+| 2026-06-25 | Add Applications install script and release checklist | Done | Personal builds can be installed with one script; external tester builds remain gated on Developer ID notarization |
 
 ## Product Strategy Notes
 

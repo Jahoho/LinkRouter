@@ -17,6 +17,7 @@ These files are safe to commit and share:
 | `docs/ROADMAP.md` | Developers and testers | Public backlog and status |
 | `docs/TEST_PLAN.md` | Developers and testers | Manual and automated verification checklist |
 | `docs/DISTRIBUTION.md` | Maintainers | Release, signing, notarization, and install notes |
+| `docs/RELEASE_CHECKLIST.md` | Maintainers | Personal install, local zip, and external tester release gates |
 | `docs/PRODUCT_REVIEW.md` | Developers and product reviewers | Product/engineering audit notes |
 | `docs/REPOSITORY_STRUCTURE.md` | Maintainers | Public/private file boundaries |
 | `LinkRouter/` | Developers | App source code |

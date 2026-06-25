@@ -136,12 +136,13 @@ Dock icon.
 For standalone personal use:
 
 ```sh
-scripts/build_release_app.sh
+scripts/install_release_app.sh
 ```
 
-Copy the printed `LinkRouter.app` path to `/Applications`, open it from there,
-then set that installed app as the macOS default web browser. After that,
-normal use does not require Xcode.
+The script builds a Release app, installs it to `/Applications/LinkRouter.app`,
+and registers it with Launch Services. Open it from `/Applications`, then set
+that installed app as the macOS default web browser. After that, normal use
+does not require Xcode.
 
 Command-line build:
 

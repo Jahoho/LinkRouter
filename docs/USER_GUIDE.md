@@ -46,17 +46,17 @@
 1. 在项目目录运行：
 
 ```sh
-scripts/build_release_app.sh
+scripts/install_release_app.sh
 ```
 
-2. 脚本会输出一个 Release 版 `LinkRouter.app` 路径。
-3. 把这个 `LinkRouter.app` 放到 `/Applications`。
+2. 脚本会构建 Release 版 `LinkRouter.app`，安装到 `/Applications`，并注册给 macOS。
+3. 如果脚本提示 LinkRouter 正在运行，请先退出菜单栏里的 LinkRouter，再重新运行脚本。
 4. 以后从 `/Applications/LinkRouter.app` 打开，不需要再从 Xcode 运行。
 5. 第一次换成独立 App 后，需要重新在系统设置里选择默认浏览器为
    `/Applications` 里的 LinkRouter。
 
 注意：Xcode 仍然是“构建工具”，但日常使用不需要 Xcode。每次你改代码并想用新版，
-都需要重新 build 一次并替换 `/Applications/LinkRouter.app`。
+都需要重新运行 `scripts/install_release_app.sh`。
 
 ### 2. 打开设置窗口
 
