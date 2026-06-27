@@ -78,20 +78,3 @@ final class RecentApplicationTracker {
         mostRecentActivationDate = date
     }
 }
-
-extension SourceApplication {
-    init?(_ runningApplication: NSRunningApplication) {
-        guard
-            let bundleIdentifier = runningApplication.bundleIdentifier,
-            !bundleIdentifier.isEmpty
-        else {
-            return nil
-        }
-
-        self.init(
-            bundleIdentifier: bundleIdentifier,
-            name: runningApplication.localizedName ?? bundleIdentifier,
-            processIdentifier: runningApplication.processIdentifier
-        )
-    }
-}

@@ -74,4 +74,61 @@ final class IncomingURLRequestTests: XCTestCase {
         XCTAssertTrue(AppSourceDetector.isCredibleSource(application))
     }
 
+    func testInfersOutermostAppFromNestedHelperExecutablePath() throws {
+        let temporaryDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(
+                "LinkRouterSourceApplicationTests-\(UUID().uuidString)",
+                isDirectory: true
+            )
+        defer {
+            try? FileManager.default.removeItem(at: temporaryDirectory)
+        }
+
+        let outerAppURL = temporaryDirectory
+            .appendingPathComponent("Codex.app", isDirectory: true)
+        let helperExecutableURL = outerAppURL
+            .appendingPathComponent(
+                "Contents/Frameworks/Helper.app/Contents/MacOS/helper",
+                isDirectory: false
+            )
+
+        try FileManager.default.createDirectory(
+            at: outerAppURL.appendingPathComponent(
+                "Contents",
+                isDirectory: true
+            ),
+            withIntermediateDirectories: true
+        )
+        try FileManager.default.createDirectory(
+            at: helperExecutableURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try Data().write(to: helperExecutableURL)
+
+        let infoPlist: [String: String] = [
+            "CFBundleIdentifier": "com.openai.codex",
+            "CFBundleDisplayName": "Codex"
+        ]
+        let plistData = try PropertyListSerialization.data(
+            fromPropertyList: infoPlist,
+            format: .xml,
+            options: 0
+        )
+        try plistData.write(
+            to: outerAppURL.appendingPathComponent(
+                "Contents/Info.plist",
+                isDirectory: false
+            )
+        )
+
+        let inferredInfo = try XCTUnwrap(
+            SourceApplication.inferredApplicationInfo(
+                executableURL: helperExecutableURL
+            )
+        )
+
+        XCTAssertEqual(inferredInfo.bundleIdentifier, "com.openai.codex")
+        XCTAssertEqual(inferredInfo.name, "Codex")
+    }
+
 }

@@ -72,6 +72,7 @@ Status values:
 | Application icon | Done | Product polish | Generated native macOS-style AppIcon asset replaces the default blank icon |
 | Finder local HTML forwarding | Done | Compatibility | Local HTML documents opened from Finder are forwarded to the fallback browser |
 | Default Apps self-loop prevention | Done | Compatibility | File default-app candidates exclude LinkRouter, and programmatic attempts to point file types back to LinkRouter are rejected |
+| Helper process source inference | Done | Compatibility | Sender processes inside an app bundle can be mapped back to the outer `.app`, improving Codex and Electron-style source detection |
 
 ## Technical Research
 
@@ -146,6 +147,7 @@ Status values:
 | 2026-06-25 | Add release notes and current product review | Done | Personal release is cleared; external tester release remains gated by Developer ID notarization |
 | 2026-06-26 | Forward Finder local HTML documents | Done | `.html`, `.htm`, and `.xhtml` documents opened through LinkRouter are sent to the fallback browser instead of stalling |
 | 2026-06-26 | Harden Default Apps boundaries | Done | Default Apps excludes LinkRouter as a selectable file default app, adds `.htm` / `.xhtml`, and rejects self-loop bundle identifiers case-insensitively |
+| 2026-06-27 | Infer source app from helper executable paths | Done | Codex helper and bundled node processes under `/Applications/Codex.app` can resolve to `com.openai.codex` instead of unknown |
 
 ## Product Strategy Notes
 

@@ -2,7 +2,7 @@
 
 ## 0.1.0 Personal Release Candidate
 
-Date: 2026-06-26
+Date: 2026-06-28
 
 This is the first practical personal-use release candidate. It is intended for
 running LinkRouter from `/Applications` on the developer's Mac.
@@ -12,6 +12,8 @@ running LinkRouter from `/Applications` on the developer's Mac.
 - Routes web links by source app, domain, URL scheme, and combined conditions.
 - Uses a configured fallback browser when no rule matches or source detection
   is uncertain.
+- Infers source apps from helper executable paths, improving Codex and
+  Electron-style helper process routing.
 - Forwards local HTML files opened from Finder to the fallback browser, so
   LinkRouter can remain the default browser without blocking HTML preview.
 - Prevents Default Apps from pointing file types back to LinkRouter.
@@ -30,18 +32,18 @@ running LinkRouter from `/Applications` on the developer's Mac.
 Current local release artifact:
 
 ```text
-releases/LinkRouter-0.1.0-1-20260626-013322.zip
+releases/LinkRouter-0.1.0-1-20260628-022453.zip
 ```
 
 Current measured sizes:
 
-- Installed app: about `5.3M`
+- Installed app: about `5.4M`
 - Release zip: about `3.4M`
 
 SHA-256:
 
 ```text
-5bf3bec5d4b8c227a609000f6431ca1329b35eebadff1953ec41863eaf202c95
+7e9cf23b162f2a7953b74c319e91240b8f2f414913df11d1bff49e0239607dac
 ```
 
 ## Known Limits

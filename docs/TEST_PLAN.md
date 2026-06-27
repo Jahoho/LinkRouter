@@ -438,6 +438,7 @@ Record these before each test cycle:
 | T52 | Finder local HTML document | Set LinkRouter as default browser, then double-click a local `.html` file in Finder | LinkRouter forwards the file to the configured fallback browser; source-app routing rules are not applied |
 | T53 | Default Apps self-loop prevention | Open `Default Apps` for web file types and inspect candidates | LinkRouter is not offered as a selectable file default app, and attempts to set it programmatically are rejected |
 | T54 | Finder non-HTML document sent to LinkRouter | Force-open a non-HTML local document with LinkRouter | LinkRouter rejects the request and reports failure instead of pretending the file opened |
+| T55 | Codex helper-opened link | Trigger a link open from Codex when Codex uses an internal helper or bundled node process | LinkRouter infers the outer Codex app from the helper executable path and routes through the Codex rule |
 
 ### 2026-06-25: Rule Ordering
 
@@ -486,6 +487,25 @@ Record these before each test cycle:
 - Automated result:
   - Full `xcodebuild test` passed; the opt-in external browser launch test
     remained skipped during the normal run.
+
+### 2026-06-27: Codex Helper Source Detection
+
+- Problem observed:
+  - Some Codex link opens were detected correctly as `com.openai.codex`, while
+    others arrived as unknown and therefore used the fallback browser.
+  - Logs showed `https://api-docs.deepseek.com` matched the Codex rule, but
+    `https://chromewebstore.google.com` arrived with unknown source.
+- Product behavior:
+  - When a sender process has no normal bundle identifier, LinkRouter now
+    attempts to infer the outer `.app` bundle from the sender executable path.
+  - This covers Codex internal helper, bundled node, and sandbox-style
+    processes living under `/Applications/Codex.app/Contents/...`.
+  - The generic behavior also helps other Electron or Chromium-family apps
+    whose helper processes initiate URL opens.
+- Automated result:
+  - Full `xcodebuild test` passed; the opt-in external browser launch test
+    remained skipped during the normal run.
+  - Added coverage for nested helper paths resolving to the outer app bundle.
 
 Fill this with observed data during MVP testing:
 
