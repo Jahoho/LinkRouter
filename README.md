@@ -1,68 +1,131 @@
 # LinkRouter
 
-LinkRouter is a personal macOS utility that routes web links to different
-browsers based on the app that opened the link.
+LinkRouter is a lightweight macOS menu bar utility that routes web links to
+different browsers based on where the link came from.
 
-Examples:
+It runs locally, becomes your default web browser, receives `http` and `https`
+open requests from macOS, detects the likely source app, applies your rules,
+and forwards the link to the browser you chose.
+
+Example rules:
 
 - Codex -> Google Chrome
 - WeChat -> Safari
 - Mail -> Safari
 - Telegram -> Arc
-- Unmatched apps -> configured fallback browser
+- Everything else -> fallback browser
+
+## Why
+
+macOS normally gives you one default browser for every link. That is awkward if
+you use different browsers for different contexts: development, messaging,
+email, personal browsing, or work profiles.
+
+LinkRouter keeps that decision automatic and local. The goal is not to become a
+large browser suite. The goal is a small, understandable system utility that
+quietly sends each link to the right place and explains what happened when a
+decision is surprising.
 
 ## Current Status
 
-The core routing pipeline is now executable:
+LinkRouter is a personal-use release candidate for macOS. It is usable from
+`/Applications`, has a native menu bar interface, and includes tests for the
+core routing, configuration, browser discovery, and source detection paths.
 
-- Native macOS SwiftUI project
-- Menu bar app with a basic settings window
-- `http` and `https` URL registration
-- Apple Event URL receipt
-- Best-effort source-app detection with method and confidence
-- Launch Services browser discovery by bundle identifier
-- Explicit destination-browser launch with loop prevention
-- Deterministic source-app rule matching with clear match order
-- Automatic Safari fallback when no rule matches
-- Local HTML documents from Finder are forwarded to the fallback browser
-- One-time recovery fallback when a rule browser cannot be opened
-- Versioned JSON configuration in Application Support
-- Atomic configuration writes and non-destructive corruption recovery
-- Graphical source-app rule add, edit, enable, disable, and delete controls
-- Installed-browser pickers for rule destinations and fallback
-- Source app picker from recent and installed apps
-- `.app` drag-and-drop source filling in the rule editor
-- Source-app, domain, URL-scheme, and app-plus-domain rule conditions
-- Optional Chromium browser profile selection for rules
-- Conflict explanation when more than one rule matches
-- Compact Default Apps tab for common file extensions
-- Menu bar pause and next-link browser override controls
-- JSON configuration import, export, and reset controls
-- First-run setup guide with default-browser, rule creation, privacy, and backup guidance
-- English / Chinese interface switch in Settings
-- Compact native settings layout with Overview, Rules, Diagnostics, Default Apps, and Advanced tabs
-- Native macOS-style application icon
-- Lightweight personal install and manual release zip scripts
-- Settings controls for refreshing browsers and opening a test page
-- Default-browser status display in Settings and the menu bar
-- One-click rule creation or editing from the last detected source app
-- Recent source app list for creating or editing rules after testing several apps
-- Recent routing history sheet with sanitized diagnostics and rule actions
-- Launch at login setting
-- Setup health sheet for default-browser, fallback, storage, startup, and diagnostics checks
-- Routing decision and final-browser diagnostics
-- Human-readable routing explanations for the latest decision and recent history
-- Broken-rule warnings for missing browsers, invalid source bundle identifiers, and self-routing destinations
-- Configuration path, schema, and recovery status diagnostics
-- Privacy-conscious URL validation and logging
-- Unit and integration tests for URL handling and browser launching
+Current local release artifact:
 
-The initial persisted rules are:
+```text
+releases/LinkRouter-0.1.0-1-20260628-022453.zip
+```
 
-- Codex -> Google Chrome
-- WeChat -> Safari
-- Mail -> Safari
-- Unmatched or unknown source -> Safari
+Measured size:
+
+- Installed app: about `5.4M`
+- Release zip: about `3.4M`
+
+## Features
+
+- Route links by source app, domain, URL scheme, or combined conditions.
+- Use a configured fallback browser when no rule matches.
+- Detect source apps with best-effort macOS signals and confidence reporting.
+- Infer source apps from helper executable paths, which improves Codex and
+  Electron-style helper process routing.
+- Open links in specific installed browsers by bundle identifier.
+- Support detected Chromium browser profiles for destination rules.
+- Forward local `.html`, `.htm`, and `.xhtml` files from Finder to the fallback
+  browser so local preview workflows still work.
+- Manage common file default apps in a separate compact `Default Apps` tab.
+- Prevent routing loops, including destinations that point back to LinkRouter.
+- Create rules from recently detected apps or installed app picker results.
+- Keep a recent in-memory routing history with sanitized diagnostics.
+- Explain the latest routing decision and show broken-rule warnings.
+- Import, export, and reset JSON configuration.
+- Pause routing temporarily or route only the next link to a selected browser.
+- Launch at login.
+- Switch the interface between English and Chinese.
+- Keep all configuration and diagnostics local.
+
+## Privacy
+
+LinkRouter is local-first. It does not require an account, a cloud service, or
+telemetry.
+
+Default diagnostics intentionally avoid full URLs. Logs and recent history keep
+only sanitized routing information such as scheme, host, source app, detection
+method, matched rule, and final browser. URL paths, query strings, fragments,
+credentials, and tokens are omitted by default.
+
+## Important Limitations
+
+Source-app detection on macOS is inherently best-effort. macOS does not always
+provide a guaranteed "original app that opened this URL" field to the default
+browser. LinkRouter combines several signals:
+
+- Apple Event sender metadata
+- frontmost app
+- recently active app cache
+- helper executable path inference
+- fallback browser when the source is unknown
+
+When detection is uncertain or unavailable, LinkRouter fails safely to the
+configured fallback browser.
+
+Personal Apple Development signing is suitable for local use. External tester
+distribution should use Developer ID signing and notarization.
+
+## Install for Personal Use
+
+Build and install the standalone app:
+
+```sh
+scripts/install_release_app.sh
+```
+
+The script builds a Release app, installs it to:
+
+```text
+/Applications/LinkRouter.app
+```
+
+Then open LinkRouter from `/Applications` and set it as the macOS default web
+browser:
+
+1. Open System Settings.
+2. Go to Desktop & Dock.
+3. Find Default web browser.
+4. Choose LinkRouter.
+5. Return to LinkRouter Settings and refresh the default-browser status.
+
+After this, normal use does not require Xcode.
+
+## Quick Start
+
+1. Launch LinkRouter from `/Applications`.
+2. Open Settings from the menu bar icon.
+3. Choose a fallback browser.
+4. Add or edit routing rules in the `Rules` tab.
+5. Open a link from Codex, Mail, WeChat, Telegram, Obsidian, or another app.
+6. Check `Diagnostics` if a link opens somewhere unexpected.
 
 The configuration file is stored at:
 
@@ -70,83 +133,17 @@ The configuration file is stored at:
 ~/Library/Application Support/LinkRouter/routing-config.json
 ```
 
-Broader source-app compatibility testing and external beta distribution are
-the next development milestones.
+## Development
 
-## Editing Rules
+Requirements:
 
-Open LinkRouter Settings and use the **Routing rules** section:
-
-1. Select **Add Rule**.
-2. Enter a label and the source app's bundle identifier.
-3. Choose an installed browser and match order.
-4. Select **Save**.
-
-Changes are validated and written atomically before the running router adopts
-them. Delete actions require confirmation. Editing is disabled when LinkRouter
-is protecting an unreadable configuration file.
-
-Rules and the fallback browser show compact warnings when the destination
-browser is unavailable, the destination points back to LinkRouter, or a stored
-source bundle identifier is invalid. Healthy rules stay visually quiet.
-
-Rule conditions are combined with AND semantics. For example, a rule can match
-only Mail links to `*.github.com`, while a separate domain-only rule can match
-GitHub links from any source app.
-
-## MVP Scope
-
-- Run as a menu bar app with a settings window.
-- Register as the handler for `http` and `https` URLs.
-- Detect the likely source app using best-effort signals.
-- Match source-app rules and launch the selected browser.
-- Fall back to a configured browser when detection or matching fails.
-- Keep privacy-conscious local diagnostic logs.
-
-Source-app detection is inherently best-effort on macOS. See
-[`docs/TECHNICAL_DESIGN.md`](docs/TECHNICAL_DESIGN.md) for the limitations and
-fallback strategy.
-
-## Documentation
-
-- [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md): setup, daily use, and manual verification
-- [`docs/PRD.md`](docs/PRD.md): product requirements
-- [`docs/PRODUCT.md`](docs/PRODUCT.md): public product principles
-- [`docs/TECHNICAL_DESIGN.md`](docs/TECHNICAL_DESIGN.md): architecture and technical decisions
-- [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md): MVP test checklist
-- [`docs/ROADMAP.md`](docs/ROADMAP.md): future features and improvement tracker
-- [`docs/REPOSITORY_STRUCTURE.md`](docs/REPOSITORY_STRUCTURE.md): public/private file boundaries
-- [`docs/DISTRIBUTION.md`](docs/DISTRIBUTION.md): direct distribution and notarization notes
-- [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md): release gate checklist
-- [`docs/RELEASE_NOTES.md`](docs/RELEASE_NOTES.md): current release notes
-- [`docs/PRODUCT_REVIEW.md`](docs/PRODUCT_REVIEW.md): product and engineering review after P4
-
-## Development Environment
-
-- Development machine: macOS 26
-- Language: Swift 6
-- UI: SwiftUI with AppKit where macOS integration requires it
-- Version control: Git
-- Xcode: 26.5
-
-## Build and Test
-
-For development:
+- macOS 26
+- Xcode 26.5
+- Swift 6
 
 Open `LinkRouter.xcodeproj` in Xcode, select the `LinkRouter` scheme and
 `My Mac`, then press Run. LinkRouter runs as a menu bar app and does not show a
 Dock icon.
-
-For standalone personal use:
-
-```sh
-scripts/install_release_app.sh
-```
-
-The script builds a Release app, installs it to `/Applications/LinkRouter.app`,
-and registers it with Launch Services. Open it from `/Applications`, then set
-that installed app as the macOS default web browser. After that, normal use
-does not require Xcode.
 
 Command-line build:
 
@@ -172,9 +169,9 @@ xcodebuild \
 ```
 
 The browser-launch integration test is opt-in because it opens Safari. In
-Xcode, temporarily add the `LINKROUTER_RUN_BROWSER_LAUNCH_TESTS=1`
-environment variable to the scheme's Run action, run
-`BrowserTests/testExplicitSafariLaunchWhenEnabled`, then remove the variable.
+Xcode, temporarily add `LINKROUTER_RUN_BROWSER_LAUNCH_TESTS=1` to the scheme's
+Run environment, run `BrowserTests/testExplicitSafariLaunchWhenEnabled`, then
+remove the variable.
 
 For a direct URL receipt check after running the app:
 
@@ -182,9 +179,35 @@ For a direct URL receipt check after running the app:
 open -a LinkRouter 'https://example.com/private?token=secret'
 ```
 
+The UI and diagnostics should display only:
+
+```text
+https://example.com
+```
+
+The path and query are intentionally removed.
+
+## Documentation
+
+- [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md): setup, daily use, and manual verification
+- [`docs/PRD.md`](docs/PRD.md): product requirements
+- [`docs/PRODUCT.md`](docs/PRODUCT.md): product principles and positioning
+- [`docs/TECHNICAL_DESIGN.md`](docs/TECHNICAL_DESIGN.md): architecture and technical decisions
+- [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md): test checklist and compatibility notes
+- [`docs/ROADMAP.md`](docs/ROADMAP.md): future features and improvement tracker
+- [`docs/REPOSITORY_STRUCTURE.md`](docs/REPOSITORY_STRUCTURE.md): public/private file boundaries
+- [`docs/DISTRIBUTION.md`](docs/DISTRIBUTION.md): direct distribution and notarization notes
+- [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md): release gate checklist
+- [`docs/RELEASE_NOTES.md`](docs/RELEASE_NOTES.md): current release notes
+- [`docs/PRODUCT_REVIEW.md`](docs/PRODUCT_REVIEW.md): product and engineering review
+
+## Repository Notes
+
+Generated release archives live in `releases/` and are ignored by git. Private
+developer notes live in `local/` and are also ignored.
+
+Local signing settings such as `DEVELOPMENT_TEAM` should not be committed.
+
 ## License
 
 LinkRouter is released under the MIT License. See [`LICENSE`](LICENSE).
-
-The menu bar and settings window should display `https://example.com`. The
-path and query are intentionally removed from default diagnostics.
